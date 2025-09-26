@@ -1,99 +1,221 @@
-# Family Chores Management App
+# 👨‍👩‍👧‍👦 Family Chores Management App
 
-Full-stack family chores management application with passwordless authentication.
+Full-stack family chores management application with passwordless authentication, chore tracking, and points system.
 
-## Tech Stack
+## 🚀 Quick Start (MOST IMPORTANT!)
 
-- **Backend**: Node.js + Express.js + SQLite
-- **Frontend**: React + TypeScript + Styled Components (planned)
-- **Authentication**: Passwordless magic links + WebAuthn
-- **Testing**: Jest + Supertest
-- **Monorepo**: pnpm workspaces
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- pnpm 8+
-
-### Setup
+### **1. Start the Backend**
 
 ```bash
-# Install all dependencies
-pnpm install
-
-# Start development servers (both backend and frontend)
-pnpm dev
-
-# Or start individually
-pnpm start:backend
-pnpm start:frontend
+# In terminal 1:
+pnpm dev:backend
 ```
 
-## Available Commands
-
-### Development
+### **2. Get an Auth Token**
 
 ```bash
-pnpm dev              # Start both backend and frontend in dev mode
-pnpm start:backend    # Start backend server
-pnpm start:frontend   # Start frontend dev server (when created)
+# In terminal 2:
+bash backend/dev-scripts/test-auth-manual.sh
 ```
 
-### Testing
+### **3. Check Server Logs for Magic Token**
+
+Look at terminal 1 (backend) for:
+
+```
+📧 Mock Email sent to testuser@example.com
+🔗 Magic Link: http://localhost:3000/auth/verify?token=magic_1234567890_abcdef
+```
+
+### **4. Get Session Token**
 
 ```bash
-pnpm test             # Run all tests
-pnpm test:backend     # Run backend tests only
-pnpm test:watch       # Run tests in watch mode
-pnpm test:coverage    # Run tests with coverage report
+# Copy the magic token from step 3:
+bash backend/dev-scripts/test-verify.sh magic_1234567890_abcdef
 ```
 
-### Utilities
+### **5. Use Session Token for API Calls**
 
 ```bash
-pnpm clean            # Clean node_modules and build artifacts
-pnpm install-all      # Reinstall all dependencies
+# Copy session token from step 4 response:
+curl -H "Authorization: Bearer session_xyz789abc" \
+     -H "Accept: application/json" \
+     http://localhost:3001/api/children
 ```
 
-## Project Structure
+## 📋 **Common Commands (Keep This Handy!)**
+
+### **Development**
+
+```bash
+pnpm dev:backend                 # Start backend server
+pnpm start:backend              # Start backend (production mode)
+pnpm test:backend               # Run backend tests
+bash backend/dev-scripts/list-scripts.sh  # Show all dev scripts
+```
+
+### **Testing Authentication**
+
+```bash
+# Step 1: Create test user
+bash backend/dev-scripts/test-auth-manual.sh
+
+# Step 2: Watch backend terminal for magic token, then:
+bash backend/dev-scripts/test-verify.sh <magic_token>
+
+# Step 3: Use the session token from step 2
+curl -H "Authorization: Bearer <session_token>" \
+     -H "Accept: application/json" \
+     http://localhost:3001/api/children
+```
+
+## 🔗 **API Endpoints Reference**
+
+### **Public Endpoints**
+
+- `GET /health` - Health check
+- `GET /` - API documentation
+- `POST /api/auth/signup` - Create family account
+- `POST /api/auth/send-magic-link` - Request login link
+- `GET /api/auth/verify?token=...` - Verify magic link
+
+### **Protected Endpoints (Need Authorization Header)**
+
+- `GET /api/auth/me` - Current user info
+- `GET /api/children` - List children
+- `POST /api/children` - Create child
+- `GET /api/chores` - List chores
+- `POST /api/chores` - Create chore
+- `GET /api/assignments` - List assignments
+- `POST /api/assignments` - Create assignment
+- `GET /api/dashboard/stats` - Dashboard statistics
+
+### **Authorization Header Format**
+
+```bash
+Authorization: Bearer session_1234567890_abcdef
+```
+
+## 🏗 **Project Structure**
 
 ```
 chores/
-├── backend/          # Express.js API server
-│   ├── routes/       # API routes
-│   ├── middleware/   # Custom middleware
-│   ├── models/       # Data models
-│   └── tests/        # Jest test files
-├── frontend/         # React TypeScript app (planned)
-└── pnpm-workspace.yaml
+├── backend/                    # Node.js/Express API
+│   ├── dev-scripts/           # 🛠 Development & testing scripts
+│   │   ├── test-auth-manual.sh  # Create test user
+│   │   ├── test-verify.sh      # Verify magic token
+│   │   └── README.md           # Detailed script docs
+│   ├── routes/                # API route handlers
+│   ├── middleware/            # Custom middleware (auth, logging)
+│   ├── models/                # Data models (mock data)
+│   ├── tests/                 # Jest test files
+│   └── package.json
+├── frontend/                   # React TypeScript app
+│   └── src/
+└── package.json               # Monorepo root
 ```
 
-## API Documentation
+## 🔐 **Authentication Flow (Important!)**
 
-- **Root**: http://localhost:3001/ (API documentation)
-- **Health**: http://localhost:3001/health
-- **Authentication**: http://localhost:3001/api/auth/\*
-- **Users**: http://localhost:3001/api/auth/users/\*
-- **Data**: http://localhost:3001/api/(children|chores|assignments)/\*
+Your app uses **passwordless authentication**:
 
-## Development Status
+1. **User signs up** → Creates family account
+2. **Magic link sent** → Logged to backend console (simulating email)
+3. **User clicks link** → Gets session token
+4. **Session token used** → For all API requests
 
-- ✅ **Backend API**: Complete with authentication
-- ✅ **Tests**: Comprehensive test suite (91 tests)
-- ✅ **Authentication**: Passwordless magic links + session management
-- ✅ **User CRUD**: Full user management with role-based access
-- 🔄 **Database**: SQLite integration (in progress)
-- ⏳ **Frontend**: React app (planned)
+**Key Point:** Magic tokens are logged to server console, NOT returned in API responses (security best practice).
 
-## Authentication Flow
+## 🎯 **Key Features**
 
-1. **Signup**: POST `/api/auth/signup` → Magic link sent
-2. **Verify**: GET `/api/auth/verify?token=...` → Get session token
-3. **API Access**: Use `Authorization: Bearer <token>` header
-4. **User Management**: Full CRUD operations for family members
+- ✅ **Passwordless Auth** - Magic links + WebAuthn support
+- ✅ **Family Management** - Parent/child roles
+- ✅ **Chore Tracking** - Create, assign, complete chores
+- ✅ **Points System** - Reward system for completed chores
+- ✅ **Dashboard** - Family statistics and leaderboards
+- ✅ **Comprehensive Testing** - 91+ tests with high coverage
+- ✅ **JSON-Only API** - Strict content negotiation
+
+## 🔧 **Development Setup**
+
+### **Prerequisites**
+
+- Node.js 18+
+- pnpm (package manager)
+- jq (for JSON formatting in scripts - optional)
+
+### **Installation**
+
+```bash
+# Clone project
+git clone <your-repo>
+cd chores
+
+# Install dependencies
+pnpm install
+
+# Start backend
+pnpm dev:backend
+```
+
+### **Testing**
+
+```bash
+# Run all backend tests
+pnpm test:backend
+
+# Run with coverage
+pnpm test:coverage
+
+# Test auth flow
+bash backend/dev-scripts/test-auth-manual.sh
+```
+
+## 🐛 **Troubleshooting**
+
+### **Port Already in Use**
+
+```bash
+# Kill process using port 3001
+lsof -ti:3001 | xargs kill -9
+
+# Or kill process using port 3000 (frontend)
+lsof -ti:3000 | xargs kill -9
+```
+
+### **Can't Find Magic Token**
+
+- Magic tokens appear in your **backend server terminal**
+- Look for lines starting with `📧 Mock Email sent to...`
+- The magic token is in the line `🔗 Magic Link: ...`
+
+### **Session Token Expired**
+
+- Go through auth flow again
+- Magic tokens expire after use
+- Session tokens expire after inactivity
+
+## 📚 **More Documentation**
+
+- `backend/dev-scripts/README.md` - Detailed script documentation
+- `backend/tests/` - Test examples and API usage
+- `.cursorrules` - Project coding standards and AI guidelines
+
+## 🛠 **Next Development Steps**
+
+1. **Database Integration** - Replace mock data with SQLite
+2. **Security Enhancements** - Add rate limiting, input validation
+3. **Frontend Development** - Build React UI components
+4. **Production Deployment** - Docker, CI/CD, environment configs
 
 ---
 
-For detailed API documentation, visit http://localhost:3001/ when the server is running.
+## 💡 **Quick Reference Card**
+
+**Start Backend:** `pnpm dev:backend`  
+**Get Auth Token:** `bash backend/dev-scripts/test-auth-manual.sh`  
+**API Base URL:** `http://localhost:3001/api`  
+**Health Check:** `http://localhost:3001/health`  
+**Run Tests:** `pnpm test:backend`
+
+**🔑 Remember:** Auth tokens are in backend terminal logs, not API responses!

@@ -150,6 +150,40 @@ chores/
 - **Migrations**: Simple schema files
 - **Location**: `backend/database.sqlite` (gitignored)
 
+## Developer Profile & Assistance Guidelines
+
+### User Experience Level
+
+**CRITICAL: This developer is a STAFF-LEVEL FRONTEND DEVELOPER** 🎯
+
+- ✅ **Frontend Expertise**: React, TypeScript, styled-components, modern frontend patterns
+- ✅ **Strong Skills**: Component architecture, state management, UI/UX, testing
+- ❌ **Needs Help With**: Backend development (Node.js, Express, databases, APIs, authentication)
+- ❌ **Don't Explain**: Basic React concepts, TypeScript usage, frontend best practices
+
+### How to Assist This Developer
+
+**DO:**
+
+- 🎯 **Focus on backend concepts** - Node.js, Express, databases, API design
+- 🔧 **Explain server-side patterns** - middleware, authentication, error handling
+- 📚 **Provide backend examples** - route handlers, database queries, security
+- 🚀 **Suggest backend improvements** - performance, architecture, DevOps
+- 💡 **Explain backend debugging** - server logs, API testing, database issues
+
+**DON'T:**
+
+- ❌ **Explain basic frontend concepts** - they already know React/TypeScript very well
+- ❌ **Suggest basic UI improvements** - they have strong frontend skills
+- ❌ **Over-explain JavaScript fundamentals** - focus on backend-specific JS patterns
+- ❌ **Assume they need frontend architecture help** - they're already expert-level
+
+### Communication Style
+
+- **Backend-focused explanations** with depth and technical detail
+- **Assume frontend competence** and focus on backend learning
+- **Practical examples** for backend concepts they're still learning
+
 ## AI Assistant Guidelines
 
 ### Server Management Policy
