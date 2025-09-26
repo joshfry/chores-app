@@ -150,6 +150,45 @@ chores/
 - **Migrations**: Simple schema files
 - **Location**: `backend/database.sqlite` (gitignored)
 
+## AI Assistant Guidelines
+
+### Server Management Policy
+
+**CRITICAL: AI assistants must NEVER start servers directly.**
+
+- ❌ **DO NOT** run `npm start`, `npm run dev`, `pnpm dev`, or any server commands
+- ❌ **DO NOT** start backend or frontend servers using any method
+- ❌ **DO NOT** run commands that start long-running processes
+- ✅ **DO** help diagnose server issues and suggest solutions
+- ✅ **DO** suggest commands for the USER to run themselves
+- ✅ **DO** check what processes are using ports (e.g., `lsof -ti:3001`)
+- ✅ **DO** help kill processes blocking ports if requested
+
+### Why This Policy Exists
+
+1. **Prevents Confusion**: Multiple agents starting servers creates port conflicts
+2. **User Control**: Developer maintains full control over their environment
+3. **Clear Boundaries**: Agent focuses on code, user manages processes
+4. **Debugging**: Easier to troubleshoot when user controls server lifecycle
+
+### Acceptable Server-Related Actions
+
+- Reading configuration files (`package.json`, `nodemon.json`, etc.)
+- Analyzing server code for issues (`index.js`, `app.js`, etc.)
+- Checking port availability (`lsof -ti:PORT`)
+- Suggesting environment variables or configuration changes
+- Helping with server setup and configuration
+- Writing/editing server code and middleware
+
+### Communication Guidelines
+
+When server issues arise:
+
+- Clearly state what the user should run: `"You should run: pnpm dev:backend"`
+- Explain the expected outcome: `"This will start the backend on port 3001"`
+- Provide troubleshooting steps: `"If you get EADDRINUSE, run: lsof -ti:3001"`
+- Focus on diagnosis, not execution
+
 ## Key Decisions Made
 
 ### Technical Choices

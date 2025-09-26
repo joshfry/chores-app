@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend start\"",
+    "dev:backend": "pnpm --filter backend dev",
     "start": "pnpm --filter backend start",
     "start:backend": "pnpm --filter backend start",
     "start:frontend": "pnpm --filter frontend start",
