@@ -1,92 +1,92 @@
-const express = require("express");
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
 // GET /chores - Get all chores
-router.get("/", (req, res) => {
+router.get('/', (req, res) => {
   // TODO: Connect to database
   res.json({
     success: true,
     data: [
       {
         id: 1,
-        title: "Clean bedroom",
-        description: "Make bed, organize toys, vacuum floor",
+        title: 'Clean bedroom',
+        description: 'Make bed, organize toys, vacuum floor',
         points: 5,
-        difficulty: "medium",
-        category: "cleaning",
+        difficulty: 'medium',
+        category: 'cleaning',
         is_recurring: false,
         recurrence_pattern: null,
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
       },
       {
         id: 2,
-        title: "Take out trash",
-        description: "Empty all trash cans and take to curb",
+        title: 'Take out trash',
+        description: 'Empty all trash cans and take to curb',
         points: 3,
-        difficulty: "easy",
-        category: "cleaning",
+        difficulty: 'easy',
+        category: 'cleaning',
         is_recurring: true,
-        recurrence_pattern: "weekly",
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
+        recurrence_pattern: 'weekly',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
       },
     ],
-  });
-});
+  })
+})
 
 // GET /chores/:id - Get specific chore
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
+router.get('/:id', (req, res) => {
+  const { id } = req.params
   // TODO: Connect to database
   res.json({
     success: true,
     data: {
       id: parseInt(id),
-      title: "Clean bedroom",
-      description: "Make bed, organize toys, vacuum floor",
+      title: 'Clean bedroom',
+      description: 'Make bed, organize toys, vacuum floor',
       points: 5,
-      difficulty: "medium",
-      category: "cleaning",
+      difficulty: 'medium',
+      category: 'cleaning',
       is_recurring: false,
       recurrence_pattern: null,
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
     },
-  });
-});
+  })
+})
 
 // POST /chores - Create new chore
-router.post("/", (req, res) => {
+router.post('/', (req, res) => {
   const {
     title,
     description,
     points = 1,
-    difficulty = "easy",
+    difficulty = 'easy',
     category,
     is_recurring = false,
     recurrence_pattern,
-  } = req.body;
+  } = req.body
 
   if (!title) {
     return res.status(400).json({
       success: false,
-      error: "Title is required",
-    });
+      error: 'Title is required',
+    })
   }
 
-  if (difficulty && !["easy", "medium", "hard"].includes(difficulty)) {
+  if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
     return res.status(400).json({
       success: false,
-      error: "Difficulty must be easy, medium, or hard",
-    });
+      error: 'Difficulty must be easy, medium, or hard',
+    })
   }
 
   if (is_recurring && !recurrence_pattern) {
     return res.status(400).json({
       success: false,
-      error: "Recurrence pattern required for recurring chores",
-    });
+      error: 'Recurrence pattern required for recurring chores',
+    })
   }
 
   // TODO: Connect to database
@@ -104,12 +104,12 @@ router.post("/", (req, res) => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
-  });
-});
+  })
+})
 
 // PUT /chores/:id - Update chore
-router.put("/:id", (req, res) => {
-  const { id } = req.params;
+router.put('/:id', (req, res) => {
+  const { id } = req.params
   const {
     title,
     description,
@@ -118,13 +118,13 @@ router.put("/:id", (req, res) => {
     category,
     is_recurring,
     recurrence_pattern,
-  } = req.body;
+  } = req.body
 
-  if (difficulty && !["easy", "medium", "hard"].includes(difficulty)) {
+  if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
     return res.status(400).json({
       success: false,
-      error: "Difficulty must be easy, medium, or hard",
-    });
+      error: 'Difficulty must be easy, medium, or hard',
+    })
   }
 
   // TODO: Connect to database and validate chore exists
@@ -132,28 +132,28 @@ router.put("/:id", (req, res) => {
     success: true,
     data: {
       id: parseInt(id),
-      title: title || "Clean bedroom",
-      description: description || "Make bed, organize toys, vacuum floor",
+      title: title || 'Clean bedroom',
+      description: description || 'Make bed, organize toys, vacuum floor',
       points: points || 5,
-      difficulty: difficulty || "medium",
-      category: category || "cleaning",
+      difficulty: difficulty || 'medium',
+      category: category || 'cleaning',
       is_recurring: is_recurring !== undefined ? is_recurring : false,
       recurrence_pattern: recurrence_pattern || null,
-      created_at: "2024-01-01T00:00:00Z",
+      created_at: '2024-01-01T00:00:00Z',
       updated_at: new Date().toISOString(),
     },
-  });
-});
+  })
+})
 
 // DELETE /chores/:id - Delete chore
-router.delete("/:id", (req, res) => {
-  const { id } = req.params;
+router.delete('/:id', (req, res) => {
+  const { id } = req.params
 
   // TODO: Connect to database and validate chore exists
   res.json({
     success: true,
-    message: "Chore deleted successfully",
-  });
-});
+    message: 'Chore deleted successfully',
+  })
+})
 
-module.exports = router;
+module.exports = router

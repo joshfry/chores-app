@@ -4,16 +4,16 @@
  */
 
 const validateAcceptHeader = (req, res, next) => {
-  const acceptsJson = req.accepts("json");
-  const acceptsHtml = req.accepts("html");
+  const acceptsJson = req.accepts('json')
+  const acceptsHtml = req.accepts('html')
 
   // If client prefers HTML over JSON, reject the request
   if (acceptsHtml && !acceptsJson) {
     return res
       .status(406)
       .send(
-        "This API only serves JSON. Please set Accept: application/json header."
-      );
+        'This API only serves JSON. Please set Accept: application/json header.',
+      )
   }
 
   // If no Accept header or doesn't include json, reject
@@ -21,27 +21,27 @@ const validateAcceptHeader = (req, res, next) => {
     return res
       .status(406)
       .send(
-        "This API only serves JSON. Please set Accept: application/json header."
-      );
+        'This API only serves JSON. Please set Accept: application/json header.',
+      )
   }
 
-  next();
-};
+  next()
+}
 
 const validateContentType = (req, res, next) => {
-  if (["POST", "PUT", "PATCH"].includes(req.method)) {
-    if (!req.is("application/json")) {
+  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    if (!req.is('application/json')) {
       return res
         .status(415)
         .send(
-          "This API only accepts JSON. Please set Content-Type: application/json header."
-        );
+          'This API only accepts JSON. Please set Content-Type: application/json header.',
+        )
     }
   }
-  next();
-};
+  next()
+}
 
 module.exports = {
   validateAcceptHeader,
   validateContentType,
-};
+}

@@ -1,0 +1,29 @@
+{
+  "name": "chores-monorepo",
+  "version": "1.0.0",
+  "description": "Family Chores Management App - Full-stack monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend start\"",
+    "start": "pnpm --filter backend start",
+    "start:backend": "pnpm --filter backend start",
+    "start:frontend": "pnpm --filter frontend start",
+    "test": "pnpm --filter backend test",
+    "test:backend": "pnpm --filter backend test",
+    "test:frontend": "pnpm --filter frontend test",
+    "test:watch": "pnpm --filter backend test -- --watch",
+    "test:coverage": "pnpm --filter backend test -- --coverage",
+    "build": "pnpm --filter backend build && pnpm --filter frontend build",
+    "clean": "pnpm --filter backend clean && pnpm --filter frontend clean",
+    "install-all": "pnpm install",
+    "lint": "pnpm --filter backend lint && pnpm --filter frontend lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

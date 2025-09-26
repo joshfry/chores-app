@@ -5,11 +5,7 @@ export interface Props {
 }
 
 const Sample = ({ className = '' }: Props) => {
-  return (
-    <StyledSample className={className}>
-      Sample
-    </StyledSample>
-  )
+  return <StyledSample className={className}>Sample</StyledSample>
 }
 
 export default Sample

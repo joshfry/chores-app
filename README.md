@@ -1,208 +1,99 @@
 # Family Chores Management App
 
-A comprehensive full-stack application to help families manage and track chores for children. Built with Node.js, Express, TypeScript for the backend and React with TypeScript for the frontend.
+Full-stack family chores management application with passwordless authentication.
 
-## Features
+## Tech Stack
 
-### Backend API
+- **Backend**: Node.js + Express.js + SQLite
+- **Frontend**: React + TypeScript + Styled Components (planned)
+- **Authentication**: Passwordless magic links + WebAuthn
+- **Testing**: Jest + Supertest
+- **Monorepo**: pnpm workspaces
 
-- **Children Management**: Create, read, update, and delete family members
-- **Chores Management**: Define chores with different difficulty levels, points, and categories
-- **Assignment Management**: Assign chores to children, track progress, and completion
-- **Comprehensive Testing**: Full test suite with Jest and Supertest
-- **SQLite Database**: Lightweight database with proper schema and relationships
-
-### Frontend Interface
-
-- **Dashboard**: Overview of family chore statistics and recent activity
-- **Children Page**: Manage family members (add, edit, delete)
-- **Chores Page**: Create and manage available chores
-- **Assignments Page**: Assign chores to children and track completion
-- **Responsive Design**: Mobile-friendly interface using Tailwind CSS
-- **Real-time Updates**: Dynamic UI that updates based on API responses
-
-## Technology Stack
-
-### Backend
-
-- **Node.js** with **TypeScript**
-- **Express.js** for REST API
-- **SQLite** database with **sqlite** wrapper
-- **Jest** and **Supertest** for testing
-- **CORS** enabled for frontend integration
-
-### Frontend
-
-- **React** with **TypeScript**
-- **React Router** for navigation
-- **Axios** for API communication
-- **Tailwind CSS** for styling
-- **Lucide React** for icons
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm
+- Node.js 18+
+- pnpm 8+
 
-### Installation
-
-1. **Clone or navigate to the project directory**
-
-   ```bash
-   cd /Users/jofry/Desktop/chores
-   ```
-
-2. **Install backend dependencies**
-
-   ```bash
-   cd backend
-   npm install
-   ```
-
-3. **Install frontend dependencies**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-
-### Running the Application
-
-#### Start the Backend Server
+### Setup
 
 ```bash
-cd backend
-npm run dev
+# Install all dependencies
+pnpm install
+
+# Start development servers (both backend and frontend)
+pnpm dev
+
+# Or start individually
+pnpm start:backend
+pnpm start:frontend
 ```
 
-The backend server will start on `http://localhost:3001`
+## Available Commands
 
-#### Start the Frontend Development Server
+### Development
 
 ```bash
-cd frontend
-npm start
+pnpm dev              # Start both backend and frontend in dev mode
+pnpm start:backend    # Start backend server
+pnpm start:frontend   # Start frontend dev server (when created)
 ```
-
-The frontend will start on `http://localhost:3000`
 
 ### Testing
 
-#### Run Backend Tests
-
 ```bash
-cd backend
-npm test
+pnpm test             # Run all tests
+pnpm test:backend     # Run backend tests only
+pnpm test:watch       # Run tests in watch mode
+pnpm test:coverage    # Run tests with coverage report
 ```
 
-#### Run Frontend Tests
+### Utilities
 
 ```bash
-cd frontend
-npm test
+pnpm clean            # Clean node_modules and build artifacts
+pnpm install-all      # Reinstall all dependencies
 ```
 
-## API Endpoints
+## Project Structure
 
-### Children
+```
+chores/
+├── backend/          # Express.js API server
+│   ├── routes/       # API routes
+│   ├── middleware/   # Custom middleware
+│   ├── models/       # Data models
+│   └── tests/        # Jest test files
+├── frontend/         # React TypeScript app (planned)
+└── pnpm-workspace.yaml
+```
 
-- `GET /api/children` - Get all children
-- `GET /api/children/:id` - Get a specific child
-- `POST /api/children` - Create a new child
-- `PUT /api/children/:id` - Update a child
-- `DELETE /api/children/:id` - Delete a child
+## API Documentation
 
-### Chores
+- **Root**: http://localhost:3001/ (API documentation)
+- **Health**: http://localhost:3001/health
+- **Authentication**: http://localhost:3001/api/auth/\*
+- **Users**: http://localhost:3001/api/auth/users/\*
+- **Data**: http://localhost:3001/api/(children|chores|assignments)/\*
 
-- `GET /api/chores` - Get all chores
-- `GET /api/chores/:id` - Get a specific chore
-- `POST /api/chores` - Create a new chore
-- `PUT /api/chores/:id` - Update a chore
-- `DELETE /api/chores/:id` - Delete a chore
+## Development Status
 
-### Assignments
+- ✅ **Backend API**: Complete with authentication
+- ✅ **Tests**: Comprehensive test suite (91 tests)
+- ✅ **Authentication**: Passwordless magic links + session management
+- ✅ **User CRUD**: Full user management with role-based access
+- 🔄 **Database**: SQLite integration (in progress)
+- ⏳ **Frontend**: React app (planned)
 
-- `GET /api/assignments` - Get all assignments (supports filtering by child_id and status)
-- `GET /api/assignments/:id` - Get a specific assignment
-- `POST /api/assignments` - Create a new assignment
-- `PUT /api/assignments/:id` - Update an assignment
-- `PATCH /api/assignments/:id/complete` - Mark assignment as completed
-- `DELETE /api/assignments/:id` - Delete an assignment
+## Authentication Flow
 
-### Health Check
+1. **Signup**: POST `/api/auth/signup` → Magic link sent
+2. **Verify**: GET `/api/auth/verify?token=...` → Get session token
+3. **API Access**: Use `Authorization: Bearer <token>` header
+4. **User Management**: Full CRUD operations for family members
 
-- `GET /api/health` - Server health check
+---
 
-## Database Schema
-
-### Children
-
-- `id` - Primary key
-- `name` - Child's name (required)
-- `age` - Child's age (optional)
-- `created_at` - Creation timestamp
-- `updated_at` - Last update timestamp
-
-### Chores
-
-- `id` - Primary key
-- `title` - Chore title (required)
-- `description` - Chore description (optional)
-- `points` - Points awarded (default: 1)
-- `difficulty` - easy/medium/hard (default: easy)
-- `category` - Chore category (optional)
-- `created_at` - Creation timestamp
-- `updated_at` - Last update timestamp
-
-### Chore Assignments
-
-- `id` - Primary key
-- `child_id` - Foreign key to children
-- `chore_id` - Foreign key to chores
-- `assigned_date` - Date assigned (YYYY-MM-DD)
-- `due_date` - Due date (optional, YYYY-MM-DD)
-- `completed_date` - Completion timestamp (optional)
-- `status` - assigned/in_progress/completed/missed
-- `notes` - Additional notes (optional)
-- `created_at` - Creation timestamp
-- `updated_at` - Last update timestamp
-
-## Usage Guide
-
-1. **Add Children**: Start by adding your family members in the Children page
-2. **Create Chores**: Define the chores available in your household
-3. **Make Assignments**: Assign specific chores to children with due dates
-4. **Track Progress**: Monitor completion status and award points
-5. **View Dashboard**: Check overall family chore statistics
-
-## Development Notes
-
-- The backend uses an in-memory SQLite database for testing
-- Frontend API calls are configured to use `http://localhost:3001` by default
-- All API responses follow a consistent format with `success`, `data`, `message`, and `error` fields
-- The application supports CRUD operations for all main entities
-- Proper error handling and validation on both frontend and backend
-
-## Future Enhancements
-
-Potential features to add:
-
-- User authentication and multiple families
-- Reward system with redeemable points
-- Photo uploads for chore completion proof
-- Push notifications for due dates
-- Weekly/monthly reports
-- Recurring chore assignments
-- Mobile app version
-
-## Contributing
-
-1. Make sure all tests pass before submitting changes
-2. Follow TypeScript best practices
-3. Update documentation for any API changes
-4. Test both frontend and backend integration
-
-## License
-
-This project is created for personal/family use. Feel free to modify and extend as needed.
+For detailed API documentation, visit http://localhost:3001/ when the server is running.

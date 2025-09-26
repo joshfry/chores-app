@@ -85,6 +85,7 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Lock files (keep package-lock.json but ignore others)
+# Package manager lock files
 yarn.lock
-pnpm-lock.yaml
+package-lock.json
+# Keep pnpm-lock.yaml for workspace consistency

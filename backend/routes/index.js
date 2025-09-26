@@ -1,18 +1,20 @@
-const express = require("express");
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
 // Import route modules
-const childrenRoutes = require("./children");
-const choresRoutes = require("./chores");
-const assignmentsRoutes = require("./assignments");
+const authRoutes = require('./auth')
+const childrenRoutes = require('./children')
+const choresRoutes = require('./chores')
+const assignmentsRoutes = require('./assignments')
 
 // Mount route modules
-router.use("/children", childrenRoutes);
-router.use("/chores", choresRoutes);
-router.use("/assignments", assignmentsRoutes);
+router.use('/auth', authRoutes)
+router.use('/children', childrenRoutes)
+router.use('/chores', choresRoutes)
+router.use('/assignments', assignmentsRoutes)
 
 // Dashboard/Stats endpoint
-router.get("/dashboard/stats", (req, res) => {
+router.get('/dashboard/stats', (req, res) => {
   // TODO: Calculate real stats from database
   res.json({
     success: true,
@@ -28,11 +30,11 @@ router.get("/dashboard/stats", (req, res) => {
         points_earned: 15,
       },
       top_performers: [
-        { child_id: 1, child_name: "Alice", points_this_week: 12 },
-        { child_id: 2, child_name: "Bob", points_this_week: 8 },
+        { child_id: 1, child_name: 'Alice', points_this_week: 12 },
+        { child_id: 2, child_name: 'Bob', points_this_week: 8 },
       ],
     },
-  });
-});
+  })
+})
 
-module.exports = router;
+module.exports = router
