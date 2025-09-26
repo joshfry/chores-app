@@ -1,0 +1,233 @@
+# Family Chores Management App - Cursor Rules
+
+## Project Overview
+
+Full-stack family chores management application with Node.js/Express backend and React/TypeScript frontend.
+
+## Project Structure
+
+```
+chores/
+├── backend/           # Node.js Express API server
+│   ├── app.js         # Express app setup & configuration
+│   ├── index.js       # Server entry point
+│   ├── config/        # Configuration files
+│   │   └── server.js  # Server configuration
+│   ├── middleware/    # Custom middleware
+│   │   ├── logger.js  # Request logging
+│   │   └── json-only.js # JSON-only API validation
+│   ├── routes/        # API route handlers
+│   │   ├── index.js   # Main API routes
+│   │   ├── basic.js   # Health & documentation routes
+│   │   ├── children.js
+│   │   ├── chores.js
+│   │   └── assignments.js
+│   └── tests/         # Jest test files
+├── frontend/          # React TypeScript app (when created)
+└── .gitignore         # Shared gitignore for monorepo
+```
+
+## Technology Stack
+
+### Backend
+
+- **Runtime**: Node.js
+- **Framework**: Express.js 5.x
+- **Language**: JavaScript (not TypeScript initially)
+- **Database**: SQLite (planned)
+- **Testing**: Jest + Supertest
+- **CORS**: Enabled for frontend integration
+
+### Frontend (Planned)
+
+- **Framework**: React with TypeScript
+- **Styling**: Styled Components (no Tailwind CSS)
+- **Build**: Create React App with TypeScript template
+- **Package Manager**: npm (not pnpm due to previous conflicts)
+
+## API Design Standards
+
+### Core Models
+
+1. **Children**
+
+   ```json
+   {
+     "id": number,
+     "name": string,
+     "birthdate": "YYYY-MM-DD",
+     "total_points": number
+   }
+   ```
+
+2. **Chores**
+
+   ```json
+   {
+     "id": number,
+     "title": string,
+     "description": string,
+     "difficulty": "easy|medium|hard",
+     "points": number,
+     "is_recurring": boolean,
+     "recurrence_pattern": "daily|weekly|monthly|custom"
+   }
+   ```
+
+3. **Assignments**
+   ```json
+   {
+     "id": number,
+     "child_id": number,
+     "chore_id": number,
+     "assigned_date": "YYYY-MM-DD",
+     "due_date": "YYYY-MM-DD",
+     "status": "pending|in_progress|completed|overdue",
+     "completed_date": "YYYY-MM-DD" | null
+   }
+   ```
+
+### API Endpoints
+
+- **Children**: `/api/children` (GET, POST, PUT, DELETE)
+- **Chores**: `/api/chores` (GET, POST, PUT, DELETE)
+- **Assignments**: `/api/assignments` (GET, POST, PUT, PATCH, DELETE)
+- **Dashboard**: `/api/dashboard/stats`
+- **Health**: `/health`
+- **Root**: `/` (API documentation)
+
+### API Security & Standards
+
+- **JSON-Only**: All `/api/*` endpoints require `Accept: application/json`
+- **Content-Type**: POST/PUT/PATCH require `Content-Type: application/json`
+- **Error Codes**: 406 for wrong Accept, 415 for wrong Content-Type
+- **Response Format**: Always return `{ success: boolean, data?, error?, message? }`
+
+## Code Style & Standards
+
+### JavaScript/TypeScript
+
+- **Quotes**: Double quotes `"` preferred
+- **Semicolons**: Required
+- **Trailing Commas**: Always include
+- **Line Length**: Reasonable breaks for readability
+- **Async/Await**: Prefer over Promises.then()
+
+### File Naming
+
+- **Backend**: kebab-case for files, camelCase for variables
+- **Frontend**: PascalCase for components, camelCase for utilities
+- **Tests**: `*.test.js` in `tests/` directory
+
+### Git Standards
+
+- **Commits**: Clear, descriptive messages
+- **Branches**: Use feature branches for new functionality
+- **Ignore**: Comprehensive `.gitignore` for Node.js, React, and databases
+
+## Development Workflow
+
+### Current Phase: Backend Development
+
+1. ✅ Basic Express server with JSON-only middleware
+2. ✅ Mock API endpoints for all models
+3. ✅ Comprehensive test suite for API functionality
+4. 🔄 Database integration (SQLite)
+5. ⏳ Frontend React app creation
+6. ⏳ API integration between frontend/backend
+
+### Testing Requirements
+
+- **Backend**: Jest + Supertest for all API endpoints
+- **Coverage**: Focus on API validation, error handling, business logic
+- **Test Data**: Use consistent mock data across tests
+- **Commands**: `npm test` to run all tests
+
+### Database (When Implemented)
+
+- **Type**: SQLite for simplicity
+- **ORM**: Consider simple query builder or raw SQL
+- **Migrations**: Simple schema files
+- **Location**: `backend/database.sqlite` (gitignored)
+
+## Key Decisions Made
+
+### Technical Choices
+
+1. **Monorepo Structure**: Single repo with backend/frontend separation
+2. **JavaScript over TypeScript**: For backend simplicity initially
+3. **Styled Components**: Chosen over Tailwind CSS for frontend
+4. **Express 5.x**: Latest stable version
+5. **JSON-Only API**: Strict content negotiation for API endpoints
+
+### Architecture Decisions
+
+1. **RESTful Design**: Standard HTTP methods and status codes
+2. **Separation of Concerns**: Routes, controllers, models separate
+3. **Error Handling**: Consistent error response format
+4. **Incremental Development**: Small steps, test each phase
+5. **Modular Structure**: Middleware, config, and routes in separate files
+6. **Single Responsibility**: Each file has one clear purpose
+
+### Avoided Technologies
+
+- **TypeScript**: Not used in backend initially (caused complexity)
+- **Tailwind CSS**: Replaced with Styled Components
+- **pnpm**: Caused ESLint conflicts, stick with npm
+- **Complex ORMs**: Keep database layer simple
+
+## Future Development Guidelines
+
+### When Adding New Features
+
+1. **API First**: Design endpoint before implementation
+2. **Test Driven**: Write tests before or alongside code
+3. **Documentation**: Update this file and API docs
+4. **Incremental**: Small, testable changes
+
+### When Making Changes
+
+1. **Backward Compatibility**: Don't break existing API contracts
+2. **Database Migrations**: Plan schema changes carefully
+3. **Error Handling**: Maintain consistent error responses
+4. **Security**: Validate all inputs, maintain JSON-only policy
+
+### Code Quality
+
+1. **Linting**: Fix linting errors before committing
+2. **Testing**: Maintain high test coverage
+3. **Performance**: Monitor API response times
+4. **Security**: Regular dependency updates
+
+## Common Commands
+
+### Backend Development
+
+```bash
+cd backend
+npm install          # Install dependencies
+npm start           # Start server (production)
+npm run dev         # Start server (development)
+npm test            # Run test suite
+```
+
+### Frontend Development (When Created)
+
+```bash
+cd frontend
+npm install          # Install dependencies
+npm start           # Start dev server
+npm test            # Run tests
+npm run build       # Build for production
+```
+
+## Environment Setup
+
+- **Node.js**: v18+ recommended
+- **npm**: Latest stable version
+- **Port**: Backend runs on 3001, frontend on 3000 (when created)
+
+---
+
+_Last Updated: September 2025_
+_Project Status: Backend API Complete, Database Integration In Progress_

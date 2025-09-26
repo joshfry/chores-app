@@ -1,33 +1,14 @@
-const express = require("express");
-const cors = require("cors");
+/**
+ * Server Entry Point
+ * Starts the Express server
+ */
 
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Basic health check route
-app.get("/health", (req, res) => {
-  res.json({
-    success: true,
-    message: "Chores API is running!",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Root route
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Welcome to the Family Chores API",
-    version: "1.0.0",
-  });
-});
+const app = require("./app");
+const config = require("./config/server");
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+app.listen(config.port, () => {
+  console.log(`🚀 Server running on http://localhost:${config.port}`);
+  console.log(`🏥 Health check: http://localhost:${config.port}/health`);
+  console.log(`🌍 Environment: ${config.env}`);
 });
