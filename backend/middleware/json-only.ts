@@ -9,26 +9,28 @@ export const validateAcceptHeader = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): void => {
   const acceptsJson = req.accepts('json')
   const acceptsHtml = req.accepts('html')
 
   // If client prefers HTML over JSON, reject the request
   if (acceptsHtml && !acceptsJson) {
-    return res
+    res
       .status(406)
       .send(
         'This API only serves JSON. Please set Accept: application/json header.',
       )
+    return
   }
 
   // If no Accept header or doesn't include json, reject
   if (!acceptsJson) {
-    return res
+    res
       .status(406)
       .send(
         'This API only serves JSON. Please set Accept: application/json header.',
       )
+    return
   }
 
   next()
@@ -38,14 +40,15 @@ export const validateContentType = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): void => {
   if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
     if (!req.is('application/json')) {
-      return res
+      res
         .status(415)
         .send(
           'This API only accepts JSON. Please set Content-Type: application/json header.',
         )
+      return
     }
   }
   next()

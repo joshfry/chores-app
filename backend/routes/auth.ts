@@ -122,7 +122,7 @@ router.post('/signup', async (req: Request, res: Response) => {
 })
 
 // POST /auth/send-magic-link - Send magic link to existing user
-router.post('/send-magic-link', (req: Request, res: Response) => {
+router.post('/send-magic-link', async (req: Request, res: Response) => {
   try {
     const { email } = req.body
 
@@ -133,8 +133,8 @@ router.post('/send-magic-link', (req: Request, res: Response) => {
       })
     }
 
-    const user = authModels.getUserByEmail(email)
-    if (!user || !user.is_active) {
+    const user = await authModels.getUserByEmail(email)
+    if (!user || !user.isActive) {
       return res.status(404).json({
         success: false,
         error: 'User not found or inactive',
@@ -148,10 +148,14 @@ router.post('/send-magic-link', (req: Request, res: Response) => {
       .toString(36)
       .substr(2, 9)}`
 
-    authModels.createMagicToken(user.id, magicToken, expiresAt.toISOString())
+    await authModels.createMagicToken(
+      user.id,
+      magicToken,
+      expiresAt.toISOString(),
+    )
 
     // Send magic link (mock for now)
-    sendMagicLink(email, magicToken)
+    await sendMagicLink(email, magicToken)
 
     res.json({
       success: true,
@@ -167,7 +171,7 @@ router.post('/send-magic-link', (req: Request, res: Response) => {
 })
 
 // GET /auth/verify - Verify magic link and create session
-router.get('/verify', (req: Request, res: Response) => {
+router.get('/verify', async (req: Request, res: Response) => {
   try {
     const { token } = req.query
 
@@ -178,7 +182,7 @@ router.get('/verify', (req: Request, res: Response) => {
       })
     }
 
-    const magicToken = authModels.getMagicToken(token)
+    const magicToken = await authModels.getMagicToken(token)
     if (!magicToken) {
       return res.status(400).json({
         success: false,
@@ -188,7 +192,7 @@ router.get('/verify', (req: Request, res: Response) => {
 
     // Check if token is expired
     const now = new Date()
-    const expiresAt = new Date(magicToken.expires_at)
+    const expiresAt = new Date(magicToken.expiresAt)
     if (now > expiresAt) {
       return res.status(400).json({
         success: false,
@@ -197,8 +201,8 @@ router.get('/verify', (req: Request, res: Response) => {
     }
 
     // Get user
-    const user = authModels.getUserById(magicToken.user_id)
-    if (!user || !user.is_active) {
+    const user = await authModels.getUserById(magicToken.userId)
+    if (!user || !user.isActive) {
       return res.status(404).json({
         success: false,
         error: 'User not found or inactive',
@@ -206,18 +210,18 @@ router.get('/verify', (req: Request, res: Response) => {
     }
 
     // Mark token as used
-    authModels.markTokenAsUsed(token)
+    await authModels.markTokenAsUsed(token)
 
     // Update last login
-    authModels.updateUser(user.id, {
-      last_login: new Date().toISOString(),
+    await authModels.updateUser(user.id, {
+      lastLogin: new Date(),
     })
 
     // Create session
     const sessionToken = createSession(user.id)
 
     // Get family info
-    const family = authModels.getFamilyById(user.family_id)
+    const family = await authModels.getFamilyById(user.familyId)
 
     res.json({
       success: true,
@@ -229,7 +233,7 @@ router.get('/verify', (req: Request, res: Response) => {
           email: user.email,
           name: user.name,
           role: user.role,
-          family_id: user.family_id,
+          familyId: user.familyId,
         },
         family: family
           ? {
@@ -249,9 +253,9 @@ router.get('/verify', (req: Request, res: Response) => {
 })
 
 // GET /auth/me - Get current user info
-router.get('/me', requireAuth, (req: Request, res: Response) => {
+router.get('/me', requireAuth, async (req: Request, res: Response) => {
   try {
-    const user = getCurrentUser(req)
+    const user = await getCurrentUser(req)
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -259,7 +263,7 @@ router.get('/me', requireAuth, (req: Request, res: Response) => {
       })
     }
 
-    const family = authModels.getFamilyById(user.family_id)
+    const family = await authModels.getFamilyById(user.familyId)
 
     res.json({
       success: true,
@@ -269,16 +273,16 @@ router.get('/me', requireAuth, (req: Request, res: Response) => {
           email: user.email,
           name: user.name,
           role: user.role,
-          family_id: user.family_id,
+          familyId: user.familyId,
           birthdate: user.birthdate,
-          total_points: user.total_points,
-          last_login: user.last_login,
+          totalPoints: user.totalPoints,
+          lastLogin: user.lastLogin,
         },
         family: family
           ? {
               id: family.id,
               name: family.name,
-              created_date: family.created_date,
+              createdDate: family.createdDate,
             }
           : null,
       },
@@ -297,7 +301,7 @@ router.post(
   '/create-child',
   requireAuth,
   requireParent,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { email, name, birthdate } = req.body
 
@@ -309,7 +313,7 @@ router.post(
       }
 
       // Check if user already exists
-      const existingUser = authModels.getUserByEmail(email)
+      const existingUser = await authModels.getUserByEmail(email)
       if (existingUser) {
         return res.status(409).json({
           success: false,
@@ -317,17 +321,23 @@ router.post(
         })
       }
 
+      // Get parent user
+      const parent = await getCurrentUser(req)
+      if (!parent) {
+        return res.status(404).json({
+          success: false,
+          error: 'Parent user not found',
+        })
+      }
+
       // Create child user
-      const child = authModels.createUser({
+      const child = await authModels.createUser({
         email,
         role: 'child',
-        family_id: req.user!.family_id,
+        familyId: parent.familyId,
         name,
         birthdate,
-        total_points: 0,
-        created_by: req.user!.id,
-        last_login: new Date().toISOString(),
-        is_active: true,
+        totalPoints: 0,
       })
 
       // Create magic token for child
@@ -337,10 +347,14 @@ router.post(
         .toString(36)
         .substr(2, 9)}`
 
-      authModels.createMagicToken(child.id, magicToken, expiresAt.toISOString())
+      await authModels.createMagicToken(
+        child.id,
+        magicToken,
+        expiresAt.toISOString(),
+      )
 
       // Send magic link (mock for now)
-      sendMagicLink(email, magicToken)
+      await sendMagicLink(email, magicToken)
 
       res.status(201).json({
         success: true,
@@ -366,11 +380,19 @@ router.post(
 )
 
 // GET /auth/users - List all users in family
-router.get('/users', requireAuth, (req: Request, res: Response) => {
+router.get('/users', requireAuth, async (req: Request, res: Response) => {
   try {
-    const allUsers = authModels.getAllUsers()
+    const allUsers = await authModels.getAllUsers()
+    const currentUser = await getCurrentUser(req)
+    if (!currentUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'Current user not found',
+      })
+    }
+
     const familyUsers = allUsers.filter(
-      (user) => user.family_id === req.user!.family_id && user.is_active,
+      (user) => user.familyId === currentUser.familyId && user.isActive,
     )
 
     const users = familyUsers.map((user) => ({
@@ -379,9 +401,9 @@ router.get('/users', requireAuth, (req: Request, res: Response) => {
       name: user.name,
       role: user.role,
       birthdate: user.birthdate,
-      total_points: user.total_points,
-      created_by: user.created_by,
-      last_login: user.last_login,
+      totalPoints: user.totalPoints,
+      createdBy: user.createdBy,
+      lastLogin: user.lastLogin,
     }))
 
     res.json({
@@ -398,12 +420,13 @@ router.get('/users', requireAuth, (req: Request, res: Response) => {
 })
 
 // GET /auth/users/:id - Get specific user
-router.get('/users/:id', requireAuth, (req: Request, res: Response) => {
+router.get('/users/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params
-    const user = authModels.getUserById(parseInt(id))
+    const user = await authModels.getUserById(parseInt(id))
+    const currentUser = await getCurrentUser(req)
 
-    if (!user || user.family_id !== req.user!.family_id) {
+    if (!user || !currentUser || user.familyId !== currentUser.familyId) {
       return res.status(404).json({
         success: false,
         error: 'User not found',
@@ -418,10 +441,10 @@ router.get('/users/:id', requireAuth, (req: Request, res: Response) => {
         name: user.name,
         role: user.role,
         birthdate: user.birthdate,
-        total_points: user.total_points,
-        created_by: user.created_by,
-        last_login: user.last_login,
-        is_active: user.is_active,
+        totalPoints: user.totalPoints,
+        createdBy: user.createdBy,
+        lastLogin: user.lastLogin,
+        isActive: user.isActive,
       },
     })
   } catch (error) {
@@ -552,51 +575,60 @@ router.patch('/users/:id', requireAuth, (req: Request, res: Response) => {
 })
 
 // DELETE /auth/users/:id - Deactivate user
-router.delete('/users/:id', requireAuth, (req: Request, res: Response) => {
-  try {
-    const { id } = req.params
-    const targetUserId = parseInt(id)
+router.delete(
+  '/users/:id',
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const targetUserId = parseInt(id)
 
-    const targetUser = authModels.getUserById(targetUserId)
-    if (!targetUser || targetUser.family_id !== req.user!.family_id) {
-      return res.status(404).json({
+      const targetUser = await authModels.getUserById(targetUserId)
+      const currentUser = await getCurrentUser(req)
+      if (
+        !targetUser ||
+        !currentUser ||
+        targetUser.familyId !== currentUser.familyId
+      ) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found',
+        })
+      }
+
+      // Prevent deleting the primary parent
+      const family = await authModels.getFamilyById(currentUser.familyId)
+      if (family && targetUserId === family.primaryParentId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Cannot delete the primary parent',
+        })
+      }
+
+      // Only parents can delete child accounts
+      if (currentUser.role !== 'parent') {
+        return res.status(403).json({
+          success: false,
+          error: 'Only parents can delete accounts',
+        })
+      }
+
+      // Deactivate user instead of deleting
+      await authModels.updateUser(targetUserId, { isActive: false })
+
+      res.json({
+        success: true,
+        message: 'User account deactivated successfully',
+      })
+    } catch (error) {
+      res.status(500).json({
         success: false,
-        error: 'User not found',
+        error: 'Internal server error',
+        message: (error as Error).message,
       })
     }
-
-    // Prevent deleting the primary parent
-    const family = authModels.getFamilyById(req.user!.family_id)
-    if (family && targetUserId === family.primary_parent_id) {
-      return res.status(400).json({
-        success: false,
-        error: 'Cannot delete the primary parent',
-      })
-    }
-
-    // Only parents can delete child accounts
-    if (req.user!.role !== 'parent') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only parents can delete accounts',
-      })
-    }
-
-    // Deactivate user instead of deleting
-    authModels.updateUser(targetUserId, { is_active: false })
-
-    res.json({
-      success: true,
-      message: 'User account deactivated successfully',
-    })
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      message: (error as Error).message,
-    })
-  }
-})
+  },
+)
 
 // POST /auth/logout - Logout user (placeholder)
 router.post('/logout', requireAuth, (req: Request, res: Response) => {

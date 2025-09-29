@@ -16,7 +16,7 @@ import type {
 export type { User, Family, MagicToken, WebAuthnCredential, Role }
 
 // User CRUD operations
-export const getAllUsers = async (): Promise<User[]> => {
+export const getAllUsers = async () => {
   return prisma.user.findMany({
     include: {
       family: true,
@@ -90,7 +90,7 @@ export const updateUser = async (
 }
 
 // Family CRUD operations
-export const getAllFamilies = async (): Promise<Family[]> => {
+export const getAllFamilies = async () => {
   return prisma.family.findMany({
     include: {
       users: true,

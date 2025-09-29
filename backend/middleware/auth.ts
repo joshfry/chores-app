@@ -163,7 +163,7 @@ export const requireSameFamily = (
     return
   }
 
-  if (parseInt(targetFamilyId) !== req.user.family_id) {
+  if (parseInt(targetFamilyId) !== req.user.familyId) {
     res.status(403).json({
       success: false,
       error: 'Access denied',
