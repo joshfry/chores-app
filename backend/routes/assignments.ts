@@ -20,7 +20,7 @@ interface Assignment {
 }
 
 // GET /assignments - Get all assignments with optional filtering
-router.get('/', (req: Request, res: Response) => {
+router.get('/', (req: Request, res: Response): void => {
   const { child_id, status, chore_id } = req.query
 
   // TODO: Connect to database and apply filters
@@ -107,11 +107,11 @@ router.get('/:id', (req: Request, res: Response) => {
 })
 
 // POST /assignments - Create new assignment
-router.post('/', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response): void => {
   const { child_id, chore_id, assigned_date, due_date, notes } = req.body
 
   if (!child_id || !chore_id || !assigned_date) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'child_id, chore_id, and assigned_date are required',
     })
@@ -120,14 +120,14 @@ router.post('/', (req: Request, res: Response) => {
   // Validate date format (basic check)
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
   if (!dateRegex.test(assigned_date)) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'assigned_date must be in YYYY-MM-DD format',
     })
   }
 
   if (due_date && !dateRegex.test(due_date)) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'due_date must be in YYYY-MM-DD format',
     })
@@ -165,14 +165,14 @@ router.put('/:id', (req: Request, res: Response) => {
     status &&
     !['assigned', 'in_progress', 'completed', 'missed'].includes(status)
   ) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Status must be: assigned, in_progress, completed, or missed',
     })
   }
 
   if (due_date && !/^\d{4}-\d{2}-\d{2}$/.test(due_date)) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'due_date must be in YYYY-MM-DD format',
     })

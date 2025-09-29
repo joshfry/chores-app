@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express'
 const router = express.Router()
 
 // GET /children - Get all children
-router.get('/', (req: Request, res: Response) => {
+router.get('/', (req: Request, res: Response): void => {
   // TODO: Connect to database
   res.json({
     success: true,
@@ -43,14 +43,15 @@ router.get('/:id', (req: Request, res: Response) => {
 })
 
 // POST /children - Create new child
-router.post('/', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response): void => {
   const { name, birthdate } = req.body
 
   if (!name) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Name is required',
     })
+    return
   }
 
   // TODO: Connect to database

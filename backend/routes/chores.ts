@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express'
 const router = express.Router()
 
 // GET /chores - Get all chores
-router.get('/', (req: Request, res: Response) => {
+router.get('/', (req: Request, res: Response): void => {
   // TODO: Connect to database
   res.json({
     success: true,
@@ -58,7 +58,7 @@ router.get('/:id', (req: Request, res: Response) => {
 })
 
 // POST /chores - Create new chore
-router.post('/', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response): void => {
   const {
     title,
     description,
@@ -70,21 +70,21 @@ router.post('/', (req: Request, res: Response) => {
   } = req.body
 
   if (!title) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Title is required',
     })
   }
 
   if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Difficulty must be easy, medium, or hard',
     })
   }
 
   if (is_recurring && !recurrence_pattern) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Recurrence pattern required for recurring chores',
     })
@@ -122,7 +122,7 @@ router.put('/:id', (req: Request, res: Response) => {
   } = req.body
 
   if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Difficulty must be easy, medium, or hard',
     })
