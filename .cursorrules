@@ -186,6 +186,20 @@ chores/
 
 ## AI Assistant Guidelines
 
+### **🏢 ENTERPRISE-READY REQUIREMENT**
+
+**CRITICAL: Everything developed for this project MUST be enterprise-ready.**
+
+- ⚠️ **MANDATORY**: Read `ENTERPRISE_STANDARDS.md` before making ANY changes
+- ⚠️ **MANDATORY**: Read `.agent-notes.md` for critical agent instructions
+- ✅ **90%+ test coverage** required (currently: 110+ comprehensive tests)
+- ✅ **Production-grade security** (proper auth, validation, error handling)
+- ✅ **Professional documentation** (complete guides, API docs, troubleshooting)
+- ✅ **TypeScript with full type safety** (no `any` types in production code)
+- ✅ **CI/CD ready** (automated testing, proper exit codes, workspace config)
+
+**This is NOT a prototype or hobby project - it's enterprise-grade software.**
+
 ### Server Management Policy
 
 **CRITICAL: AI assistants must NEVER start servers directly.**

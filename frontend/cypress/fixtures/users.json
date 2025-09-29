@@ -1,0 +1,40 @@
+{
+  "parent": {
+    "id": 1,
+    "email": "parent@example.com",
+    "name": "Test Parent",
+    "role": "parent",
+    "familyId": 1,
+    "birthdate": "1985-06-15",
+    "totalPoints": null,
+    "lastLogin": "2024-01-01T12:00:00Z"
+  },
+  "children": [
+    {
+      "id": 2,
+      "email": "child1@example.com",
+      "name": "Alice",
+      "role": "child",
+      "familyId": 1,
+      "birthdate": "2015-03-15",
+      "totalPoints": 45,
+      "lastLogin": "2024-01-01T16:00:00Z"
+    },
+    {
+      "id": 3,
+      "email": "child2@example.com",
+      "name": "Bob",
+      "role": "child",
+      "familyId": 1,
+      "birthdate": "2017-08-22",
+      "totalPoints": 32,
+      "lastLogin": "2024-01-01T15:30:00Z"
+    }
+  ],
+  "family": {
+    "id": 1,
+    "name": "Test Family",
+    "createdDate": "2024-01-01T00:00:00Z",
+    "primaryParentId": 1
+  }
+}
