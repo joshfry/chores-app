@@ -1,25 +1,62 @@
 import React from 'react'
-import logo from './logo.svg'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+
+// Auth Components
+import LoginPage from './pages/auth/LoginPage'
+import SignupPage from './pages/auth/SignupPage'
+import VerifyPage from './pages/auth/VerifyPage'
+
+// Dashboard Components
+import DashboardLayout from './components/layout/DashboardLayout'
+import DashboardPage from './pages/dashboard/DashboardPage'
+
+// Placeholder pages (we'll create these next)
+import UsersPage from './pages/users/UsersPage'
+import ChoresPage from './pages/chores/ChoresPage'
+import AssignmentsPage from './pages/assignments/AssignmentsPage'
+
+// Protected Route Component
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/verify" element={<VerifyPage />} />
+
+          {/* Protected Dashboard Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<DashboardPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="chores" element={<ChoresPage />} />
+            <Route path="assignments" element={<AssignmentsPage />} />
+          </Route>
+
+          {/* Redirect root to dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 

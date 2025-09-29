@@ -141,8 +141,11 @@ export const createMagicToken = async (
 export const getMagicToken = async (
   token: string,
 ): Promise<MagicToken | null> => {
-  return prisma.magicToken.findUnique({
-    where: { token },
+  return prisma.magicToken.findFirst({
+    where: {
+      token,
+      used: false, // CRITICAL: Only return unused tokens
+    },
     include: {
       user: true,
     },

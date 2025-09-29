@@ -37,7 +37,7 @@ const sendMagicLink = async (
   token: string,
 ): Promise<boolean> => {
   console.log(`📧 Mock Email sent to ${email}`)
-  console.log(`🔗 Magic Link: http://localhost:3000/auth/verify?token=${token}`)
+  console.log(`🔗 Magic Link: http://localhost:3000/verify?token=${token}`)
   return true
 }
 
