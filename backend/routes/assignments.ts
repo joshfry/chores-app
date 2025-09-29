@@ -1,12 +1,30 @@
-const express = require('express')
+import express, { Request, Response } from 'express'
+
 const router = express.Router()
 
+interface Assignment {
+  id: number
+  child_id: number
+  child_name: string
+  chore_id: number
+  chore_title: string
+  chore_description: string
+  assigned_date: string
+  due_date: string
+  status: string
+  completed_date: string | null
+  points_earned: number
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
 // GET /assignments - Get all assignments with optional filtering
-router.get('/', (req, res) => {
+router.get('/', (req: Request, res: Response) => {
   const { child_id, status, chore_id } = req.query
 
   // TODO: Connect to database and apply filters
-  let mockData = [
+  let mockData: Assignment[] = [
     {
       id: 1,
       child_id: 1,
@@ -43,13 +61,17 @@ router.get('/', (req, res) => {
 
   // Apply filters (mock filtering)
   if (child_id) {
-    mockData = mockData.filter((a) => a.child_id === parseInt(child_id))
+    mockData = mockData.filter(
+      (a) => a.child_id === parseInt(child_id as string),
+    )
   }
   if (status) {
     mockData = mockData.filter((a) => a.status === status)
   }
   if (chore_id) {
-    mockData = mockData.filter((a) => a.chore_id === parseInt(chore_id))
+    mockData = mockData.filter(
+      (a) => a.chore_id === parseInt(chore_id as string),
+    )
   }
 
   res.json({
@@ -59,7 +81,7 @@ router.get('/', (req, res) => {
 })
 
 // GET /assignments/:id - Get specific assignment
-router.get('/:id', (req, res) => {
+router.get('/:id', (req: Request, res: Response) => {
   const { id } = req.params
 
   // TODO: Connect to database
@@ -85,7 +107,7 @@ router.get('/:id', (req, res) => {
 })
 
 // POST /assignments - Create new assignment
-router.post('/', (req, res) => {
+router.post('/', (req: Request, res: Response) => {
   const { child_id, chore_id, assigned_date, due_date, notes } = req.body
 
   if (!child_id || !chore_id || !assigned_date) {
@@ -135,7 +157,7 @@ router.post('/', (req, res) => {
 })
 
 // PUT /assignments/:id - Update assignment
-router.put('/:id', (req, res) => {
+router.put('/:id', (req: Request, res: Response) => {
   const { id } = req.params
   const { status, due_date, notes } = req.body
 
@@ -181,7 +203,7 @@ router.put('/:id', (req, res) => {
 })
 
 // PATCH /assignments/:id/complete - Quick complete assignment
-router.patch('/:id/complete', (req, res) => {
+router.patch('/:id/complete', (req: Request, res: Response) => {
   const { id } = req.params
 
   // TODO: Connect to database and validate assignment exists
@@ -206,7 +228,7 @@ router.patch('/:id/complete', (req, res) => {
 })
 
 // DELETE /assignments/:id - Delete assignment
-router.delete('/:id', (req, res) => {
+router.delete('/:id', (req: Request, res: Response) => {
   const { id } = req.params
 
   // TODO: Connect to database and validate assignment exists
@@ -216,4 +238,4 @@ router.delete('/:id', (req, res) => {
   })
 })
 
-module.exports = router
+export default router

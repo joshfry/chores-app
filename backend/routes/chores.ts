@@ -1,8 +1,9 @@
-const express = require('express')
+import express, { Request, Response } from 'express'
+
 const router = express.Router()
 
 // GET /chores - Get all chores
-router.get('/', (req, res) => {
+router.get('/', (req: Request, res: Response) => {
   // TODO: Connect to database
   res.json({
     success: true,
@@ -36,7 +37,7 @@ router.get('/', (req, res) => {
 })
 
 // GET /chores/:id - Get specific chore
-router.get('/:id', (req, res) => {
+router.get('/:id', (req: Request, res: Response) => {
   const { id } = req.params
   // TODO: Connect to database
   res.json({
@@ -57,7 +58,7 @@ router.get('/:id', (req, res) => {
 })
 
 // POST /chores - Create new chore
-router.post('/', (req, res) => {
+router.post('/', (req: Request, res: Response) => {
   const {
     title,
     description,
@@ -108,7 +109,7 @@ router.post('/', (req, res) => {
 })
 
 // PUT /chores/:id - Update chore
-router.put('/:id', (req, res) => {
+router.put('/:id', (req: Request, res: Response) => {
   const { id } = req.params
   const {
     title,
@@ -146,7 +147,7 @@ router.put('/:id', (req, res) => {
 })
 
 // DELETE /chores/:id - Delete chore
-router.delete('/:id', (req, res) => {
+router.delete('/:id', (req: Request, res: Response) => {
   const { id } = req.params
 
   // TODO: Connect to database and validate chore exists
@@ -156,4 +157,4 @@ router.delete('/:id', (req, res) => {
   })
 })
 
-module.exports = router
+export default router

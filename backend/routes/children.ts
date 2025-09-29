@@ -1,8 +1,9 @@
-const express = require('express')
+import express, { Request, Response } from 'express'
+
 const router = express.Router()
 
 // GET /children - Get all children
-router.get('/', (req, res) => {
+router.get('/', (req: Request, res: Response) => {
   // TODO: Connect to database
   res.json({
     success: true,
@@ -26,7 +27,7 @@ router.get('/', (req, res) => {
 })
 
 // GET /children/:id - Get specific child
-router.get('/:id', (req, res) => {
+router.get('/:id', (req: Request, res: Response) => {
   const { id } = req.params
   // TODO: Connect to database
   res.json({
@@ -42,7 +43,7 @@ router.get('/:id', (req, res) => {
 })
 
 // POST /children - Create new child
-router.post('/', (req, res) => {
+router.post('/', (req: Request, res: Response) => {
   const { name, birthdate } = req.body
 
   if (!name) {
@@ -66,7 +67,7 @@ router.post('/', (req, res) => {
 })
 
 // PUT /children/:id - Update child
-router.put('/:id', (req, res) => {
+router.put('/:id', (req: Request, res: Response) => {
   const { id } = req.params
   const { name, birthdate } = req.body
 
@@ -84,7 +85,7 @@ router.put('/:id', (req, res) => {
 })
 
 // DELETE /children/:id - Delete child
-router.delete('/:id', (req, res) => {
+router.delete('/:id', (req: Request, res: Response) => {
   const { id } = req.params
 
   // TODO: Connect to database and validate child exists
@@ -95,7 +96,7 @@ router.delete('/:id', (req, res) => {
 })
 
 // GET /children/:id/points - Get child's points summary
-router.get('/:id/points', (req, res) => {
+router.get('/:id/points', (req: Request, res: Response) => {
   const { id } = req.params
 
   // TODO: Calculate from assignments
@@ -112,7 +113,7 @@ router.get('/:id/points', (req, res) => {
 })
 
 // GET /children/:id/assignments - Get child's assignments
-router.get('/:id/assignments', (req, res) => {
+router.get('/:id/assignments', (req: Request, res: Response) => {
   const { id } = req.params
   const { status } = req.query
 
@@ -135,4 +136,4 @@ router.get('/:id/assignments', (req, res) => {
   })
 })
 
-module.exports = router
+export default router
