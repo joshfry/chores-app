@@ -7,12 +7,14 @@ import authRoutes from './auth.js'
 import childrenRoutes from './children.js'
 import choresRoutes from './chores.js'
 import assignmentsRoutes from './assignments.js'
+import databaseTestRoutes from './database-test.js'
 
 // Mount route modules
 router.use('/auth', authRoutes)
 router.use('/children', childrenRoutes)
 router.use('/chores', choresRoutes)
 router.use('/assignments', assignmentsRoutes)
+router.use('/test', databaseTestRoutes)
 
 // Dashboard/Stats endpoint
 router.get('/dashboard/stats', (req: Request, res: Response) => {

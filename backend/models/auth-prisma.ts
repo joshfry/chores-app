@@ -1,0 +1,266 @@
+/**
+ * Authentication Data Models with Prisma
+ * Database operations for users, families, and authentication
+ */
+
+import { prisma } from '../lib/prisma.js'
+import type {
+  User,
+  Family,
+  MagicToken,
+  WebAuthnCredential,
+  Role,
+} from '../generated/prisma/index.js'
+
+// Re-export types for easier importing
+export type { User, Family, MagicToken, WebAuthnCredential, Role }
+
+// User CRUD operations
+export const getAllUsers = async (): Promise<User[]> => {
+  return prisma.user.findMany({
+    include: {
+      family: true,
+    },
+  })
+}
+
+export const getUserById = async (id: number): Promise<User | null> => {
+  return prisma.user.findUnique({
+    where: { id },
+    include: {
+      family: true,
+    },
+  })
+}
+
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  return prisma.user.findUnique({
+    where: { email },
+    include: {
+      family: true,
+    },
+  })
+}
+
+export const createUser = async (userData: {
+  email: string
+  role: Role
+  familyId: number
+  name: string
+  birthdate: string
+  totalPoints?: number | null
+  createdBy?: number | null
+}): Promise<User> => {
+  return prisma.user.create({
+    data: {
+      email: userData.email,
+      role: userData.role,
+      familyId: userData.familyId,
+      name: userData.name,
+      birthdate: userData.birthdate,
+      totalPoints: userData.totalPoints,
+      createdBy: userData.createdBy,
+      lastLogin: new Date(),
+      isActive: true,
+    },
+    include: {
+      family: true,
+    },
+  })
+}
+
+export const updateUser = async (
+  id: number,
+  updates: Partial<
+    Pick<User, 'name' | 'birthdate' | 'totalPoints' | 'lastLogin' | 'isActive'>
+  >,
+): Promise<User | null> => {
+  try {
+    return await prisma.user.update({
+      where: { id },
+      data: updates,
+      include: {
+        family: true,
+      },
+    })
+  } catch (error) {
+    // User not found
+    return null
+  }
+}
+
+// Family CRUD operations
+export const getAllFamilies = async (): Promise<Family[]> => {
+  return prisma.family.findMany({
+    include: {
+      users: true,
+      chores: true,
+      assignments: true,
+    },
+  })
+}
+
+export const getFamilyById = async (id: number): Promise<Family | null> => {
+  return prisma.family.findUnique({
+    where: { id },
+    include: {
+      users: true,
+      chores: true,
+      assignments: true,
+    },
+  })
+}
+
+export const createFamily = async (familyData: {
+  name: string
+  primaryParentId: number
+}): Promise<Family> => {
+  return prisma.family.create({
+    data: {
+      name: familyData.name,
+      primaryParentId: familyData.primaryParentId,
+    },
+  })
+}
+
+// Magic Token operations
+export const createMagicToken = async (
+  userId: number,
+  token: string,
+  expiresAt: string,
+): Promise<MagicToken> => {
+  return prisma.magicToken.create({
+    data: {
+      userId,
+      token,
+      expiresAt: new Date(expiresAt),
+    },
+  })
+}
+
+export const getMagicToken = async (
+  token: string,
+): Promise<MagicToken | null> => {
+  return prisma.magicToken.findUnique({
+    where: { token },
+    include: {
+      user: true,
+    },
+  })
+}
+
+export const markTokenAsUsed = async (token: string): Promise<boolean> => {
+  try {
+    await prisma.magicToken.update({
+      where: { token },
+      data: { used: true },
+    })
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+// WebAuthn Credential operations
+export const getCredentialsByUserId = async (
+  userId: number,
+): Promise<WebAuthnCredential[]> => {
+  return prisma.webAuthnCredential.findMany({
+    where: { userId },
+  })
+}
+
+export const createCredential = async (credentialData: {
+  userId: number
+  credentialId: string
+  publicKey: string
+  deviceName: string
+}): Promise<WebAuthnCredential> => {
+  return prisma.webAuthnCredential.create({
+    data: credentialData,
+  })
+}
+
+// Helper function to seed initial data (for development)
+export const seedDatabase = async () => {
+  // Check if we already have data
+  const userCount = await prisma.user.count()
+  if (userCount > 0) {
+    console.log('📊 Database already has data, skipping seed')
+    return
+  }
+
+  console.log('🌱 Seeding database with initial data...')
+
+  // Create Johnson family
+  const family = await createFamily({
+    name: 'Johnson Family',
+    primaryParentId: 1, // Will be updated after creating parent
+  })
+
+  // Create parent user
+  const parent = await createUser({
+    email: 'parent@example.com',
+    role: 'parent',
+    familyId: family.id,
+    name: 'Sarah Johnson',
+    birthdate: '1985-03-15',
+    totalPoints: null,
+    createdBy: null,
+  })
+
+  // Update family with correct primary parent ID
+  await prisma.family.update({
+    where: { id: family.id },
+    data: { primaryParentId: parent.id },
+  })
+
+  // Create child users
+  await createUser({
+    email: 'child1@example.com',
+    role: 'child',
+    familyId: family.id,
+    name: 'Emma Johnson',
+    birthdate: '2010-07-22',
+    totalPoints: 145,
+    createdBy: parent.id,
+  })
+
+  await createUser({
+    email: 'child2@example.com',
+    role: 'child',
+    familyId: family.id,
+    name: 'Alex Johnson',
+    birthdate: '2013-11-08',
+    totalPoints: 89,
+    createdBy: parent.id,
+  })
+
+  // Create sample chores
+  await prisma.chore.create({
+    data: {
+      title: 'Clean bedroom',
+      description: 'Make bed, organize toys, vacuum floor',
+      points: 5,
+      difficulty: 'medium',
+      category: 'cleaning',
+      isRecurring: false,
+      familyId: family.id,
+    },
+  })
+
+  await prisma.chore.create({
+    data: {
+      title: 'Take out trash',
+      description: 'Empty all trash cans and take to curb',
+      points: 3,
+      difficulty: 'easy',
+      category: 'cleaning',
+      isRecurring: true,
+      recurrencePattern: 'weekly',
+      familyId: family.id,
+    },
+  })
+
+  console.log('✅ Database seeded successfully!')
+}

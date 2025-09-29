@@ -4,8 +4,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import * as authModels from '../models/auth.js'
-import { User } from '../models/auth.js'
+import * as authModels from '../models/auth-prisma.js'
+import { User } from '../models/auth-prisma.js'
 
 // Session interface
 interface Session {
@@ -61,11 +61,11 @@ export const validateSession = (sessionToken: string): Session | null => {
 }
 
 // Middleware to require authentication
-export const requireAuth = (
+export const requireAuth = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): void => {
+): Promise<void> => {
   const authHeader = req.headers.authorization
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -89,21 +89,29 @@ export const requireAuth = (
     return
   }
 
-  // Get user info
-  const user = authModels.getUserById(session.userId)
-  if (!user || !user.is_active) {
-    res.status(401).json({
+  try {
+    // Get user info from database
+    const user = await authModels.getUserById(session.userId)
+    if (!user || !user.isActive) {
+      res.status(401).json({
+        success: false,
+        error: 'User not found or inactive',
+      })
+      return
+    }
+
+    // Add user info to request
+    req.user = user
+    req.session = session
+
+    next()
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      error: 'User not found or inactive',
+      error: 'Database error',
+      message: (error as Error).message,
     })
-    return
   }
-
-  // Add user info to request
-  req.user = user
-  req.session = session
-
-  next()
 }
 
 // Middleware to require parent role
@@ -168,12 +176,16 @@ export const requireSameFamily = (
 }
 
 // Helper to get current authenticated user info
-export const getCurrentUser = (req: Request): User | null => {
+export const getCurrentUser = async (req: Request): Promise<User | null> => {
   if (!req.user) return null
 
-  const family = authModels.getFamilyById(req.user.family_id)
-  return {
-    ...req.user,
-    family: family || undefined,
-  } as User & { family?: any }
+  try {
+    const family = await authModels.getFamilyById(req.user.familyId)
+    return {
+      ...req.user,
+      family: family || undefined,
+    } as User & { family?: any }
+  } catch (error) {
+    return req.user
+  }
 }

@@ -4,16 +4,32 @@
  */
 
 import express, { Request, Response } from 'express'
-import * as authModels from '../models/auth.js'
+import * as authModels from '../models/auth-prisma.js'
 import {
   createSession,
   requireAuth,
   requireParent,
   getCurrentUser,
 } from '../middleware/auth.js'
-import { v4 as uuidv4 } from 'uuid'
 
 const router = express.Router()
+
+// Seed route for development (remove in production)
+router.post('/seed', async (req: Request, res: Response) => {
+  try {
+    await authModels.seedDatabase()
+    res.json({
+      success: true,
+      message: 'Database seeded successfully!',
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Seeding failed',
+      message: (error as Error).message,
+    })
+  }
+})
 
 // Mock email service (replace with real nodemailer setup later)
 const sendMagicLink = async (
@@ -26,7 +42,7 @@ const sendMagicLink = async (
 }
 
 // POST /auth/signup - Parent creates family account
-router.post('/signup', (req: Request, res: Response) => {
+router.post('/signup', async (req: Request, res: Response) => {
   try {
     const { email, name, familyName, birthdate } = req.body
 
@@ -39,7 +55,7 @@ router.post('/signup', (req: Request, res: Response) => {
     }
 
     // Check if user already exists
-    const existingUser = authModels.getUserByEmail(email)
+    const existingUser = await authModels.getUserByEmail(email)
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -47,24 +63,21 @@ router.post('/signup', (req: Request, res: Response) => {
       })
     }
 
-    // Create family first
-    const family = authModels.createFamily({
+    // Create family first (temporary primaryParentId)
+    const family = await authModels.createFamily({
       name: familyName,
-      created_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-      primary_parent_id: 0, // Will be updated below
+      primaryParentId: 1, // Will be updated below
     })
 
     // Create parent user
-    const user = authModels.createUser({
+    const user = await authModels.createUser({
       email,
       role: 'parent',
-      family_id: family.id,
+      familyId: family.id,
       name,
       birthdate: birthdate || new Date().toISOString().split('T')[0],
-      total_points: null,
-      created_by: null,
-      last_login: new Date().toISOString(),
-      is_active: true,
+      totalPoints: null,
+      createdBy: null,
     })
 
     // Create magic token
@@ -74,10 +87,14 @@ router.post('/signup', (req: Request, res: Response) => {
       .toString(36)
       .substr(2, 9)}`
 
-    authModels.createMagicToken(user.id, magicToken, expiresAt.toISOString())
+    await authModels.createMagicToken(
+      user.id,
+      magicToken,
+      expiresAt.toISOString(),
+    )
 
     // Send magic link (mock for now)
-    sendMagicLink(email, magicToken)
+    await sendMagicLink(email, magicToken)
 
     res.status(201).json({
       success: true,
