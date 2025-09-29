@@ -4,8 +4,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import * as authModels from '../models/auth-prisma.js'
-import { User } from '../models/auth-prisma.js'
+import * as authModels from '../models/auth-prisma'
+import { User } from '../models/auth-prisma'
 
 // Session interface
 interface Session {

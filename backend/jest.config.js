@@ -20,7 +20,7 @@ module.exports = {
 
   // Module name mapping for path resolution
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': '<rootDir>/$1',
   },
 
   // Setup files

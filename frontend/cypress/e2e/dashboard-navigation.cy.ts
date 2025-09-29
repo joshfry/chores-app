@@ -63,10 +63,10 @@ describe('Dashboard Navigation and Features', () => {
       cy.wait('@getCurrentUser')
 
       // Verify dashboard components are present
-      cy.get('[data-cy=dashboard]').should('be.visible')
-      cy.get('[data-cy=user-welcome]').should('be.visible')
-      cy.get('[data-cy=user-name]').should('contain.text', testUser.name)
-      cy.get('[data-cy=family-name]').should(
+      cy.get('[data-testid=dashboard]').should('be.visible')
+      cy.get('[data-testid=user-welcome]').should('be.visible')
+      cy.get('[data-testid=user-name]').should('contain.text', testUser.name)
+      cy.get('[data-testid=family-name]').should(
         'contain.text',
         testUser.familyName,
       )
@@ -79,21 +79,21 @@ describe('Dashboard Navigation and Features', () => {
       cy.wait('@getCurrentUser')
 
       // Check navigation links are present
-      cy.get('[data-cy=nav-dashboard]')
+      cy.get('[data-testid=nav-dashboard]')
         .should('be.visible')
         .should('contain.text', 'Dashboard')
-      cy.get('[data-cy=nav-users]')
+      cy.get('[data-testid=nav-users]')
         .should('be.visible')
         .should('contain.text', 'Users')
-      cy.get('[data-cy=nav-chores]')
+      cy.get('[data-testid=nav-chores]')
         .should('be.visible')
         .should('contain.text', 'Chores')
-      cy.get('[data-cy=nav-assignments]')
+      cy.get('[data-testid=nav-assignments]')
         .should('be.visible')
         .should('contain.text', 'Assignments')
 
       // Check logout button
-      cy.get('[data-cy=logout-button]').should('be.visible')
+      cy.get('[data-testid=logout-button]').should('be.visible')
     })
   })
 
@@ -130,12 +130,12 @@ describe('Dashboard Navigation and Features', () => {
         },
       }).as('getUsers')
 
-      cy.get('[data-cy=nav-users]').click()
+      cy.get('[data-testid=nav-users]').click()
       cy.url().should('include', '/dashboard/users')
 
       // Verify users page content
-      cy.get('[data-cy=users-page]').should('be.visible')
-      cy.get('[data-cy=add-child-button]').should('be.visible')
+      cy.get('[data-testid=users-page]').should('be.visible')
+      cy.get('[data-testid=add-child-button]').should('be.visible')
     })
 
     it('should navigate to Chores section', () => {
@@ -167,12 +167,12 @@ describe('Dashboard Navigation and Features', () => {
         },
       }).as('getChores')
 
-      cy.get('[data-cy=nav-chores]').click()
+      cy.get('[data-testid=nav-chores]').click()
       cy.url().should('include', '/dashboard/chores')
 
       cy.wait('@getChores')
-      cy.get('[data-cy=chores-page]').should('be.visible')
-      cy.get('[data-cy=add-chore-button]').should('be.visible')
+      cy.get('[data-testid=chores-page]').should('be.visible')
+      cy.get('[data-testid=add-chore-button]').should('be.visible')
 
       // Verify chore items are displayed
       cy.contains('Clean bedroom').should('be.visible')
@@ -210,12 +210,12 @@ describe('Dashboard Navigation and Features', () => {
         },
       }).as('getAssignments')
 
-      cy.get('[data-cy=nav-assignments]').click()
+      cy.get('[data-testid=nav-assignments]').click()
       cy.url().should('include', '/dashboard/assignments')
 
       cy.wait('@getAssignments')
-      cy.get('[data-cy=assignments-page]').should('be.visible')
-      cy.get('[data-cy=create-assignment-button]').should('be.visible')
+      cy.get('[data-testid=assignments-page]').should('be.visible')
+      cy.get('[data-testid=create-assignment-button]').should('be.visible')
 
       // Verify assignment items are displayed
       cy.contains('Clean bedroom').should('be.visible')
@@ -260,26 +260,26 @@ describe('Dashboard Navigation and Features', () => {
       cy.log('📊 Testing dashboard statistics')
 
       // Check statistics cards are present and contain expected data
-      cy.get('[data-cy=stat-children]').should('contain', '2')
-      cy.get('[data-cy=stat-chores]').should('contain', '5')
-      cy.get('[data-cy=stat-assignments]').should('contain', '12')
-      cy.get('[data-cy=stat-completed]').should('contain', '8')
-      cy.get('[data-cy=stat-points]').should('contain', '67')
+      cy.get('[data-testid=stat-children]').should('contain', '2')
+      cy.get('[data-testid=stat-chores]').should('contain', '5')
+      cy.get('[data-testid=stat-assignments]').should('contain', '12')
+      cy.get('[data-testid=stat-completed]').should('contain', '8')
+      cy.get('[data-testid=stat-points]').should('contain', '67')
     })
 
     it('should display weekly statistics', () => {
       cy.log('📅 Testing weekly stats')
 
-      cy.get('[data-cy=weekly-stats]').should('be.visible')
-      cy.get('[data-cy=weekly-completed]').should('contain', '3')
-      cy.get('[data-cy=weekly-points]').should('contain', '15')
+      cy.get('[data-testid=weekly-stats]').should('be.visible')
+      cy.get('[data-testid=weekly-completed]').should('contain', '3')
+      cy.get('[data-testid=weekly-points]').should('contain', '15')
     })
 
     it('should display leaderboard', () => {
       cy.log('🏆 Testing leaderboard')
 
-      cy.get('[data-cy=leaderboard]').should('be.visible')
-      cy.get('[data-cy=top-performer]').should('have.length.at.least', 2)
+      cy.get('[data-testid=leaderboard]').should('be.visible')
+      cy.get('[data-testid=top-performer]').should('have.length.at.least', 2)
 
       // Check that Alice is shown as top performer
       cy.contains('Alice').should('be.visible')
@@ -302,8 +302,8 @@ describe('Dashboard Navigation and Features', () => {
       cy.wait('@getCurrentUser')
 
       // Navigation should be accessible (hamburger menu or mobile nav)
-      cy.get('[data-cy=mobile-nav-toggle]').should('be.visible').click()
-      cy.get('[data-cy=nav-users]').should('be.visible')
+      cy.get('[data-testid=mobile-nav-toggle]').should('be.visible').click()
+      cy.get('[data-testid=nav-users]').should('be.visible')
     })
 
     it('should be accessible with keyboard navigation', () => {
@@ -335,7 +335,7 @@ describe('Dashboard Navigation and Features', () => {
       cy.wait('@getStatsError')
 
       // Should show error message or fallback content
-      cy.get('[data-cy=error-message]').should('be.visible')
+      cy.get('[data-testid=error-message]').should('be.visible')
       cy.contains('error', { matchCase: false }).should('be.visible')
     })
   })

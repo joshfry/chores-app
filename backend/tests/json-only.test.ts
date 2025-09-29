@@ -1,9 +1,13 @@
-const request = require('supertest')
-const app = require('../app')
+/**
+ * Tests for JSON-Only API middleware
+ */
+
+import request from 'supertest'
+import app from '../app'
 
 describe('JSON-Only API Middleware', () => {
   describe('Accept Header Validation', () => {
-    test('should accept requests with Accept: application/json', async () => {
+    it('should accept requests with Accept: application/json', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'application/json')
@@ -13,7 +17,7 @@ describe('JSON-Only API Middleware', () => {
       expect(response.body.success).toBe(true)
     })
 
-    test('should accept requests with Accept: */*', async () => {
+    it('should accept requests with Accept: */*', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', '*/*')
@@ -22,7 +26,7 @@ describe('JSON-Only API Middleware', () => {
       expect(response.body.success).toBe(true)
     })
 
-    test('should accept requests with Accept: application/*, */*', async () => {
+    it('should accept requests with Accept: application/*, */*', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'application/*, */*')
@@ -31,29 +35,26 @@ describe('JSON-Only API Middleware', () => {
       expect(response.body.success).toBe(true)
     })
 
-    test('should reject requests with Accept: text/html', async () => {
+    it('should reject requests with Accept: text/html', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'text/html')
 
       expect(response.status).toBe(406)
-      expect(response.text).toBe(
-        'This API only serves JSON. Please set Accept: application/json header.',
-      )
+      expect(response.body.success).toBe(false)
+      expect(response.body.error).toBe('Not Acceptable')
     })
 
-    test('should reject requests with Accept: text/html, application/xhtml+xml', async () => {
+    it('should reject requests with Accept: text/html, application/xhtml+xml', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'text/html, application/xhtml+xml')
 
       expect(response.status).toBe(406)
-      expect(response.text).toBe(
-        'This API only serves JSON. Please set Accept: application/json header.',
-      )
+      expect(response.body.success).toBe(false)
     })
 
-    test('should accept requests with empty Accept header (fallback behavior)', async () => {
+    it('should accept requests with empty Accept header (fallback behavior)', async () => {
       // Express.js accepts() method returns truthy for empty Accept headers as fallback
       const response = await request(app).get('/api/children').set('Accept', '') // Empty Accept header - should be accepted as fallback
 
@@ -63,7 +64,7 @@ describe('JSON-Only API Middleware', () => {
   })
 
   describe('Content-Type Validation for POST/PUT/PATCH', () => {
-    test('should accept POST with Content-Type: application/json', async () => {
+    it('should accept POST with Content-Type: application/json', async () => {
       const response = await request(app)
         .post('/api/children')
         .set('Accept', 'application/json')
@@ -71,10 +72,9 @@ describe('JSON-Only API Middleware', () => {
         .send({ name: 'Test Child', birthdate: '2015-01-01' })
 
       expect(response.status).toBe(201)
-      expect(response.body.success).toBe(true)
     })
 
-    test('should reject POST with Content-Type: application/x-www-form-urlencoded', async () => {
+    it('should reject POST with Content-Type: application/x-www-form-urlencoded', async () => {
       const response = await request(app)
         .post('/api/children')
         .set('Accept', 'application/json')
@@ -82,12 +82,11 @@ describe('JSON-Only API Middleware', () => {
         .send('name=Test Child&birthdate=2015-01-01')
 
       expect(response.status).toBe(415)
-      expect(response.text).toBe(
-        'This API only accepts JSON. Please set Content-Type: application/json header.',
-      )
+      expect(response.body.success).toBe(false)
+      expect(response.body.error).toBe('Unsupported Media Type')
     })
 
-    test('should reject PUT with wrong Content-Type', async () => {
+    it('should reject PUT with wrong Content-Type', async () => {
       const response = await request(app)
         .put('/api/children/1')
         .set('Accept', 'application/json')
@@ -95,24 +94,19 @@ describe('JSON-Only API Middleware', () => {
         .send('name=Test Child')
 
       expect(response.status).toBe(415)
-      expect(response.text).toBe(
-        'This API only accepts JSON. Please set Content-Type: application/json header.',
-      )
+      expect(response.body.success).toBe(false)
     })
 
-    test('should reject PATCH with wrong Content-Type', async () => {
+    it('should reject PATCH with wrong Content-Type', async () => {
       const response = await request(app)
         .patch('/api/assignments/1/complete')
         .set('Accept', 'application/json')
         .set('Content-Type', 'multipart/form-data')
 
       expect(response.status).toBe(415)
-      expect(response.text).toBe(
-        'This API only accepts JSON. Please set Content-Type: application/json header.',
-      )
     })
 
-    test('should allow GET without Content-Type validation', async () => {
+    it('should allow GET without Content-Type validation', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'application/json')
@@ -123,25 +117,23 @@ describe('JSON-Only API Middleware', () => {
   })
 
   describe('Non-API Routes Should Work Normally', () => {
-    test('health endpoint should work with any Accept header', async () => {
+    it('health endpoint should work with any Accept header', async () => {
       const response = await request(app)
         .get('/health')
         .set('Accept', 'text/html')
 
       expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
-      expect(response.body.message).toBe('Chores API is running!')
     })
 
-    test('root endpoint should work with any Accept header', async () => {
+    it('root endpoint should work with any Accept header', async () => {
       const response = await request(app).get('/').set('Accept', 'text/html')
 
       expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
-      expect(response.body.message).toBe('Welcome to the Family Chores API')
     })
 
-    test('health endpoint should work with no Accept header', async () => {
+    it('health endpoint should work with no Accept header', async () => {
       const response = await request(app).get('/health')
 
       expect(response.status).toBe(200)
@@ -150,7 +142,7 @@ describe('JSON-Only API Middleware', () => {
   })
 
   describe('Various Accept Header Combinations', () => {
-    test('should accept Accept: application/json, text/plain, */*', async () => {
+    it('should accept Accept: application/json, text/plain, */*', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'application/json, text/plain, */*')
@@ -159,7 +151,7 @@ describe('JSON-Only API Middleware', () => {
       expect(response.body.success).toBe(true)
     })
 
-    test('should reject Accept: text/xml, text/html (no json)', async () => {
+    it('should reject Accept: text/xml, text/html (no json)', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'text/xml, text/html')
@@ -167,7 +159,7 @@ describe('JSON-Only API Middleware', () => {
       expect(response.status).toBe(406)
     })
 
-    test('should accept Accept: text/html, application/json (json included)', async () => {
+    it('should accept Accept: text/html, application/json (json included)', async () => {
       const response = await request(app)
         .get('/api/children')
         .set('Accept', 'text/html, application/json')

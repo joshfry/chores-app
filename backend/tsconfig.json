@@ -22,17 +22,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "include": ["**/*.ts", "**/*.js"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "**/*.test.ts",
-    "**/*.test.js",
-    "tests/**/*"
-  ],
+  "exclude": ["node_modules", "dist", "coverage"],
   "ts-node": {
     "esm": true
   }

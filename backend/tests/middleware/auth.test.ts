@@ -52,12 +52,24 @@ describe('Auth Middleware', () => {
 
   describe('requireAuth', () => {
     it('should allow authenticated requests', async () => {
-      const testUser = { id: 1, ...testUtils.createTestUser() }
+      const testUser = {
+        id: 1,
+        ...testUtils.createTestUser(),
+        isActive: true,
+      }
+      const mockSession = {
+        userId: 1,
+        createdAt: new Date(),
+        lastAccess: new Date(),
+      }
 
       mockReq.headers = {
         authorization: 'Bearer session_1234567890_abcdef',
       }
 
+      // Mock the validateSession function to return a valid session
+      const authModule = require('../../middleware/auth')
+      jest.spyOn(authModule, 'validateSession').mockReturnValue(mockSession)
       ;(authModels.getUserById as jest.Mock).mockResolvedValue(testUser)
 
       await requireAuth(mockReq as Request, mockRes as Response, mockNext)
@@ -94,7 +106,6 @@ describe('Auth Middleware', () => {
       mockReq.headers = {
         authorization: 'Bearer invalid_session_token',
       }
-
       ;(authModels.getUserById as jest.Mock).mockResolvedValue(null)
 
       await requireAuth(mockReq as Request, mockRes as Response, mockNext)
@@ -109,10 +120,19 @@ describe('Auth Middleware', () => {
     })
 
     it('should handle database errors gracefully', async () => {
+      const mockSession = {
+        userId: 1,
+        createdAt: new Date(),
+        lastAccess: new Date(),
+      }
+
       mockReq.headers = {
         authorization: 'Bearer session_1234567890_abcdef',
       }
 
+      // Mock valid session but database error
+      const authModule = require('../../middleware/auth')
+      jest.spyOn(authModule, 'validateSession').mockReturnValue(mockSession)
       ;(authModels.getUserById as jest.Mock).mockRejectedValue(
         new Error('Database error'),
       )
@@ -122,7 +142,8 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500)
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Internal server error',
+        error: 'Database error',
+        message: 'Database error',
       })
       expect(mockNext).not.toHaveBeenCalled()
     })
@@ -146,8 +167,8 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(403)
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Parent access required',
-        message: 'This action requires parent privileges',
+        error: 'Parent role required',
+        message: 'Only parents can perform this action',
       })
       expect(mockNext).not.toHaveBeenCalled()
     })
@@ -197,7 +218,6 @@ describe('Auth Middleware', () => {
       mockReq.headers = {
         authorization: `Bearer ${oldSessionToken}`,
       }
-
       ;(authModels.getUserById as jest.Mock).mockResolvedValue(null)
 
       await requireAuth(mockReq as Request, mockRes as Response, mockNext)

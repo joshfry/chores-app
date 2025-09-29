@@ -3,8 +3,8 @@
  * Starts the Express server with proper error handling
  */
 
-import app from './app.js'
-import config from './config/server.js'
+import app from './app'
+import config from './config/server'
 import { Server } from 'http'
 
 // Graceful error handling

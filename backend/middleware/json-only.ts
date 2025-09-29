@@ -15,21 +15,23 @@ export const validateAcceptHeader = (
 
   // If client prefers HTML over JSON, reject the request
   if (acceptsHtml && !acceptsJson) {
-    res
-      .status(406)
-      .send(
+    res.status(406).json({
+      success: false,
+      error: 'Not Acceptable',
+      message:
         'This API only serves JSON. Please set Accept: application/json header.',
-      )
+    })
     return
   }
 
   // If no Accept header or doesn't include json, reject
   if (!acceptsJson) {
-    res
-      .status(406)
-      .send(
+    res.status(406).json({
+      success: false,
+      error: 'Not Acceptable',
+      message:
         'This API only serves JSON. Please set Accept: application/json header.',
-      )
+    })
     return
   }
 
@@ -43,11 +45,12 @@ export const validateContentType = (
 ): void => {
   if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
     if (!req.is('application/json')) {
-      res
-        .status(415)
-        .send(
+      res.status(415).json({
+        success: false,
+        error: 'Unsupported Media Type',
+        message:
           'This API only accepts JSON. Please set Content-Type: application/json header.',
-        )
+      })
       return
     }
   }

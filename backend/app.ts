@@ -6,14 +6,14 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 
-import config from './config/server.js'
-import requestLogger from './middleware/logger.js'
+import config from './config/server'
+import requestLogger from './middleware/logger'
 import {
   validateAcceptHeader,
   validateContentType,
-} from './middleware/json-only.js'
-import apiRoutes from './routes/index.js'
-import basicRoutes from './routes/basic.js'
+} from './middleware/json-only'
+import apiRoutes from './routes/index'
+import basicRoutes from './routes/basic'
 
 const app = express()
 

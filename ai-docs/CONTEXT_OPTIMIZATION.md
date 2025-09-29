@@ -6,33 +6,35 @@
 
 #### **Quick Reference (Low Context)**
 
-- `QUICK_STANDARDS.md` - Essential rules only
-- `.agent-notes.md` - Critical instructions
+- [`QUICK_STANDARDS.md`](./QUICK_STANDARDS.md) - Essential rules only
+- [`.agent-notes.md`](./.agent-notes.md) - Critical instructions
 - `README.md` - Project overview
 
 #### **Detailed References (On-Demand)**
 
-- `ENTERPRISE_STANDARDS.md` - Complete standards (read when needed)
-- `TESTING_GUIDE.md` - Testing details (read when writing tests)
-- `WORKSPACE_TESTS.md` - Infrastructure details (read when setting up)
+- [`ENTERPRISE_STANDARDS.md`](./ENTERPRISE_STANDARDS.md) - Complete standards (read when needed)
+- [`TESTING_GUIDE.md`](./TESTING_GUIDE.md) - Testing details (read when writing tests)
+- [`WORKSPACE_TESTS.md`](./WORKSPACE_TESTS.md) - Infrastructure details (read when setting up)
 
 ### **2. Context-Efficient File Organization**
 
 #### **Essential Files (Always Read)**
 
 ```
-├── QUICK_STANDARDS.md     # 1-page enterprise essentials
-├── .agent-notes.md        # Critical agent instructions
-└── README.md              # Project overview
+├── ai-docs/
+│   ├── QUICK_STANDARDS.md     # 1-page enterprise essentials
+│   └── .agent-notes.md        # Critical agent instructions
+└── README.md                  # Project overview
 ```
 
 #### **Reference Files (Read When Relevant)**
 
 ```
-├── ENTERPRISE_STANDARDS.md   # Full standards (when implementing features)
-├── TESTING_GUIDE.md          # Testing details (when writing tests)
-├── WORKSPACE_TESTS.md        # Test infrastructure (when setting up tests)
-└── backend/tests/setup.ts    # Test utilities (when writing backend tests)
+├── ai-docs/
+│   ├── ENTERPRISE_STANDARDS.md   # Full standards (when implementing features)
+│   ├── TESTING_GUIDE.md          # Testing details (when writing tests)
+│   └── WORKSPACE_TESTS.md        # Test infrastructure (when setting up tests)
+└── backend/tests/setup.ts        # Test utilities (when writing backend tests)
 ```
 
 ### **3. Smart Information Architecture**
@@ -59,13 +61,13 @@ Complete implementation details
 
 #### **For Most Tasks (Minimal Context)**
 
-1. Read `QUICK_STANDARDS.md` (1 page)
+1. Read [`QUICK_STANDARDS.md`](./QUICK_STANDARDS.md) (1 page)
 2. Review relevant code examples
 3. Follow established patterns
 
 #### **For Complex Tasks (Targeted Context)**
 
-1. Read `QUICK_STANDARDS.md`
+1. Read [`QUICK_STANDARDS.md`](./QUICK_STANDARDS.md)
 2. Read specific detailed guide for the feature type
 3. Reference existing implementations
 
@@ -93,15 +95,15 @@ See: `frontend/src/services/api.ts` for API client patterns
 #### **Current Documentation Sizes**
 
 ```
-QUICK_STANDARDS.md:      ~500 tokens   # Essential only
-.agent-notes.md:         ~800 tokens   # Critical instructions
-README.md:               ~1200 tokens  # Project overview
-ENTERPRISE_STANDARDS.md: ~5000 tokens # Complete reference
+ai-docs/QUICK_STANDARDS.md:      ~500 tokens   # Essential only
+ai-docs/.agent-notes.md:         ~800 tokens   # Critical instructions
+README.md:                       ~1200 tokens  # Project overview
+ai-docs/ENTERPRISE_STANDARDS.md: ~5000 tokens # Complete reference
 ```
 
 #### **Recommended Usage Pattern**
 
-- **Most tasks**: Read QUICK_STANDARDS.md only (~500 tokens)
+- **Most tasks**: Read [`QUICK_STANDARDS.md`](./QUICK_STANDARDS.md) only (~500 tokens)
 - **Complex tasks**: Add relevant detailed guide (~1500 tokens total)
 - **New features**: Read full documentation (~7000 tokens total)
 
@@ -116,7 +118,7 @@ Use existing patterns in `backend/middleware/auth.ts`
 
 ### Need Details?
 
-See [Complete Auth Guide](ENTERPRISE_STANDARDS.md#security-requirements)
+See [Complete Auth Guide](./ENTERPRISE_STANDARDS.md#security-requirements)
 ```
 
 #### **Context-Sensitive Instructions**
@@ -124,11 +126,11 @@ See [Complete Auth Guide](ENTERPRISE_STANDARDS.md#security-requirements)
 ```markdown
 ## For Simple Changes
 
-Follow patterns in existing code + QUICK_STANDARDS.md
+Follow patterns in existing code + [`QUICK_STANDARDS.md`](./QUICK_STANDARDS.md)
 
 ## For New Features
 
-Read ENTERPRISE_STANDARDS.md sections relevant to your feature type
+Read [`ENTERPRISE_STANDARDS.md`](./ENTERPRISE_STANDARDS.md) sections relevant to your feature type
 ```
 
 ## 🎯 **Benefits of This Approach**
@@ -155,7 +157,7 @@ Read ENTERPRISE_STANDARDS.md sections relevant to your feature type
 
 The optimized approach provides:
 
-1. **QUICK_STANDARDS.md** - 1-page essential requirements (most tasks)
+1. **[`QUICK_STANDARDS.md`](./QUICK_STANDARDS.md)** - 1-page essential requirements (most tasks)
 2. **Detailed References** - Read only when needed (complex tasks)
 3. **Code Examples** - Point to existing implementations vs inline
 4. **Progressive Disclosure** - Start simple, add detail when needed

@@ -3,7 +3,7 @@
  * Singleton instance for database connections
  */
 
-import { PrismaClient } from '../generated/prisma/index.js'
+import { PrismaClient } from '../generated/prisma/index'
 
 // Prevent multiple instances of Prisma Client in development
 const globalForPrisma = globalThis as unknown as {

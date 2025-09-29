@@ -3,14 +3,14 @@
  * Database operations for users, families, and authentication
  */
 
-import { prisma } from '../lib/prisma.js'
+import { prisma } from '../lib/prisma'
 import type {
   User,
   Family,
   MagicToken,
   WebAuthnCredential,
   Role,
-} from '../generated/prisma/index.js'
+} from '../generated/prisma/index'
 
 // Re-export types for easier importing
 export type { User, Family, MagicToken, WebAuthnCredential, Role }
@@ -140,11 +140,14 @@ export const createMagicToken = async (
 
 export const getMagicToken = async (
   token: string,
-): Promise<MagicToken | null> => {
+): Promise<(MagicToken & { user?: User | null }) | null> => {
   return prisma.magicToken.findFirst({
     where: {
       token,
       used: false, // CRITICAL: Only return unused tokens
+      expiresAt: {
+        gte: new Date(),
+      },
     },
     include: {
       user: true,

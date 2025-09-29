@@ -304,6 +304,7 @@ const DashboardLayout: React.FC = () => {
               isActive={location.pathname === item.href}
               collapsed={!sidebarOpen && !mobileMenuOpen}
               onClick={() => setMobileMenuOpen(false)}
+              data-testid={`nav-${item.name.toLowerCase()}`}
             >
               <div className="icon">{item.icon}</div>
               <div className="text">{item.name}</div>
@@ -324,6 +325,7 @@ const DashboardLayout: React.FC = () => {
           <LogoutButton
             collapsed={!sidebarOpen && !mobileMenuOpen}
             onClick={handleLogout}
+            data-testid="logout-button"
           >
             {!sidebarOpen && !mobileMenuOpen ? '🚪' : 'Sign Out'}
           </LogoutButton>
@@ -333,7 +335,12 @@ const DashboardLayout: React.FC = () => {
       <Main>
         <Header>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <MobileMenuButton onClick={toggleMobileMenu}>☰</MobileMenuButton>
+            <MobileMenuButton
+              onClick={toggleMobileMenu}
+              data-testid="mobile-nav-toggle"
+            >
+              ☰
+            </MobileMenuButton>
             <PageTitle>{getPageTitle()}</PageTitle>
           </div>
 

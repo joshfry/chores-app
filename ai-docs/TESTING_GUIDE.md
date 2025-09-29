@@ -282,10 +282,10 @@ Before deploying or merging code, ensure:
 
 ## 🔗 **Related Documentation**
 
-- [Cypress E2E Tests](./frontend/cypress/README.md)
-- [Backend Test Setup](./backend/tests/setup.ts)
+- [Cypress E2E Tests](../frontend/cypress/README.md)
+- [Backend Test Setup](../backend/tests/setup.ts)
 - [Jest Testing Report](./JEST_TESTING_REPORT.md)
-- [Project README](./README.md)
+- [Project README](../README.md)
 
 ---
 

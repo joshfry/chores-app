@@ -15,8 +15,8 @@
     "test:backend": "echo '🔧 Backend Tests:' && pnpm --filter backend test",
     "test:frontend": "echo '🎨 Frontend Tests:' && pnpm --filter frontend test -- --watchAll=false --passWithNoTests",
     "test:unit": "pnpm run test:all",
-    "test:e2e": "echo '🚀 E2E Tests:' && pnpm --filter frontend run cypress:run",
-    "test:e2e:open": "echo '👀 E2E Tests (Interactive):' && pnpm --filter frontend run cypress:open",
+    "test:e2e": "echo '🚀 E2E Tests (assumes servers running):' && pnpm --filter frontend run cypress:run",
+    "test:e2e:open": "echo '👀 E2E Tests Interactive (assumes servers running):' && pnpm --filter frontend run cypress:open",
     "test:watch": "concurrently \"pnpm --filter backend test -- --watch\" \"pnpm --filter frontend test -- --watchAll\"",
     "test:watch:backend": "pnpm --filter backend test -- --watch",
     "test:watch:frontend": "pnpm --filter frontend test -- --watchAll",
@@ -24,7 +24,7 @@
     "test:coverage:backend": "echo '🔧 Backend Coverage:' && pnpm --filter backend test -- --coverage",
     "test:coverage:frontend": "echo '🎨 Frontend Coverage:' && pnpm --filter frontend test -- --coverage --watchAll=false",
     "test:full": "echo '🎯 Full Test Suite:' && pnpm run test:coverage && pnpm run test:e2e",
-    "test:comprehensive": "bash ./test-all.sh",
+    "test:comprehensive": "bash ./scripts/test-all.sh",
     "build": "pnpm --filter backend build && pnpm --filter frontend build",
     "clean": "pnpm --filter backend clean && pnpm --filter frontend clean",
     "install-all": "pnpm install",
@@ -38,5 +38,8 @@
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "node-fetch": "2"
+  }
 }

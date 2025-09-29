@@ -4,8 +4,8 @@
  */
 
 import express, { Request, Response } from 'express'
-import * as authModels from '../models/auth-prisma.js'
-import { prisma } from '../lib/prisma.js'
+import * as authModels from '../models/auth-prisma'
+import { prisma } from '../lib/prisma'
 
 const router = express.Router()
 
@@ -103,6 +103,63 @@ router.get('/stats', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Stats query failed',
+      message: (error as Error).message,
+    })
+  }
+})
+
+// GET /test/magic-tokens/latest - Fetch most recent unused token for email
+router.get('/magic-tokens/latest', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.query
+
+    if (!email || typeof email !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: 'Email query parameter is required',
+      })
+      return
+    }
+
+    const token = await prisma.magicToken.findFirst({
+      where: {
+        user: { email },
+        used: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+      },
+    })
+
+    if (!token) {
+      res.status(404).json({
+        success: false,
+        error: 'No unused magic token found for this email',
+      })
+      return
+    }
+
+    res.json({
+      success: true,
+      data: {
+        token: token.token,
+        expiresAt: token.expiresAt,
+        user: token.user,
+      },
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch magic token',
       message: (error as Error).message,
     })
   }

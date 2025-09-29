@@ -29,9 +29,9 @@ describe('Frontend-Backend API Integration', () => {
       cy.visit('/signup')
 
       // Fill form and submit
-      cy.get('[data-cy=email-input]').type(testUser.email)
-      cy.get('[data-cy=name-input]').type(testUser.name)
-      cy.get('[data-cy=family-name-input]').type(testUser.familyName)
+      cy.get('[data-testid=email-input]').type(testUser.email)
+      cy.get('[data-testid=name-input]').type(testUser.name)
+      cy.get('[data-testid=family-name-input]').type(testUser.familyName)
 
       // Intercept the API call to verify it's made correctly
       cy.intercept('POST', '**/api/auth/signup', (req) => {
@@ -68,7 +68,7 @@ describe('Frontend-Backend API Integration', () => {
         })
       }).as('signupRequest')
 
-      cy.get('[data-cy=signup-button]').click()
+      cy.get('[data-testid=signup-button]').click()
 
       // Verify API call was made
       cy.wait('@signupRequest')
@@ -91,8 +91,8 @@ describe('Frontend-Backend API Integration', () => {
         },
       }).as('sendMagicLinkRequest')
 
-      cy.get('[data-cy=email-input]').type('existing@example.com')
-      cy.get('[data-cy=send-magic-link-button]').click()
+      cy.get('[data-testid=email-input]').type('existing@example.com')
+      cy.get('[data-testid=send-magic-link-button]').click()
 
       cy.wait('@sendMagicLinkRequest')
       cy.contains('magic link sent', { matchCase: false }).should('be.visible')
@@ -133,7 +133,7 @@ describe('Frontend-Backend API Integration', () => {
       cy.wait('@validateSession')
 
       // Should display user info
-      cy.get('[data-cy=user-welcome]').should('be.visible')
+      cy.get('[data-testid=user-welcome]').should('be.visible')
     })
   })
 
@@ -226,9 +226,9 @@ describe('Frontend-Backend API Integration', () => {
       cy.wait('@getDashboardStats')
 
       // Verify statistics are displayed
-      cy.get('[data-cy=stat-children]').should('contain', '2')
-      cy.get('[data-cy=stat-chores]').should('contain', '5')
-      cy.get('[data-cy=stat-assignments]').should('contain', '12')
+      cy.get('[data-testid=stat-children]').should('contain', '2')
+      cy.get('[data-testid=stat-chores]').should('contain', '5')
+      cy.get('[data-testid=stat-assignments]').should('contain', '12')
     })
   })
 
@@ -283,7 +283,7 @@ describe('Frontend-Backend API Integration', () => {
       cy.wait('@serverError')
 
       // Should show error message or fallback content
-      cy.get('[data-cy=error-message]').should('be.visible')
+      cy.get('[data-testid=error-message]').should('be.visible')
       cy.contains('error', { matchCase: false }).should('be.visible')
     })
 
@@ -331,7 +331,7 @@ describe('Frontend-Backend API Integration', () => {
       cy.wait('@getAssignments')
 
       // Simulate marking assignment as complete
-      cy.get('[data-cy=mark-complete-button]').first().click()
+      cy.get('[data-testid=mark-complete-button]').first().click()
 
       // Should refetch assignments
       cy.wait('@getAssignments')
@@ -357,8 +357,8 @@ describe('Frontend-Backend API Integration', () => {
       cy.wait('@getChores')
 
       // Navigate away and back
-      cy.get('[data-cy=nav-dashboard]').click()
-      cy.get('[data-cy=nav-chores]').click()
+      cy.get('[data-testid=nav-dashboard]').click()
+      cy.get('[data-testid=nav-chores]').click()
 
       // Depending on caching strategy, may or may not make another request
       cy.then(() => {
@@ -414,7 +414,7 @@ describe('Frontend-Backend API Integration', () => {
       cy.wait('@malformedResponse')
 
       // Should handle malformed response gracefully
-      cy.get('[data-cy=error-message]').should('be.visible')
+      cy.get('[data-testid=error-message]').should('be.visible')
     })
   })
 

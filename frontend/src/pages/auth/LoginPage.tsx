@@ -180,7 +180,7 @@ const LoginPage: React.FC = () => {
           </SuccessMessage>
         )}
 
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} data-testid="login-form">
           <FormGroup>
             <Label htmlFor="email">Email Address</Label>
             <Input
@@ -190,11 +190,16 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="parent@example.com"
               required
+              data-testid="login-email"
             />
           </FormGroup>
 
           <FormGroup>
-            <Button type="submit" disabled={isSubmitting || !isValidEmail}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !isValidEmail}
+              data-testid="login-submit"
+            >
               {isSubmitting ? 'Sending Magic Link...' : 'Send Magic Link'}
             </Button>
           </FormGroup>

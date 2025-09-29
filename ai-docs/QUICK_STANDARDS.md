@@ -59,5 +59,5 @@ Before submitting ANY work:
 
 ---
 
-**📖 Detailed guides:** `ENTERPRISE_STANDARDS.md` | **Examples:** See existing codebase
-**🧪 Testing:** `TESTING_GUIDE.md` | **Setup:** `WORKSPACE_TESTS.md`
+**📖 Detailed guides:** [`ENTERPRISE_STANDARDS.md`](./ENTERPRISE_STANDARDS.md) | **Examples:** See existing codebase
+**🧪 Testing:** [`TESTING_GUIDE.md`](./TESTING_GUIDE.md) | **Setup:** [`WORKSPACE_TESTS.md`](./WORKSPACE_TESTS.md)

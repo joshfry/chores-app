@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams, Navigate } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
@@ -96,10 +96,15 @@ const VerifyPage: React.FC = () => {
   )
   const [errorMessage, setErrorMessage] = useState('')
   const { state, verifyMagicToken } = useAuth()
+  const hasAttemptedVerification = useRef(false)
 
   const token = searchParams.get('token')
 
   useEffect(() => {
+    if (hasAttemptedVerification.current) {
+      return
+    }
+
     const verify = async () => {
       if (!token) {
         setStatus('error')
@@ -107,30 +112,66 @@ const VerifyPage: React.FC = () => {
         return
       }
 
+      console.log('🔍 Starting verification with token:', token)
+
       try {
+        hasAttemptedVerification.current = true
         const success = await verifyMagicToken(token)
+        console.log('✅ Verification result:', success)
+        console.log('🔐 Auth state after verification:', state)
 
         if (success) {
           setStatus('success')
+          console.log('🎉 Setting status to success')
         } else {
           setStatus('error')
           setErrorMessage(
             state.error ||
               'Verification failed. The link may be expired or invalid.',
           )
+          console.log('❌ Verification failed:', state.error)
         }
       } catch (error) {
+        console.error('💥 Verification error:', error)
         setStatus('error')
         setErrorMessage('An unexpected error occurred during verification.')
       }
     }
 
     verify()
-  }, [token, verifyMagicToken, state.error])
+  }, [token, verifyMagicToken])
 
-  // Redirect to dashboard if already authenticated and verification succeeded
-  if (state.isAuthenticated && status === 'success') {
+  // Auto-redirect after successful verification with delay for user feedback
+  useEffect(() => {
+    console.log(
+      '🚀 Redirect effect triggered - status:',
+      status,
+      'isAuthenticated:',
+      state.isAuthenticated,
+    )
+    if (status === 'success' && state.isAuthenticated) {
+      console.log('🎯 Setting up redirect timer')
+      const timer = setTimeout(() => {
+        console.log('⏰ Timer fired - redirecting to dashboard')
+        window.location.href = '/dashboard'
+      }, 2000) // 2 second delay to show success message
+
+      return () => {
+        console.log('🧹 Clearing redirect timer')
+        clearTimeout(timer)
+      }
+    }
+  }, [status, state.isAuthenticated])
+
+  // Redirect to dashboard if verification succeeded and user is authenticated
+  if (status === 'success' && state.isAuthenticated) {
+    console.log('🏃‍♂️ Immediate redirect via Navigate component')
     return <Navigate to="/dashboard" replace />
+  }
+
+  // Show success message with manual redirect if auth state hasn't updated yet
+  const handleGoToDashboard = () => {
+    window.location.href = '/dashboard'
   }
 
   const renderContent = () => {
@@ -148,11 +189,12 @@ const VerifyPage: React.FC = () => {
         return (
           <>
             <Icon type="success">✓</Icon>
-            <Title>Welcome to Your Family Dashboard!</Title>
+            <Title>Verification Successful!</Title>
             <Message>
-              Your account has been verified successfully. You'll be redirected
-              to your dashboard in a moment.
+              Your account has been verified. Redirecting you to the
+              dashboard...
             </Message>
+            <Button onClick={handleGoToDashboard}>Go to Dashboard</Button>
           </>
         )
 

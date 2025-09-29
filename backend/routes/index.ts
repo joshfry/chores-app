@@ -3,11 +3,11 @@ import express, { Request, Response } from 'express'
 const router = express.Router()
 
 // Import route modules
-import authRoutes from './auth.js'
-import childrenRoutes from './children.js'
-import choresRoutes from './chores.js'
-import assignmentsRoutes from './assignments.js'
-import databaseTestRoutes from './database-test.js'
+import authRoutes from './auth'
+import childrenRoutes from './children'
+import choresRoutes from './chores'
+import assignmentsRoutes from './assignments'
+import databaseTestRoutes from './database-test'
 
 // Mount route modules
 router.use('/auth', authRoutes)

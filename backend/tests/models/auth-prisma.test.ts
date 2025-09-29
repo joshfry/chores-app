@@ -7,7 +7,11 @@ import { PrismaClient } from '../../generated/prisma'
 
 // Mock Prisma client
 jest.mock('../../generated/prisma', () => ({
-  PrismaClient: jest.fn().mockImplementation(() => ({
+  PrismaClient: jest.fn(),
+}))
+
+jest.mock('../../lib/prisma', () => ({
+  prisma: {
     user: {
       create: jest.fn(),
       findFirst: jest.fn(),
@@ -15,6 +19,7 @@ jest.mock('../../generated/prisma', () => ({
       findMany: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
     family: {
       create: jest.fn(),
@@ -33,15 +38,23 @@ jest.mock('../../generated/prisma', () => ({
       findMany: jest.fn(),
       delete: jest.fn(),
     },
-  })),
+    chore: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+    assignment: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+    $disconnect: jest.fn(),
+  },
 }))
 
 describe('Auth Prisma Models', () => {
-  let mockPrisma: jest.Mocked<PrismaClient>
+  const mockPrisma = require('../../lib/prisma').prisma
 
   beforeEach(() => {
-    mockPrisma = new PrismaClient() as jest.Mocked<PrismaClient>
-    ;(authModels as any).prisma = mockPrisma
+    jest.clearAllMocks()
   })
 
   describe('User Operations', () => {
@@ -55,7 +68,18 @@ describe('Auth Prisma Models', () => {
         const result = await authModels.createUser(userData)
 
         expect(mockPrisma.user.create).toHaveBeenCalledWith({
-          data: userData,
+          data: {
+            email: userData.email,
+            role: userData.role,
+            name: userData.name,
+            familyId: userData.familyId,
+            birthdate: userData.birthdate,
+            totalPoints: userData.totalPoints,
+            createdBy: userData.createdBy,
+            isActive: true,
+            lastLogin: expect.any(Date),
+          },
+          include: { family: true },
         })
         expect(result).toEqual(expectedUser)
       })
@@ -73,11 +97,11 @@ describe('Auth Prisma Models', () => {
     describe('getUserByEmail', () => {
       it('should return user when found', async () => {
         const testUser = { id: 1, ...testUtils.createTestUser() }
-        mockPrisma.user.findFirst.mockResolvedValue(testUser as any)
+        mockPrisma.user.findUnique.mockResolvedValue(testUser as any)
 
         const result = await authModels.getUserByEmail('test@example.com')
 
-        expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
+        expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
           where: { email: 'test@example.com' },
           include: { family: true },
         })
@@ -85,7 +109,7 @@ describe('Auth Prisma Models', () => {
       })
 
       it('should return null when user not found', async () => {
-        mockPrisma.user.findFirst.mockResolvedValue(null)
+        mockPrisma.user.findUnique.mockResolvedValue(null)
 
         const result = await authModels.getUserByEmail(
           'nonexistent@example.com',
@@ -227,6 +251,7 @@ describe('Auth Prisma Models', () => {
           where: {
             token: 'magic_test_token',
             used: false,
+            expiresAt: { gte: expect.any(Date) },
           },
           include: { user: true },
         })

@@ -4,13 +4,13 @@
  */
 
 import express, { Request, Response } from 'express'
-import * as authModels from '../models/auth-prisma.js'
+import * as authModels from '../models/auth-prisma'
 import {
   createSession,
   requireAuth,
   requireParent,
   getCurrentUser,
-} from '../middleware/auth.js'
+} from '../middleware/auth'
 
 const router = express.Router()
 
@@ -144,6 +144,7 @@ router.post(
           success: false,
           error: 'User not found or inactive',
         })
+        return
       }
 
       // Create magic token
@@ -186,6 +187,7 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
         success: false,
         error: 'Token is required',
       })
+      return
     }
 
     const magicToken = await authModels.getMagicToken(token as string)
@@ -194,40 +196,32 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
         success: false,
         error: 'Invalid or expired token',
       })
-    }
-
-    // Check if token is expired
-    const now = new Date()
-    const expiresAt = new Date(magicToken!.expiresAt)
-    if (now > expiresAt) {
-      res.status(400).json({
-        success: false,
-        error: 'Token has expired',
-      })
+      return
     }
 
     // Get user
-    const user = await authModels.getUserById(magicToken!.userId)
+    const user = await authModels.getUserById(magicToken.userId)
     if (!user || !user.isActive) {
       res.status(404).json({
         success: false,
         error: 'User not found or inactive',
       })
+      return
     }
 
     // Mark token as used
     await authModels.markTokenAsUsed(token as string)
 
     // Update last login
-    await authModels.updateUser(user!.id, {
+    await authModels.updateUser(user.id, {
       lastLogin: new Date(),
     })
 
     // Create session
-    const sessionToken = createSession(user!.id)
+    const sessionToken = createSession(user.id)
 
     // Get family info
-    const family = await authModels.getFamilyById(user!.familyId)
+    const family = await authModels.getFamilyById(user.familyId)
 
     res.json({
       success: true,
@@ -235,11 +229,11 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
       data: {
         sessionToken,
         user: {
-          id: user!.id,
-          email: user!.email,
-          name: user!.name,
-          role: user!.role,
-          familyId: user!.familyId,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          familyId: user.familyId,
         },
         family: family
           ? {

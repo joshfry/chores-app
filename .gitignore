@@ -89,3 +89,9 @@ Thumbs.db
 yarn.lock
 package-lock.json
 # Keep pnpm-lock.yaml for workspace consistency
+
+# Cypress testing
+cypress/screenshots/
+cypress/videos/
+**/cypress/screenshots/**
+**/cypress/videos/**

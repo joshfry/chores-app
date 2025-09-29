@@ -64,14 +64,14 @@ The enhanced workspace configuration provides these root-level commands:
     "test:e2e": "echo '🚀 E2E Tests:' && pnpm --filter frontend run cypress:run",
     "test:watch": "concurrently \"pnpm --filter backend test -- --watch\" \"pnpm --filter frontend test -- --watchAll\"",
     "test:coverage": "echo '📊 Test Coverage Reports:' && pnpm run test:coverage:backend && pnpm run test:coverage:frontend",
-    "test:comprehensive": "bash ./test-all.sh"
+    "test:comprehensive": "bash ./scripts/test-all.sh"
   }
 }
 ```
 
 ### **Smart Test Runner Script**
 
-The `test-all.sh` script provides intelligent testing:
+The `scripts/test-all.sh` script provides intelligent testing:
 
 ```bash
 #!/bin/bash
@@ -96,8 +96,10 @@ The `test-all.sh` script provides intelligent testing:
 chores/ (root)
 ├── package.json              # Root workspace config with test scripts
 ├── pnpm-workspace.yaml       # Workspace packages definition
-├── test-all.sh              # Comprehensive test runner script
-├── TESTING_GUIDE.md          # Complete testing documentation
+├── scripts/
+│   ├── test-all.sh              # Comprehensive test runner script
+│   └── start-both-servers.js    # E2E server starter
+├── ai-docs/TESTING_GUIDE.md          # Complete testing documentation
 ├── backend/
 │   ├── package.json          # Backend-specific test scripts
 │   ├── jest.config.js        # Jest configuration for TypeScript

@@ -190,8 +190,8 @@ chores/
 
 **CRITICAL: Everything developed for this project MUST be enterprise-ready.**
 
-- ⚠️ **MANDATORY**: Read `ENTERPRISE_STANDARDS.md` before making ANY changes
-- ⚠️ **MANDATORY**: Read `.agent-notes.md` for critical agent instructions
+- ⚠️ **MANDATORY**: Read `ai-docs/ENTERPRISE_STANDARDS.md` before making ANY changes
+- ⚠️ **MANDATORY**: Read `ai-docs/.agent-notes.md` for critical agent instructions
 - ✅ **90%+ test coverage** required (currently: 110+ comprehensive tests)
 - ✅ **Production-grade security** (proper auth, validation, error handling)
 - ✅ **Professional documentation** (complete guides, API docs, troubleshooting)

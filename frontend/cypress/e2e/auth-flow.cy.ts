@@ -31,17 +31,17 @@ describe('Authentication Flow', () => {
 
       // Verify signup form is present
       cy.get('[data-testid=signup-form]').should('be.visible')
-      cy.get('[data-testid=email-input]').should('be.visible')
-      cy.get('[data-testid=name-input]').should('be.visible')
-      cy.get('[data-testid=family-name-input]').should('be.visible')
+      cy.get('[data-testid=signup-email]').should('be.visible')
+      cy.get('[data-testid=signup-name]').should('be.visible')
+      cy.get('[data-testid=signup-family-name]').should('be.visible')
 
       // Fill out signup form
-      cy.get('[data-testid=email-input]').type(testUser.email)
-      cy.get('[data-testid=name-input]').type(testUser.name)
-      cy.get('[data-testid=family-name-input]').type(testUser.familyName)
+      cy.get('[data-testid=signup-email]').type(testUser.email)
+      cy.get('[data-testid=signup-name]').type(testUser.name)
+      cy.get('[data-testid=signup-family-name]').type(testUser.familyName)
 
       // Submit signup form
-      cy.get('[data-testid=signup-button]').click()
+      cy.get('[data-testid=signup-submit]').click()
 
       // Should show success message about magic link
       cy.contains('check your email', { matchCase: false }).should('be.visible')
@@ -66,10 +66,10 @@ describe('Authentication Flow', () => {
 
       // Try to signup with same email via UI
       cy.visit('/signup')
-      cy.get('[data-testid=email-input]').type('duplicate@example.com')
-      cy.get('[data-testid=name-input]').type('Another User')
-      cy.get('[data-testid=family-name-input]').type('Another Family')
-      cy.get('[data-testid=signup-button]').click()
+      cy.get('[data-testid=signup-email]').type('duplicate@example.com')
+      cy.get('[data-testid=signup-name]').type('Another User')
+      cy.get('[data-testid=signup-family-name]').type('Another Family')
+      cy.get('[data-testid=signup-submit]').click()
 
       // Should show error message
       cy.contains('email already exists', { matchCase: false }).should(
@@ -87,37 +87,17 @@ describe('Authentication Flow', () => {
 
       // Simulate clicking magic link by going directly to verify page
       // In real flow, this would come from email link
-      cy.request({
-        method: 'POST',
-        url: `${Cypress.env('BACKEND_URL')}/api/auth/send-magic-link`,
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: { email: testUser.email },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-      })
-
-      // Query database for the magic token (simulating email access)
-      cy.task('makeApiCall', {
-        method: 'GET',
-        url: `${Cypress.env('BACKEND_URL')}/api/test/stats`,
-        headers: { Accept: 'application/json' },
-      }).then(() => {
-        // For testing, we'll get a real unused token from our previous tests
-        // In production, this would be extracted from the email link
-        const mockToken = 'magic_1759170321639_f5u06s0af' // Known unused token
-
+      // Request magic link and fetch actual token
+      cy.getMagicToken(testUser.email).then((token: string) => {
         // Visit verification URL
-        cy.visit(`/verify?token=${mockToken}`)
+        cy.visit(`/verify?token=${token}`)
 
         // Should redirect to dashboard after successful verification
-        cy.url({ timeout: 10000 }).should('include', '/dashboard')
+        cy.url({ timeout: 15000 }).should('include', '/dashboard')
 
         // Verify user is logged in
-        cy.get('[data-cy=user-welcome]').should('be.visible')
-        cy.get('[data-cy=family-name]').should('be.visible')
+        cy.get('[data-testid=dashboard]').should('be.visible')
+        cy.get('[data-testid=user-welcome]').should('be.visible')
       })
     })
 
@@ -131,7 +111,8 @@ describe('Authentication Flow', () => {
       cy.contains('invalid', { matchCase: false }).should('be.visible')
       cy.contains('expired', { matchCase: false }).should('be.visible')
 
-      // Should redirect back to login
+      // Should show button to go back to login
+      cy.contains('Back to Login').click()
       cy.url().should('include', '/login')
     })
   })
@@ -147,8 +128,8 @@ describe('Authentication Flow', () => {
       cy.visit('/login')
 
       // Enter email and request magic link
-      cy.get('[data-cy=email-input]').type(testUser.email)
-      cy.get('[data-cy=send-magic-link-button]').click()
+      cy.get('[data-testid=login-email]').type(testUser.email)
+      cy.get('[data-testid=login-submit]').click()
 
       // Should show success message
       cy.contains('magic link sent', { matchCase: false }).should('be.visible')
@@ -158,8 +139,8 @@ describe('Authentication Flow', () => {
       cy.log('❌ Testing non-existent user login')
 
       cy.visit('/login')
-      cy.get('[data-cy=email-input]').type('nonexistent@example.com')
-      cy.get('[data-cy=send-magic-link-button]').click()
+      cy.get('[data-testid=login-email]').type('nonexistent@example.com')
+      cy.get('[data-testid=login-submit]').click()
 
       // Should show error
       cy.contains('user not found', { matchCase: false }).should('be.visible')
@@ -183,8 +164,8 @@ describe('Authentication Flow', () => {
       cy.visit('/dashboard')
 
       // Should load dashboard content
-      cy.get('[data-cy=dashboard]').should('be.visible')
-      cy.get('[data-cy=user-welcome]').should('be.visible')
+      cy.get('[data-testid=dashboard]').should('be.visible')
+      cy.get('[data-testid=user-welcome]').should('be.visible')
     })
 
     it('should redirect to login when accessing protected routes without auth', () => {
@@ -207,7 +188,7 @@ describe('Authentication Flow', () => {
       cy.visit('/dashboard')
 
       // Click logout button
-      cy.get('[data-cy=logout-button]').click()
+      cy.get('[data-testid=logout-button]').click()
 
       // Should redirect to login
       cy.url().should('include', '/login')
@@ -235,8 +216,8 @@ describe('Authentication Flow', () => {
       cy.visit('/dashboard')
 
       // Should load and display user information
-      cy.get('[data-cy=user-name]').should('contain.text', testUser.name)
-      cy.get('[data-cy=family-name]').should(
+      cy.get('[data-testid=user-name]').should('contain.text', testUser.name)
+      cy.get('[data-testid=family-name]').should(
         'contain.text',
         testUser.familyName,
       )

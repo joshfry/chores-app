@@ -62,12 +62,12 @@ else
 fi
 echo ""
 
-# 3. E2E Tests (optional - only if servers are running)
-print_status "Checking if E2E tests can run..."
+# 3. E2E Tests (requires servers to be running)
+print_status "Checking for running servers and E2E tests..."
 if lsof -ti:3001 > /dev/null 2>&1 && lsof -ti:3000 > /dev/null 2>&1; then
     print_status "Both servers detected - Running E2E Tests..."
     echo "🚀 Testing complete user journeys"
-    if pnpm --filter frontend run cypress:run; then
+    if pnpm run test:e2e; then
         print_success "E2E tests passed!"
         E2E_TESTS_PASSED=true
     else

@@ -40,17 +40,39 @@ Cypress.Commands.add(
         failOnStatusCode: false, // Allow 409 conflicts for existing users
       })
       .then((response) => {
-        if (response.status === 201) {
-          cy.log('✅ Test user created successfully')
+        if (response.status === 201 || response.status === 200) {
+          cy.log('✅ Test user created or already exists via API')
           return response.body
-        } else if (response.status === 409) {
+        }
+
+        if (response.status === 409) {
           cy.log('ℹ️ User already exists, continuing...')
           return { success: true, existed: true }
-        } else {
-          throw new Error(
-            `Failed to create user: ${response.status} ${response.body?.error}`,
-          )
         }
+
+        throw new Error(
+          `Failed to create user: ${response.status} ${response.body?.error}`,
+        )
+      })
+      .then(() => {
+        // Ensure the user exists before proceeding by fetching from test endpoint
+        return cy.request({
+          method: 'GET',
+          url: `${backendUrl}/api/test/latest-user?email=${encodeURIComponent(
+            userData.email,
+          )}`,
+          headers: {
+            Accept: 'application/json',
+          },
+        })
+      })
+      .then((response) => {
+        expect(response.status).to.eq(200)
+        const { user } = response.body.data || {}
+        if (!user) {
+          throw new Error('Failed to confirm user creation via test endpoint')
+        }
+        return response.body
       })
   },
 )
@@ -61,35 +83,34 @@ Cypress.Commands.add(
 Cypress.Commands.add('getMagicToken', (email: string) => {
   const backendUrl = Cypress.env('BACKEND_URL')
 
-  // First trigger magic link generation
-  cy.request({
-    method: 'POST',
-    url: `${backendUrl}/api/auth/send-magic-link`,
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: { email },
-  }).then((response) => {
-    expect(response.status).to.eq(200)
-  })
-
-  // Use a task to query the database for the most recent token
-  // This simulates accessing the magic link from email/server logs
   return cy
-    .task('makeApiCall', {
-      method: 'GET',
-      url: `${backendUrl}/api/test/stats`, // Using this to verify backend is accessible
-      headers: { Accept: 'application/json' },
+    .request({
+      method: 'POST',
+      url: `${backendUrl}/api/auth/send-magic-link`,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: { email },
     })
-    .then(() => {
-      // In a real scenario, you'd query the database or intercept the email
-      // For testing, we'll use a mock token pattern that the backend recognizes
-      const mockToken = `magic_${Date.now()}_testtoken`
+    .then((response) => {
+      expect(response.status).to.eq(200)
 
-      // Store the token pattern for the test
-      cy.wrap(mockToken).as('currentMagicToken')
-      return cy.get('@currentMagicToken')
+      return cy.request({
+        method: 'GET',
+        url: `${backendUrl}/api/test/magic-tokens/latest?email=${encodeURIComponent(
+          email,
+        )}`,
+        headers: { Accept: 'application/json' },
+      })
+    })
+    .then((response) => {
+      expect(response.status).to.eq(200)
+      const { token } = response.body.data || {}
+      if (!token) {
+        throw new Error('Failed to retrieve magic token from testing endpoint')
+      }
+      return token as string
     })
 })
 

@@ -217,7 +217,7 @@ const SignupPage: React.FC = () => {
           </SuccessMessage>
         )}
 
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} data-testid="signup-form">
           <FormGroup>
             <Label htmlFor="email">Email Address</Label>
             <Input
@@ -228,6 +228,7 @@ const SignupPage: React.FC = () => {
               onChange={handleChange}
               placeholder="parent@example.com"
               required
+              data-testid="signup-email"
             />
           </FormGroup>
 
@@ -242,6 +243,7 @@ const SignupPage: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Sarah Johnson"
                 required
+                data-testid="signup-name"
               />
             </FormGroup>
 
@@ -255,6 +257,7 @@ const SignupPage: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Johnson Family"
                 required
+                data-testid="signup-family-name"
               />
             </FormGroup>
           </Row>
@@ -271,7 +274,11 @@ const SignupPage: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <Button type="submit" disabled={isSubmitting || !isValid}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !isValid}
+              data-testid="signup-submit"
+            >
               {isSubmitting ? 'Creating Account...' : 'Create Family Account'}
             </Button>
           </FormGroup>

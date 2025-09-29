@@ -11,12 +11,24 @@ import * as authModels from '../../models/auth-prisma'
 
 // Mock middleware
 jest.mock('../../middleware/auth')
-import { createSession } from '../../middleware/auth'
+import {
+  createSession,
+  requireAuth,
+  requireParent,
+  getCurrentUser,
+} from '../../middleware/auth'
 
 describe('Authentication Routes', () => {
   const mockAuthModels = authModels as jest.Mocked<typeof authModels>
   const mockCreateSession = createSession as jest.MockedFunction<
     typeof createSession
+  >
+  const mockRequireAuth = requireAuth as jest.MockedFunction<typeof requireAuth>
+  const mockRequireParent = requireParent as jest.MockedFunction<
+    typeof requireParent
+  >
+  const mockGetCurrentUser = getCurrentUser as jest.MockedFunction<
+    typeof getCurrentUser
   >
 
   beforeEach(() => {
@@ -96,15 +108,22 @@ describe('Authentication Routes', () => {
     it('should require JSON Accept header', async () => {
       const response = await request(app)
         .post('/api/auth/signup')
-        .send({ email: 'test@example.com' })
+        .set('Accept', 'text/html')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: 'test@example.com',
+          name: 'Test User',
+          familyName: 'Test Family',
+        })
 
       expect(response.status).toBe(406)
+      expect(response.body.error).toBe('Not Acceptable')
     })
   })
 
   describe('POST /api/auth/send-magic-link', () => {
     it('should send magic link to existing user', async () => {
-      const testUser = testUtils.createTestUser()
+      const testUser = { ...testUtils.createTestUser(), isActive: true }
 
       mockAuthModels.getUserByEmail.mockResolvedValue(testUser as any)
       mockAuthModels.createMagicToken.mockResolvedValue({} as any)
@@ -147,12 +166,16 @@ describe('Authentication Routes', () => {
         token: 'magic_test_token',
         expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
         used: false,
-        user: testUser,
+        user: { ...testUser, isActive: true },
       }
 
       mockAuthModels.getMagicToken.mockResolvedValue(mockToken as any)
-      mockAuthModels.getUserById.mockResolvedValue(testUser as any)
+      mockAuthModels.getUserById.mockResolvedValue({
+        ...testUser,
+        isActive: true,
+      } as any)
       mockAuthModels.getFamilyById.mockResolvedValue(testFamily as any)
+      mockAuthModels.markTokenAsUsed.mockResolvedValue(true)
       mockAuthModels.markTokenAsUsed.mockResolvedValue(true)
       mockAuthModels.updateUser.mockResolvedValue(testUser as any)
       mockCreateSession.mockReturnValue('session_test_token_123')
@@ -166,8 +189,10 @@ describe('Authentication Routes', () => {
       expect(response.body.data.sessionToken).toBe('session_test_token_123')
       expect(response.body.data.user).toEqual(
         expect.objectContaining({
-          id: testUser.id,
           email: testUser.email,
+          name: testUser.name,
+          role: testUser.role,
+          familyId: testUser.familyId,
         }),
       )
 
@@ -213,14 +238,29 @@ describe('Authentication Routes', () => {
 
   describe('GET /api/auth/me (Protected)', () => {
     it('should return current user info when authenticated', async () => {
-      // This test would need to mock the requireAuth middleware
-      // For now, we test the endpoint structure
+      const testUser = { ...testUtils.createTestUser(), isActive: true }
+
+      // Mock middleware and getCurrentUser
+      mockRequireAuth.mockImplementation(
+        async (req: any, res: any, next: any) => {
+          req.user = testUser
+          next()
+        },
+      )
+      mockGetCurrentUser.mockReturnValue(testUser)
+
       const response = await request(app)
         .get('/api/auth/me')
         .set('Accept', 'application/json')
 
-      // Without proper auth, should return 401
-      expect(response.status).toBe(401)
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+      expect(response.body.data.user).toEqual(
+        expect.objectContaining({
+          email: testUser.email,
+          name: testUser.name,
+        }),
+      )
     })
   })
 
@@ -232,15 +272,46 @@ describe('Authentication Routes', () => {
         birthdate: '2015-03-15',
       }
 
-      // This would need proper authentication mocking
+      // Mock middleware and functions
+      const testUser = {
+        ...testUtils.createTestUser(),
+        role: 'parent',
+        isActive: true,
+      }
+      const mockChild = { id: 2, ...childData, role: 'child' }
+
+      mockRequireAuth.mockImplementation(
+        async (req: any, res: any, next: any) => {
+          req.user = testUser
+          next()
+        },
+      )
+
+      mockRequireParent.mockImplementation(
+        async (req: any, res: any, next: any) => {
+          next()
+        },
+      )
+
+      mockGetCurrentUser.mockReturnValue(testUser)
+
+      mockAuthModels.createUser.mockResolvedValue(mockChild as any)
+
       const response = await request(app)
         .post('/api/auth/create-child')
         .send(childData)
         .set('Accept', 'application/json')
         .set('Content-Type', 'application/json')
 
-      // Without proper auth, should return 401
-      expect(response.status).toBe(401)
+      expect(response.status).toBe(201)
+      expect(response.body.success).toBe(true)
+      expect(response.body.data.child).toEqual(
+        expect.objectContaining({
+          email: childData.email,
+          name: childData.name,
+          role: 'child',
+        }),
+      )
     })
   })
 })
