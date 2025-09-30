@@ -3,7 +3,7 @@
  * Configures middleware, routes, and error handling
  */
 
-import express, { Request, Response } from 'express'
+import express, { Request, Response, Application } from 'express'
 import cors from 'cors'
 
 import config from './config/server'
@@ -15,7 +15,7 @@ import {
 import apiRoutes from './routes/index'
 import basicRoutes from './routes/basic'
 
-const app = express()
+const app: Application = express()
 
 // Basic middleware
 app.use(cors(config.cors))

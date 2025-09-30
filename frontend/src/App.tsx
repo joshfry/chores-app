@@ -25,7 +25,7 @@ import AssignmentsPage from './pages/assignments/AssignmentsPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
-  return (
+  const tree = (
     <AuthProvider>
       <Router>
         <Routes>
@@ -58,6 +58,12 @@ function App() {
       </Router>
     </AuthProvider>
   )
+
+  if (process.env.NODE_ENV === 'test') {
+    return tree
+  }
+
+  return <React.StrictMode>{tree}</React.StrictMode>
 }
 
 export default App

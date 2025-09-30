@@ -6,7 +6,7 @@ This guide shows you how to add `data-testid` attributes to your React component
 
 ## 🎯 **Why `data-testid`?**
 
-- **✅ Framework Agnostic**: Works with Cypress, Jest, Playwright, Testing Library
+- **✅ Framework Agnostic**: Works with Jest, Playwright, Testing Library
 - **✅ Industry Standard**: Most widely adopted testing attribute
 - **✅ Consistent**: Same attributes for unit, integration, and E2E tests
 - **✅ Future Proof**: Won't be tied to specific testing frameworks
@@ -298,7 +298,6 @@ const UserList = ({ users, loading, error }) => {
 
 Once you add these attributes, your tests will work with:
 
-- **✅ Cypress E2E Tests**: `cy.get('[data-testid=login-button]')`
 - **✅ Jest Unit Tests**: `getByTestId('login-button')`
 - **✅ React Testing Library**: `screen.getByTestId('login-button')`
 - **✅ Playwright Tests**: `page.locator('[data-testid=login-button]')`

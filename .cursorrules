@@ -186,6 +186,17 @@ chores/
 
 ## AI Assistant Guidelines
 
+### **🎨 STYLING POLICY (CRITICAL)**
+
+**This project uses styled-components with EMPTY templates. The developer provides all CSS.**
+
+- ✅ **DO**: Keep styled-component declarations with empty templates: ` styled.div` ``
+- ✅ **DO**: Preserve component structure, props, and data-testid attributes
+- ❌ **DON'T**: Add CSS to styled-components or use inline `style={{}}` props
+- ❌ **DON'T**: Suggest CSS frameworks or create new CSS files
+
+**See `ai-docs/STYLING_APPROACH.md` for complete details.**
+
 ### **🏢 ENTERPRISE-READY REQUIREMENT**
 
 **CRITICAL: Everything developed for this project MUST be enterprise-ready.**

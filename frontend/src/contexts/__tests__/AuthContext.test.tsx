@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '../AuthContext'
 jest.mock('../../services/api', () => ({
   api: {
     isAuthenticated: jest.fn(),
+    getSessionToken: jest.fn(),
     getCurrentUser: jest.fn(),
     sendMagicLink: jest.fn(),
     signup: jest.fn(),
@@ -87,7 +88,7 @@ describe('AuthContext', () => {
 
   describe('Initial State', () => {
     it('should start with loading state when user is authenticated', async () => {
-      mockApi.isAuthenticated.mockReturnValue(true)
+      mockApi.getSessionToken.mockReturnValue('test-session-token')
       mockApi.getCurrentUser.mockResolvedValue({
         success: true,
         data: {
@@ -121,7 +122,7 @@ describe('AuthContext', () => {
     })
 
     it('should start unauthenticated when no session token', async () => {
-      mockApi.isAuthenticated.mockReturnValue(false)
+      mockApi.getSessionToken.mockReturnValue(null)
 
       render(
         <AuthProvider>
@@ -372,6 +373,7 @@ describe('AuthContext', () => {
     })
 
     it('should refresh user data', async () => {
+      mockApi.getSessionToken.mockReturnValue('test-session-token')
       mockApi.isAuthenticated.mockReturnValue(true)
       mockApi.getCurrentUser
         .mockResolvedValueOnce({

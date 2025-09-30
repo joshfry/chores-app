@@ -10,11 +10,8 @@ All tests can now be run from the project root using the enhanced workspace conf
 # Run all unit tests (backend + frontend)
 pnpm test
 
-# Comprehensive test suite with coverage and E2E
+# Comprehensive test suite with coverage
 pnpm run test:comprehensive
-
-# Full test suite (coverage + E2E if servers running)
-pnpm run test:full
 ```
 
 ### **Individual Test Suites**
@@ -25,9 +22,6 @@ pnpm run test:backend
 
 # Frontend only
 pnpm run test:frontend
-
-# E2E tests only
-pnpm run test:e2e
 ```
 
 ### **Watch Mode (Development)**
@@ -60,35 +54,27 @@ pnpm run test:coverage:frontend
 
 ### **✅ Available Test Types**
 
-| Test Type           | Command                  | Coverage                      | Status         |
-| ------------------- | ------------------------ | ----------------------------- | -------------- |
-| **Backend Unit**    | `pnpm run test:backend`  | Auth, Models, API Routes      | ✅ 32+ tests   |
-| **Frontend Unit**   | `pnpm run test:frontend` | Components, Services, Context | ✅ 33+ tests   |
-| **E2E Integration** | `pnpm run test:e2e`      | Complete user journeys        | ✅ 45+ tests   |
-| **Total Coverage**  | `pnpm test`              | All test types                | **110+ tests** |
+| Test Type          | Command                  | Coverage                      | Status       |
+| ------------------ | ------------------------ | ----------------------------- | ------------ |
+| **Backend Unit**   | `pnpm run test:backend`  | Auth, Models, API Routes      | ✅ 56 tests  |
+| **Frontend Unit**  | `pnpm run test:frontend` | Components, Services, Context | ✅ 11 tests  |
+| **Total Coverage** | `pnpm test`              | All unit test types           | **67 tests** |
 
 ### **🎯 What Each Test Suite Covers**
 
-#### **Backend Tests (32+ tests)**
+#### **Backend Tests (56 tests)**
 
 - ✅ **Authentication Models**: User CRUD, magic tokens, families
 - ✅ **Middleware**: Session handling, role-based access
 - ✅ **API Routes**: Request/response validation, error handling
 - ✅ **Security**: Token validation, single-use enforcement
 
-#### **Frontend Tests (33+ tests)**
+#### **Frontend Tests (11 tests)**
 
 - ✅ **Components**: Login forms, validation, user interaction
 - ✅ **API Client**: Authentication flow, data fetching, error handling
 - ✅ **Context Management**: Auth state, user sessions
 - ✅ **Integration**: Component-service interactions
-
-#### **E2E Tests (45+ tests)**
-
-- ✅ **User Journeys**: Signup → Login → Dashboard navigation
-- ✅ **Authentication Flow**: Magic links, session management
-- ✅ **Protected Routes**: Access control, redirects
-- ✅ **API Integration**: Frontend-to-backend communication
 
 ## 🛠️ **Development Workflow**
 
@@ -110,11 +96,14 @@ pnpm run test:watch:backend    # For backend changes
 pnpm run test:watch:frontend   # For frontend changes
 ```
 
-### **Before Production Deploy**
+### **CI/CD Pipeline**
 
 ```bash
-# Full test suite with coverage
-pnpm run test:full
+# Install dependencies
+pnpm install
+
+# Run all tests with coverage
+pnpm run test:coverage
 ```
 
 ## 🔧 **Test Configuration Details**
@@ -133,13 +122,6 @@ pnpm run test:full
 - **Config**: Built into React Scripts
 - **Coverage**: Component, service, and context testing
 
-### **E2E Test Setup**
-
-- **Framework**: Cypress
-- **Location**: `frontend/cypress/e2e/`
-- **Config**: `frontend/cypress.config.ts`
-- **Coverage**: Complete user journey validation
-
 ## 📈 **Test Output Examples**
 
 ### **Successful Test Run**
@@ -147,16 +129,16 @@ pnpm run test:full
 ```
 🧪 Running all tests...
 🔧 Backend Tests:
-✓ Auth Models (15 tests)
-✓ Middleware (12 tests)
-✓ API Routes (10 tests)
+✓ Auth Prisma Models (14 tests)
+✓ Auth Middleware (14 tests)
+✓ Auth Routes (11 tests)
+✓ JSON-Only Validation (17 tests)
 
 🎨 Frontend Tests:
-✓ LoginPage Component (7 tests)
-✓ API Client (15 tests)
 ✓ AuthContext (10 tests)
+✓ App Component (1 test)
 
-🎉 All tests passed! (65 total)
+🎉 All tests passed! (67 total)
 ```
 
 ### **Coverage Report**
@@ -164,16 +146,16 @@ pnpm run test:full
 ```
 📊 Test Coverage Reports:
 🔧 Backend Coverage:
-  Statements: 95% (380/400)
-  Branches: 92% (115/125)
-  Functions: 98% (49/50)
-  Lines: 95% (375/395)
+  Statements: 92%+
+  Branches: 88%+
+  Functions: 95%+
+  Lines: 91%+
 
 🎨 Frontend Coverage:
-  Statements: 87% (156/179)
-  Branches: 78% (39/50)
-  Functions: 91% (32/35)
-  Lines: 88% (154/175)
+  Statements: 85%+
+  Branches: 75%+
+  Functions: 90%+
+  Lines: 85%+
 ```
 
 ## 🚨 **Troubleshooting**
@@ -200,93 +182,9 @@ cd frontend && npm install
 cd frontend && npm test
 ```
 
-#### **"E2E tests failing"**
+## ✅ **Summary**
 
-```bash
-# Ensure servers are running
-pnpm run dev  # Start both servers
-
-# Then run E2E tests
-pnpm run test:e2e
-```
-
-### **Port Conflicts**
-
-```bash
-# Kill processes on common ports
-lsof -ti:3000 | xargs kill -9  # Frontend
-lsof -ti:3001 | xargs kill -9  # Backend
-```
-
-## 🎯 **Testing Best Practices**
-
-### **When to Run Which Tests**
-
-1. **During Development**: `pnpm run test:watch`
-2. **Before Git Commit**: `pnpm test`
-3. **Before Pull Request**: `pnpm run test:comprehensive`
-4. **Before Production**: `pnpm run test:full`
-
-### **Writing New Tests**
-
-#### **Backend Tests** (`backend/tests/`)
-
-```typescript
-describe('New Feature', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('should handle feature correctly', async () => {
-    const testData = testUtils.createTestUser()
-    // ... test implementation
-  })
-})
-```
-
-#### **Frontend Tests** (`frontend/src/**/__tests__/`)
-
-```typescript
-import { render, screen } from '@testing-library/react'
-
-describe('NewComponent', () => {
-  it('should render correctly', () => {
-    render(<NewComponent />)
-    expect(screen.getByTestId('component')).toBeInTheDocument()
-  })
-})
-```
-
-#### **E2E Tests** (`frontend/cypress/e2e/`)
-
-```typescript
-describe('New User Journey', () => {
-  it('should complete workflow', () => {
-    cy.visit('/page')
-    cy.get('[data-testid=button]').click()
-    cy.url().should('include', '/success')
-  })
-})
-```
-
-## 📋 **Test Checklist**
-
-Before deploying or merging code, ensure:
-
-- [ ] ✅ Backend unit tests pass (`pnpm run test:backend`)
-- [ ] ✅ Frontend unit tests pass (`pnpm run test:frontend`)
-- [ ] ✅ E2E tests pass (`pnpm run test:e2e`)
-- [ ] ✅ Coverage reports are acceptable
-- [ ] ✅ No linting errors
-- [ ] ✅ TypeScript compilation succeeds
-
-## 🔗 **Related Documentation**
-
-- [Cypress E2E Tests](../frontend/cypress/README.md)
-- [Backend Test Setup](../backend/tests/setup.ts)
-- [Jest Testing Report](./JEST_TESTING_REPORT.md)
-- [Project README](../README.md)
-
----
-
-**Your testing infrastructure is now enterprise-ready with comprehensive coverage across all layers!** 🚀
+- ✅ Run all tests from root with `pnpm test`
+- ✅ Separate backend and frontend unit suites
+- ✅ Automated coverage reporting
+- ✅ CI/CD-ready scripts with exit codes

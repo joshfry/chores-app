@@ -4,193 +4,45 @@ import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { User } from '../../types/api'
 
-const Container = styled.div`
-  max-width: 1200px;
-`
+const Container = styled.div``
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-`
+const Header = styled.div``
 
-const Title = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-`
+const Title = styled.h1``
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+const Button = styled.button<{ variant?: 'primary' | 'secondary' }>``
 
-  ${(props) =>
-    props.variant === 'secondary'
-      ? `
-    background: white;
-    border: 1px solid #d1d5db;
-    color: #374151;
-    
-    &:hover {
-      background: #f9fafb;
-    }
-  `
-      : `
-    background: #667eea;
-    color: white;
-    
-    &:hover {
-      background: #5a67d8;
-    }
-  `}
-`
+const Card = styled.div``
 
-const Card = styled.div`
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-`
+const Table = styled.table``
 
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`
+const Thead = styled.thead``
 
-const Thead = styled.thead`
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-`
-
-const Th = styled.th`
-  text-align: left;
-  padding: 0.75rem 1rem;
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-`
+const Th = styled.th``
 
 const Tbody = styled.tbody``
 
-const Tr = styled.tr`
-  border-bottom: 1px solid #e5e7eb;
+const Tr = styled.tr``
 
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background: #f9fafb;
-  }
-`
-
-const Td = styled.td`
-  padding: 1rem;
-  color: #1f2937;
-`
+const Td = styled.td``
 
 const Badge = styled.span<{
   variant: 'parent' | 'child' | 'active' | 'inactive'
-}>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+}>``
 
-  ${(props) => {
-    switch (props.variant) {
-      case 'parent':
-        return 'background: #dbeafe; color: #1d4ed8;'
-      case 'child':
-        return 'background: #dcfce7; color: #16a34a;'
-      case 'active':
-        return 'background: #dcfce7; color: #16a34a;'
-      case 'inactive':
-        return 'background: #fee2e2; color: #dc2626;'
-      default:
-        return 'background: #f3f4f6; color: #374151;'
-    }
-  }}
-`
+const Avatar = styled.div``
 
-const Avatar = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #667eea;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 500;
-  margin-right: 0.75rem;
-`
+const UserInfo = styled.div``
 
-const UserInfo = styled.div`
-  display: flex;
-  align-items: center;
-`
+const UserDetails = styled.div``
 
-const UserDetails = styled.div`
-  .name {
-    font-weight: 500;
-    color: #1f2937;
-  }
+const Actions = styled.div``
 
-  .email {
-    color: #6b7280;
-    font-size: 0.875rem;
-  }
-`
+const LoadingCard = styled(Card)``
 
-const Actions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-`
+const ErrorCard = styled(Card)``
 
-const LoadingCard = styled(Card)`
-  padding: 3rem;
-  text-align: center;
-  color: #6b7280;
-`
-
-const ErrorCard = styled(Card)`
-  padding: 2rem;
-  text-align: center;
-  color: #dc2626;
-  background: #fef2f2;
-  border-color: #fecaca;
-`
-
-const EmptyState = styled.div`
-  padding: 3rem;
-  text-align: center;
-  color: #6b7280;
-
-  .icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-
-  .title {
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-  }
-
-  .subtitle {
-    margin-bottom: 1.5rem;
-  }
-`
+const EmptyState = styled.div``
 
 const UsersPage: React.FC = () => {
   const { state } = useAuth()
@@ -224,7 +76,6 @@ const UsersPage: React.FC = () => {
   }
 
   const handleCreateChild = () => {
-    // TODO: Implement create child modal/form
     console.log('Create child clicked')
   }
 
@@ -238,7 +89,7 @@ const UsersPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container>
+      <Container data-testid="users-page">
         <LoadingCard>Loading users...</LoadingCard>
       </Container>
     )
@@ -246,23 +97,23 @@ const UsersPage: React.FC = () => {
 
   if (error) {
     return (
-      <Container>
+      <Container data-testid="users-page">
         <ErrorCard>
           <div>Error: {error}</div>
-          <Button onClick={fetchUsers} style={{ marginTop: '1rem' }}>
-            Retry
-          </Button>
+          <Button onClick={fetchUsers}>Retry</Button>
         </ErrorCard>
       </Container>
     )
   }
 
   return (
-    <Container>
+    <Container data-testid="users-page">
       <Header>
         <Title>Family Members</Title>
         {state.user?.role === 'parent' && (
-          <Button onClick={handleCreateChild}>Add Child Account</Button>
+          <Button onClick={handleCreateChild} data-testid="add-child-button">
+            Add Child Account
+          </Button>
         )}
       </Header>
 
@@ -275,7 +126,12 @@ const UsersPage: React.FC = () => {
               Start by adding child accounts to manage chores together.
             </div>
             {state.user?.role === 'parent' && (
-              <Button onClick={handleCreateChild}>Add Your First Child</Button>
+              <Button
+                onClick={handleCreateChild}
+                data-testid="add-first-child-button"
+              >
+                Add Your First Child
+              </Button>
             )}
           </EmptyState>
         ) : (

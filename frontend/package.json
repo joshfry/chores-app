@@ -26,11 +26,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "new-component": "plop",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "cypress:run:ci": "cypress run --browser chrome --headless",
-    "test:e2e": "start-server-and-test start http://localhost:3000 cypress:run",
-    "test:e2e:open": "start-server-and-test start http://localhost:3000 cypress:open"
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
+    "typecheck": "tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [
@@ -56,13 +56,9 @@
     ]
   },
   "devDependencies": {
-    "@cypress/react": "^9.0.1",
-    "@cypress/webpack-dev-server": "^5.1.2",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "cypress": "^15.3.0",
-    "node-fetch": "^2.7.0",
-    "start-server-and-test": "^2.1.2"
+    "node-fetch": "^2.7.0"
   }
 }

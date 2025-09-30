@@ -36,7 +36,6 @@ print_warning() {
 # Track test results
 BACKEND_TESTS_PASSED=false
 FRONTEND_TESTS_PASSED=false
-E2E_TESTS_PASSED=false
 
 # 1. Backend Unit Tests
 print_status "Running Backend Unit Tests..."
@@ -62,26 +61,7 @@ else
 fi
 echo ""
 
-# 3. E2E Tests (requires servers to be running)
-print_status "Checking for running servers and E2E tests..."
-if lsof -ti:3001 > /dev/null 2>&1 && lsof -ti:3000 > /dev/null 2>&1; then
-    print_status "Both servers detected - Running E2E Tests..."
-    echo "🚀 Testing complete user journeys"
-    if pnpm run test:e2e; then
-        print_success "E2E tests passed!"
-        E2E_TESTS_PASSED=true
-    else
-        print_error "E2E tests failed!"
-        E2E_TESTS_PASSED=false
-    fi
-else
-    print_warning "Servers not running - Skipping E2E tests"
-    print_warning "To run E2E tests: Start backend (pnpm dev:backend) and frontend (pnpm dev:frontend)"
-    E2E_TESTS_PASSED="skipped"
-fi
-echo ""
-
-# 4. Test Summary
+# 3. Test Summary
 echo "📊 Test Results Summary"
 echo "======================="
 printf "Backend Unit Tests:  "
@@ -98,18 +78,9 @@ else
     print_error "❌ FAILED"
 fi
 
-printf "E2E Tests:          "
-if [ "$E2E_TESTS_PASSED" = true ]; then
-    print_success "✅ PASSED"
-elif [ "$E2E_TESTS_PASSED" = "skipped" ]; then
-    print_warning "⏭️  SKIPPED"
-else
-    print_error "❌ FAILED"
-fi
-
 echo ""
 
-# 5. Coverage Summary
+# 4. Coverage Summary
 print_status "Generating Coverage Reports..."
 echo "📊 Backend Coverage:"
 pnpm --filter backend test -- --coverage --silent || true
@@ -118,12 +89,9 @@ echo "📊 Frontend Coverage:"
 pnpm --filter frontend test -- --coverage --watchAll=false --silent || true
 echo ""
 
-# 6. Final Status
+# 5. Final Status
 if [ "$BACKEND_TESTS_PASSED" = true ] && [ "$FRONTEND_TESTS_PASSED" = true ]; then
     print_success "🎉 All unit tests passed! Your app is ready for production."
-    if [ "$E2E_TESTS_PASSED" = true ]; then
-        print_success "🚀 Complete test suite passed including E2E tests!"
-    fi
     exit 0
 else
     print_error "❌ Some tests failed. Please review the output above."

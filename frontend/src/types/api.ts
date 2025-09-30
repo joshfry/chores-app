@@ -28,6 +28,7 @@ export interface Chore {
   isRecurring: boolean
   recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
   familyId: number
+  category?: string
 }
 
 export interface Assignment {
@@ -39,6 +40,8 @@ export interface Assignment {
   status: 'pending' | 'in_progress' | 'completed' | 'overdue'
   completedDate?: string | null
   notes?: string
+  choreTitle?: string
+  childName?: string
 }
 
 export interface AuthResponse {
@@ -79,4 +82,22 @@ export interface CreateChildRequest {
 export interface UpdateUserRequest {
   name?: string
   birthdate?: string
+}
+
+export interface DashboardStats {
+  totalChildren: number
+  totalChores: number
+  totalAssignments: number
+  completedAssignments: number
+  pendingAssignments: number
+  totalPointsEarned: number
+  thisWeek: {
+    assignmentsCompleted: number
+    pointsEarned: number
+  }
+  topPerformers: Array<{
+    childId: number
+    childName: string
+    pointsThisWeek: number
+  }>
 }

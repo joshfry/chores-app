@@ -133,7 +133,7 @@ Your app uses **passwordless authentication**:
 - ✅ **Chore Tracking** - Create, assign, complete chores
 - ✅ **Points System** - Reward system for completed chores
 - ✅ **Dashboard** - Family statistics and leaderboards
-- ✅ **Comprehensive Testing** - 91+ tests with high coverage
+- ✅ **Comprehensive Testing** - 67 tests with high coverage (85%+)
 - ✅ **JSON-Only API** - Strict content negotiation
 
 ## 🔧 **Development Setup**
@@ -197,6 +197,8 @@ lsof -ti:3000 | xargs kill -9
 
 ## 📚 **More Documentation**
 
+- **[`ai-docs/SETUP.md`](ai-docs/SETUP.md)** - Complete setup guide for linting, formatting, CI/CD
+- **[`ai-docs/`](ai-docs/)** - Complete documentation for developers and AI agents
 - `backend/dev-scripts/README.md` - Detailed script documentation
 - `backend/tests/` - Test examples and API usage
 - `.cursorrules` - Project coding standards and AI guidelines

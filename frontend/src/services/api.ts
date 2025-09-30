@@ -3,13 +3,13 @@ import type {
   ApiResponse,
   AuthResponse,
   User,
-  Family,
   Chore,
   Assignment,
   LoginRequest,
   SignupRequest,
   CreateChildRequest,
   UpdateUserRequest,
+  DashboardStats,
 } from '../types/api'
 
 class ApiClient {
@@ -27,8 +27,9 @@ class ApiClient {
 
     // Request interceptor to add auth token
     this.client.interceptors.request.use((config) => {
-      if (this.sessionToken) {
-        config.headers.Authorization = `Bearer ${this.sessionToken}`
+      const token = this.getSessionTokenFromStorage()
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
       }
       return config
     })
@@ -47,20 +48,41 @@ class ApiClient {
   }
 
   private loadSessionToken() {
-    const token = localStorage.getItem('sessionToken')
-    if (token) {
-      this.sessionToken = token
-    }
+    this.getSessionTokenFromStorage()
   }
 
   private saveSessionToken(token: string) {
     this.sessionToken = token
-    localStorage.setItem('sessionToken', token)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sessionToken', token)
+    }
   }
 
   private clearSessionToken() {
     this.sessionToken = null
-    localStorage.removeItem('sessionToken')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sessionToken')
+    }
+  }
+
+  public clearSession() {
+    this.clearSessionToken()
+  }
+
+  private getSessionTokenFromStorage(): string | null {
+    if (this.sessionToken) {
+      return this.sessionToken
+    }
+
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    const storedToken = localStorage.getItem('sessionToken')
+    if (storedToken) {
+      this.sessionToken = storedToken
+    }
+    return this.sessionToken
   }
 
   // Authentication endpoints
@@ -91,9 +113,8 @@ class ApiClient {
   }
 
   async getCurrentUser(): Promise<AuthResponse> {
-    const response: AxiosResponse<AuthResponse> = await this.client.get(
-      '/api/auth/me',
-    )
+    const response: AxiosResponse<AuthResponse> =
+      await this.client.get('/api/auth/me')
     return response.data
   }
 
@@ -109,9 +130,8 @@ class ApiClient {
 
   // User management
   async getUsers(): Promise<ApiResponse<User[]>> {
-    const response: AxiosResponse<ApiResponse<User[]>> = await this.client.get(
-      '/api/auth/users',
-    )
+    const response: AxiosResponse<ApiResponse<User[]>> =
+      await this.client.get('/api/auth/users')
     return response.data
   }
 
@@ -150,9 +170,8 @@ class ApiClient {
 
   // Chores (using mock endpoints for now)
   async getChores(): Promise<ApiResponse<Chore[]>> {
-    const response: AxiosResponse<ApiResponse<Chore[]>> = await this.client.get(
-      '/api/chores',
-    )
+    const response: AxiosResponse<ApiResponse<Chore[]>> =
+      await this.client.get('/api/chores')
     return response.data
   }
 
@@ -182,11 +201,29 @@ class ApiClient {
     return response.data
   }
 
+  async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
+    const response: AxiosResponse<ApiResponse<any>> = await this.client.get(
+      '/api/dashboard/stats',
+    )
+
+    if (response.data.success && response.data.data) {
+      const normalized = this.normalizeDashboardStats(response.data.data)
+      return {
+        success: true,
+        data: normalized,
+      }
+    }
+
+    return {
+      success: false,
+      error: response.data.error || 'Failed to load dashboard data',
+    }
+  }
+
   // Database test endpoints
   async getDatabaseStats(): Promise<ApiResponse> {
-    const response: AxiosResponse<ApiResponse> = await this.client.get(
-      '/api/test/stats',
-    )
+    const response: AxiosResponse<ApiResponse> =
+      await this.client.get('/api/test/stats')
     return response.data
   }
 
@@ -200,9 +237,8 @@ class ApiClient {
 
   // Health check
   async healthCheck(): Promise<ApiResponse> {
-    const response: AxiosResponse<ApiResponse> = await this.client.get(
-      '/health',
-    )
+    const response: AxiosResponse<ApiResponse> =
+      await this.client.get('/health')
     return response.data
   }
 
@@ -213,7 +249,48 @@ class ApiClient {
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return !!this.sessionToken
+    return !!this.getSessionTokenFromStorage()
+  }
+
+  private normalizeDashboardStats(raw: any): DashboardStats {
+    const topPerformersSource = raw?.top_performers ?? raw?.topPerformers ?? []
+
+    const normalizedTopPerformers = Array.isArray(topPerformersSource)
+      ? topPerformersSource.map((performer: any) => ({
+          childId: performer.child_id ?? performer.childId ?? 0,
+          childName: performer.child_name ?? performer.childName ?? '',
+          pointsThisWeek:
+            performer.points_this_week ?? performer.pointsThisWeek ?? 0,
+        }))
+      : []
+
+    const normalizedAssignments = Array.isArray(raw.assignments)
+      ? raw.assignments.map((assignment: any) => ({
+          ...assignment,
+          assignmentTitle: assignment.assignmentTitle ?? assignment.title ?? '',
+        }))
+      : []
+
+    return {
+      totalChildren: raw?.total_children ?? raw?.totalChildren ?? 0,
+      totalChores: raw?.total_chores ?? raw?.totalChores ?? 0,
+      totalAssignments: raw?.total_assignments ?? raw?.totalAssignments ?? 0,
+      completedAssignments:
+        raw?.completed_assignments ?? raw?.completedAssignments ?? 0,
+      pendingAssignments:
+        raw?.pending_assignments ?? raw?.pendingAssignments ?? 0,
+      totalPointsEarned:
+        raw?.total_points_earned ?? raw?.totalPointsEarned ?? 0,
+      thisWeek: {
+        assignmentsCompleted:
+          raw?.this_week?.assignments_completed ??
+          raw?.thisWeek?.assignmentsCompleted ??
+          0,
+        pointsEarned:
+          raw?.this_week?.points_earned ?? raw?.thisWeek?.pointsEarned ?? 0,
+      },
+      topPerformers: normalizedTopPerformers,
+    }
   }
 }
 

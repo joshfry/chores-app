@@ -3,185 +3,51 @@ import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
-import type { User, Chore, Assignment } from '../../types/api'
+import type { User, Chore, Assignment, DashboardStats } from '../../types/api'
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-`
+const Grid = styled.div``
 
-const Card = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-`
+const Card = styled.div``
 
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: between;
-  align-items: center;
-  margin-bottom: 1rem;
-`
+const CardHeader = styled.div``
 
-const CardTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-`
+const CardTitle = styled.h3``
 
-const CardValue = styled.div`
-  font-size: 2rem;
-  font-weight: bold;
-  color: #667eea;
-  margin-bottom: 0.5rem;
-`
+const CardValue = styled.div``
 
-const CardSubtext = styled.div`
-  color: #6b7280;
-  font-size: 0.875rem;
-`
+const CardSubtext = styled.div``
 
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-`
+const StatsGrid = styled.div``
 
-const StatCard = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
-  border: 1px solid #e5e7eb;
-`
+const StatCard = styled.div``
 
-const StatValue = styled.div`
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #1f2937;
-`
+const StatValue = styled.div``
 
-const StatLabel = styled.div`
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-`
+const StatLabel = styled.div``
 
-const Section = styled.div`
-  margin-bottom: 2rem;
-`
+const Section = styled.div``
 
-const SectionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-`
+const SectionHeader = styled.div``
 
-const SectionTitle = styled.h2`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-`
+const SectionTitle = styled.h2``
 
-const Button = styled(Link)`
-  background: #667eea;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s;
+const Button = styled(Link)``
 
-  &:hover {
-    background: #5a67d8;
-  }
-`
+const List = styled.div``
 
-const List = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-`
+const ListItem = styled.div``
 
-const ListItem = styled.div`
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
-const ItemInfo = styled.div`
-  .title {
-    font-weight: 500;
-    color: #1f2937;
-  }
-
-  .subtitle {
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
-`
+const ItemInfo = styled.div``
 
 const Badge = styled.span<{
   variant: 'success' | 'warning' | 'error' | 'info'
-}>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+}>``
 
-  ${(props) => {
-    switch (props.variant) {
-      case 'success':
-        return 'background: #dcfce7; color: #16a34a;'
-      case 'warning':
-        return 'background: #fef3c7; color: #d97706;'
-      case 'error':
-        return 'background: #fee2e2; color: #dc2626;'
-      default:
-        return 'background: #eff6ff; color: #2563eb;'
-    }
-  }}
-`
+const LoadingCard = styled(Card)``
 
-const LoadingCard = styled(Card)`
-  text-align: center;
-  color: #6b7280;
-  padding: 3rem 1.5rem;
-`
+const ErrorCard = styled(Card)``
 
-const ErrorCard = styled(Card)`
-  text-align: center;
-  color: #dc2626;
-  background: #fef2f2;
-  border-color: #fecaca;
-`
-
-const WelcomeCard = styled(Card)`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-
-  ${CardTitle} {
-    color: white;
-  }
-
-  ${CardSubtext} {
-    color: rgba(255, 255, 255, 0.8);
-  }
-`
+const WelcomeCard = styled(Card)``
 
 const DashboardPage: React.FC = () => {
   const { state } = useAuth()
@@ -190,6 +56,7 @@ const DashboardPage: React.FC = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [stats, setStats] = useState<DashboardStats | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -215,7 +82,18 @@ const DashboardPage: React.FC = () => {
         if (assignmentsResponse.success) {
           setAssignments(assignmentsResponse.data || [])
         }
+
+        const statsResponse = await api.getDashboardStats()
+
+        if (statsResponse.success && statsResponse.data) {
+          setStats(statsResponse.data)
+          setError(null)
+        } else {
+          setStats(null)
+          setError(statsResponse.error || 'Failed to load dashboard data')
+        }
       } catch (err) {
+        setStats(null)
         setError('Failed to load dashboard data')
         console.error('Dashboard data fetch error:', err)
       } finally {
@@ -262,76 +140,134 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div>
-      {/* Welcome Section */}
-      <Grid style={{ marginBottom: '2rem' }}>
+      <Grid>
         <WelcomeCard>
-          <CardTitle>Welcome back, {state.user?.name}! 👋</CardTitle>
-          <CardSubtext style={{ marginTop: '0.5rem' }}>
+          <CardTitle data-testid="user-welcome">
+            Welcome back, {state.user?.name}! 👋
+          </CardTitle>
+          <CardSubtext data-testid="family-name">
             Here's what's happening with {state.family?.name} today.
           </CardSubtext>
         </WelcomeCard>
       </Grid>
 
-      {/* Stats Overview */}
-      <StatsGrid>
-        <StatCard>
-          <StatValue>{activeUsers.length}</StatValue>
+      <StatsGrid data-testid="dashboard-stats">
+        <StatCard data-testid="stat-members">
+          <StatValue data-testid="stat-members-value">
+            {stats?.totalChildren ?? activeUsers.length}
+          </StatValue>
           <StatLabel>Family Members</StatLabel>
         </StatCard>
 
-        <StatCard>
-          <StatValue>{children.length}</StatValue>
+        <StatCard data-testid="stat-children">
+          <StatValue data-testid="stat-children-value">
+            {stats?.totalChildren ?? children.length}
+          </StatValue>
           <StatLabel>Children</StatLabel>
         </StatCard>
 
-        <StatCard>
-          <StatValue>{chores.length}</StatValue>
+        <StatCard data-testid="stat-chores">
+          <StatValue data-testid="stat-chores-value">
+            {stats?.totalChores ?? chores.length}
+          </StatValue>
           <StatLabel>Total Chores</StatLabel>
         </StatCard>
 
-        <StatCard>
-          <StatValue>{completedAssignments.length}</StatValue>
+        <StatCard data-testid="stat-assignments">
+          <StatValue data-testid="stat-assignments-value">
+            {stats?.totalAssignments ?? assignments.length}
+          </StatValue>
+          <StatLabel>Total Assignments</StatLabel>
+        </StatCard>
+
+        <StatCard data-testid="stat-completed">
+          <StatValue data-testid="stat-completed-value">
+            {stats?.completedAssignments ?? completedAssignments.length}
+          </StatValue>
           <StatLabel>Completed</StatLabel>
         </StatCard>
 
-        <StatCard>
-          <StatValue>{pendingAssignments.length}</StatValue>
+        <StatCard data-testid="stat-pending">
+          <StatValue data-testid="stat-pending-value">
+            {stats?.pendingAssignments ?? pendingAssignments.length}
+          </StatValue>
           <StatLabel>Pending</StatLabel>
+        </StatCard>
+
+        <StatCard data-testid="stat-points">
+          <StatValue data-testid="stat-points-value">
+            {stats?.totalPointsEarned ?? 0}
+          </StatValue>
+          <StatLabel>Total Points</StatLabel>
         </StatCard>
       </StatsGrid>
 
-      {/* Quick Actions */}
+      {stats?.thisWeek && (
+        <StatsGrid data-testid="weekly-stats">
+          <StatCard data-testid="weekly-completed">
+            <CardTitle>This Week's Completed</CardTitle>
+            <CardValue>{stats.thisWeek.assignmentsCompleted}</CardValue>
+            <CardSubtext>Assignments completed</CardSubtext>
+          </StatCard>
+          <StatCard data-testid="weekly-points">
+            <CardTitle>This Week's Points</CardTitle>
+            <CardValue>{stats.thisWeek.pointsEarned}</CardValue>
+            <CardSubtext>Points earned by family</CardSubtext>
+          </StatCard>
+        </StatsGrid>
+      )}
+
+      {stats?.topPerformers?.length ? (
+        <Section data-testid="leaderboard">
+          <SectionHeader>
+            <SectionTitle>Top Performers</SectionTitle>
+          </SectionHeader>
+          <List>
+            {stats.topPerformers.map((performer: any) => (
+              <ListItem key={performer.childId} data-testid="top-performer">
+                <ItemInfo>
+                  <div className="title">{performer.childName}</div>
+                  <div className="subtitle">
+                    {performer.pointsThisWeek} points earned this week
+                  </div>
+                </ItemInfo>
+                <Badge variant="success">Star</Badge>
+              </ListItem>
+            ))}
+          </List>
+        </Section>
+      ) : null}
+
       <Grid>
         <Card>
           <CardHeader>
             <CardTitle>Family Members</CardTitle>
-            <Button to="/dashboard/users">Manage Users</Button>
+            <Button to="/dashboard/users" data-testid="manage-users-link">
+              Manage Users
+            </Button>
           </CardHeader>
           <List>
             {activeUsers.length > 0 ? (
               activeUsers.slice(0, 3).map((user) => (
-                <ListItem key={user.id}>
+                <ListItem key={user.id} data-testid="dashboard-user-item">
                   <ItemInfo>
-                    <div className="title">{user.name}</div>
+                    <div className="title" data-testid="dashboard-user-name">
+                      {user.name}
+                    </div>
                     <div className="subtitle">
                       {user.role} • {user.totalPoints || 0} points
                     </div>
                   </ItemInfo>
-                  <Badge variant={user.role === 'parent' ? 'info' : 'success'}>
+                  <Badge
+                    variant={user.role === 'parent' ? 'info' : 'success'}
+                    data-testid="dashboard-user-role"
+                  >
                     {user.role}
                   </Badge>
                 </ListItem>
               ))
             ) : (
-              <div
-                style={{
-                  textAlign: 'center',
-                  color: '#6b7280',
-                  padding: '1rem',
-                }}
-              >
-                No family members found
-              </div>
+              <div>No family members found</div>
             )}
           </List>
         </Card>
@@ -339,7 +275,12 @@ const DashboardPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Recent Assignments</CardTitle>
-            <Button to="/dashboard/assignments">View All</Button>
+            <Button
+              to="/dashboard/assignments"
+              data-testid="view-assignments-link"
+            >
+              View All
+            </Button>
           </CardHeader>
           <List>
             {recentAssignments.length > 0 ? (
@@ -348,18 +289,28 @@ const DashboardPage: React.FC = () => {
                 const child = users.find((u) => u.id === assignment.childId)
 
                 return (
-                  <ListItem key={assignment.id}>
+                  <ListItem
+                    key={assignment.id}
+                    data-testid="dashboard-assignment-item"
+                  >
                     <ItemInfo>
-                      <div className="title">
+                      <div
+                        className="title"
+                        data-testid="dashboard-assignment-title"
+                      >
                         {chore?.title || 'Unknown Chore'}
                       </div>
-                      <div className="subtitle">
+                      <div
+                        className="subtitle"
+                        data-testid="dashboard-assignment-subtitle"
+                      >
                         Assigned to {child?.name || 'Unknown'} • Due{' '}
                         {assignment.dueDate}
                       </div>
                     </ItemInfo>
                     <Badge
                       variant={getAssignmentBadgeVariant(assignment.status)}
+                      data-testid="dashboard-assignment-status"
                     >
                       {assignment.status.replace('_', ' ')}
                     </Badge>
@@ -367,37 +318,16 @@ const DashboardPage: React.FC = () => {
                 )
               })
             ) : (
-              <div
-                style={{
-                  textAlign: 'center',
-                  color: '#6b7280',
-                  padding: '1rem',
-                }}
-              >
-                No assignments yet
-              </div>
+              <div>No assignments yet</div>
             )}
           </List>
         </Card>
       </Grid>
 
       {error && (
-        <ErrorCard>
+        <ErrorCard data-testid="dashboard-error">
           <div>Error: {error}</div>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              marginTop: '1rem',
-              padding: '0.5rem 1rem',
-              background: '#dc2626',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Retry
-          </button>
+          <button onClick={() => window.location.reload()}>Retry</button>
         </ErrorCard>
       )}
     </div>

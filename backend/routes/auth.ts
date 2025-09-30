@@ -3,7 +3,7 @@
  * Handles passwordless authentication, user management, and family setup
  */
 
-import express, { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import * as authModels from '../models/auth-prisma'
 import {
   createSession,
@@ -12,7 +12,7 @@ import {
   getCurrentUser,
 } from '../middleware/auth'
 
-const router = express.Router()
+const router: Router = express.Router()
 
 // Seed route for development (remove in production)
 router.post('/seed', async (req: Request, res: Response) => {
@@ -195,6 +195,24 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({
         success: false,
         error: 'Invalid or expired token',
+      })
+      return
+    }
+
+    // Check if token has expired
+    if (new Date(magicToken.expiresAt) < new Date()) {
+      res.status(400).json({
+        success: false,
+        error: 'Token has expired',
+      })
+      return
+    }
+
+    // Check if token has already been used
+    if (magicToken.used) {
+      res.status(400).json({
+        success: false,
+        error: 'Token has already been used',
       })
       return
     }

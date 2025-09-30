@@ -1,93 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams, Navigate } from 'react-router-dom'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
 
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`
+const Container = styled.div``
 
-const Container = styled.div`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1rem;
-`
+const Card = styled.div``
 
-const Card = styled.div`
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-`
+const Spinner = styled.div``
 
-const Spinner = styled.div`
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top: 4px solid #667eea;
-  border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
-  margin: 0 auto 1rem;
-`
+const Icon = styled.div<{ type: 'success' | 'error' }>``
 
-const Icon = styled.div<{ type: 'success' | 'error' }>`
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
+const Title = styled.h1``
 
-  ${(props) =>
-    props.type === 'success'
-      ? `
-    background: #dcfce7;
-    color: #16a34a;
-  `
-      : `
-    background: #fee2e2;
-    color: #dc2626;
-  `}
-`
+const Message = styled.p``
 
-const Title = styled.h1`
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-`
-
-const Message = styled.p`
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-`
-
-const Button = styled.button`
-  background: #667eea;
-  border: 1px solid #667eea;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #5a67d8;
-    border-color: #5a67d8;
-  }
-`
+const Button = styled.button``
 
 const VerifyPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -122,26 +50,23 @@ const VerifyPage: React.FC = () => {
 
         if (success) {
           setStatus('success')
-          console.log('🎉 Setting status to success')
         } else {
           setStatus('error')
           setErrorMessage(
-            state.error ||
-              'Verification failed. The link may be expired or invalid.',
+            'Verification failed. Please request a new magic link.',
           )
-          console.log('❌ Verification failed:', state.error)
         }
-      } catch (error) {
-        console.error('💥 Verification error:', error)
+      } catch (error: any) {
         setStatus('error')
-        setErrorMessage('An unexpected error occurred during verification.')
+        setErrorMessage(
+          error?.message || 'Verification failed. Please try again.',
+        )
       }
     }
 
     verify()
-  }, [token, verifyMagicToken])
+  }, [token, verifyMagicToken, state.isAuthenticated])
 
-  // Auto-redirect after successful verification with delay for user feedback
   useEffect(() => {
     console.log(
       '🚀 Redirect effect triggered - status:',
@@ -154,7 +79,7 @@ const VerifyPage: React.FC = () => {
       const timer = setTimeout(() => {
         console.log('⏰ Timer fired - redirecting to dashboard')
         window.location.href = '/dashboard'
-      }, 2000) // 2 second delay to show success message
+      }, 2000)
 
       return () => {
         console.log('🧹 Clearing redirect timer')
@@ -163,13 +88,11 @@ const VerifyPage: React.FC = () => {
     }
   }, [status, state.isAuthenticated])
 
-  // Redirect to dashboard if verification succeeded and user is authenticated
   if (status === 'success' && state.isAuthenticated) {
     console.log('🏃‍♂️ Immediate redirect via Navigate component')
     return <Navigate to="/dashboard" replace />
   }
 
-  // Show success message with manual redirect if auth state hasn't updated yet
   const handleGoToDashboard = () => {
     window.location.href = '/dashboard'
   }

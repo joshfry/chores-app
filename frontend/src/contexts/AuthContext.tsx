@@ -124,22 +124,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        if (api.isAuthenticated()) {
-          const response = await api.getCurrentUser()
-          if (response.success && response.data) {
-            dispatch({
-              type: 'AUTH_SUCCESS',
-              payload: {
-                user: response.data.user,
-                family: response.data.family,
-              },
-            })
-          } else {
-            dispatch({ type: 'AUTH_LOGOUT' })
-          }
-        } else {
+        const token = api.getSessionToken()
+        if (!token) {
           dispatch({ type: 'AUTH_LOGOUT' })
+          return
         }
+
+        const response = await api.getCurrentUser()
+        if (response.success && response.data) {
+          dispatch({
+            type: 'AUTH_SUCCESS',
+            payload: {
+              user: response.data.user,
+              family: response.data.family,
+            },
+          })
+          return
+        }
+
+        dispatch({ type: 'AUTH_LOGOUT' })
       } catch (error) {
         console.error('Auth check failed:', error)
         dispatch({ type: 'AUTH_LOGOUT' })

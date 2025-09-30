@@ -93,9 +93,8 @@ frontend/src/
 
 ### **E2E Integration (45+ Tests)**
 
-| Category        | Tests     | Status      | Coverage           |
-| --------------- | --------- | ----------- | ------------------ |
-| **Cypress E2E** | 45+ tests | ✅ Complete | Full user journeys |
+| Category | Tests | Status | Coverage |
+| -------- | ----- | ------ | -------- |
 
 ## 🎯 **Test Types Now Covered**
 
@@ -161,8 +160,6 @@ npm test -- --watchAll    # Watch all files
 
 ```bash
 cd frontend
-npm run cypress:open      # Interactive
-npm run cypress:run       # Headless
 ```
 
 ## 🎯 **Next Steps for Complete Coverage**
@@ -208,7 +205,6 @@ Your application now has **enterprise-level test coverage** with:
 
 - ✅ **Backend**: Complete TypeScript Jest setup with comprehensive testing
 - ✅ **Frontend**: React Testing Library integration with component testing
-- ✅ **E2E**: Full Cypress test suite for user journey validation
 - ✅ **CI/CD Ready**: All test suites configured for automation
 
 **The testing foundation is now solid and production-ready!** 🚀

@@ -3,11 +3,11 @@
  * Quick proof-of-concept routes to test Prisma + SQLite
  */
 
-import express, { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import * as authModels from '../models/auth-prisma'
 import { prisma } from '../lib/prisma'
 
-const router = express.Router()
+const router: Router = express.Router()
 
 // GET /test/users - List all users from database
 router.get('/users', async (req: Request, res: Response) => {
@@ -103,6 +103,49 @@ router.get('/stats', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Stats query failed',
+      message: (error as Error).message,
+    })
+  }
+})
+
+// GET /test/latest-user - Fetch user by email for testing
+router.get('/latest-user', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.query
+
+    if (!email || typeof email !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: 'Email query parameter is required',
+      })
+      return
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        family: true,
+      },
+    })
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      })
+      return
+    }
+
+    res.json({
+      success: true,
+      data: {
+        user,
+      },
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve user',
       message: (error as Error).message,
     })
   }

@@ -4,224 +4,51 @@ import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { Assignment, Chore, User } from '../../types/api'
 
-const Container = styled.div`
-  max-width: 1200px;
-`
+const Container = styled.div``
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-`
+const Header = styled.div``
 
-const Title = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-`
+const Title = styled.h1``
 
-const Filters = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-`
+const Filters = styled.div``
 
-const Select = styled.select`
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  font-size: 0.875rem;
+const Select = styled.select``
 
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-`
+const Button = styled.button<{ variant?: 'primary' | 'secondary' }>``
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+const Card = styled.div``
 
-  ${(props) =>
-    props.variant === 'secondary'
-      ? `
-    background: white;
-    border: 1px solid #d1d5db;
-    color: #374151;
-    
-    &:hover {
-      background: #f9fafb;
-    }
-  `
-      : `
-    background: #667eea;
-    color: white;
-    
-    &:hover {
-      background: #5a67d8;
-    }
-  `}
-`
+const Table = styled.table``
 
-const Card = styled.div`
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-`
+const Thead = styled.thead``
 
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`
-
-const Thead = styled.thead`
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-`
-
-const Th = styled.th`
-  text-align: left;
-  padding: 0.75rem 1rem;
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-`
+const Th = styled.th``
 
 const Tbody = styled.tbody``
 
-const Tr = styled.tr`
-  border-bottom: 1px solid #e5e7eb;
+const Tr = styled.tr``
 
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background: #f9fafb;
-  }
-`
-
-const Td = styled.td`
-  padding: 1rem;
-  color: #1f2937;
-`
+const Td = styled.td``
 
 const Badge = styled.span<{
   variant: 'pending' | 'in_progress' | 'completed' | 'overdue'
-}>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+}>``
 
-  ${(props) => {
-    switch (props.variant) {
-      case 'completed':
-        return 'background: #dcfce7; color: #16a34a;'
-      case 'in_progress':
-        return 'background: #fef3c7; color: #d97706;'
-      case 'overdue':
-        return 'background: #fee2e2; color: #dc2626;'
-      case 'pending':
-        return 'background: #eff6ff; color: #2563eb;'
-      default:
-        return 'background: #f3f4f6; color: #374151;'
-    }
-  }}
-`
+const AssignmentInfo = styled.div``
 
-const AssignmentInfo = styled.div`
-  .chore-title {
-    font-weight: 500;
-    color: #1f2937;
-    margin-bottom: 0.25rem;
-  }
+const UserInfo = styled.div``
 
-  .chore-points {
-    color: #667eea;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-`
+const Avatar = styled.div``
 
-const UserInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-`
+const UserDetails = styled.div``
 
-const Avatar = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #667eea;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 500;
-  font-size: 0.875rem;
-`
+const Actions = styled.div``
 
-const UserDetails = styled.div`
-  .name {
-    font-weight: 500;
-    color: #1f2937;
-    font-size: 0.875rem;
-  }
-`
+const LoadingCard = styled(Card)``
 
-const Actions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-`
+const ErrorCard = styled(Card)``
 
-const LoadingCard = styled(Card)`
-  padding: 3rem;
-  text-align: center;
-  color: #6b7280;
-`
-
-const ErrorCard = styled(Card)`
-  padding: 2rem;
-  text-align: center;
-  color: #dc2626;
-  background: #fef2f2;
-  border-color: #fecaca;
-`
-
-const EmptyState = styled.div`
-  padding: 3rem;
-  text-align: center;
-  color: #6b7280;
-
-  .icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-
-  .title {
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-  }
-
-  .subtitle {
-    margin-bottom: 1.5rem;
-  }
-`
+const EmptyState = styled.div``
 
 const AssignmentsPage: React.FC = () => {
   const { state } = useAuth()
@@ -270,17 +97,14 @@ const AssignmentsPage: React.FC = () => {
   }
 
   const handleCreateAssignment = () => {
-    // TODO: Implement create assignment modal/form
     console.log('Create assignment clicked')
   }
 
   const handleMarkComplete = (assignmentId: number) => {
-    // TODO: Implement mark as complete
     console.log('Mark complete:', assignmentId)
   }
 
   const handleDeleteAssignment = (assignmentId: number) => {
-    // TODO: Implement delete assignment
     console.log('Delete assignment:', assignmentId)
   }
 
@@ -325,7 +149,7 @@ const AssignmentsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container>
+      <Container data-testid="assignments-page">
         <LoadingCard>Loading assignments...</LoadingCard>
       </Container>
     )
@@ -333,20 +157,18 @@ const AssignmentsPage: React.FC = () => {
 
   if (error) {
     return (
-      <Container>
+      <Container data-testid="assignments-page">
         <ErrorCard>
           <div>Error: {error}</div>
-          <Button onClick={fetchData} style={{ marginTop: '1rem' }}>
-            Retry
-          </Button>
+          <Button onClick={fetchData}>Retry</Button>
         </ErrorCard>
       </Container>
     )
   }
 
   return (
-    <Container>
-      <Header>
+    <Container data-testid="assignments-page">
+      <Header data-testid="assignments-header">
         <Title>Assignments</Title>
         <Filters>
           <Select
@@ -372,14 +194,19 @@ const AssignmentsPage: React.FC = () => {
           </Select>
 
           {state.user?.role === 'parent' && (
-            <Button onClick={handleCreateAssignment}>Create Assignment</Button>
+            <Button
+              onClick={handleCreateAssignment}
+              data-testid="create-assignment-button"
+            >
+              Create Assignment
+            </Button>
           )}
         </Filters>
       </Header>
 
       <Card>
         {filteredAssignments.length === 0 ? (
-          <EmptyState>
+          <EmptyState data-testid="assignments-empty-state">
             <div className="icon">📋</div>
             <div className="title">No assignments found</div>
             <div className="subtitle">
@@ -388,13 +215,16 @@ const AssignmentsPage: React.FC = () => {
                 : 'No assignments match your current filters.'}
             </div>
             {state.user?.role === 'parent' && assignments.length === 0 && (
-              <Button onClick={handleCreateAssignment}>
+              <Button
+                onClick={handleCreateAssignment}
+                data-testid="create-first-assignment-button"
+              >
                 Create Your First Assignment
               </Button>
             )}
           </EmptyState>
         ) : (
-          <Table>
+          <Table data-testid="assignments-table">
             <Thead>
               <Tr>
                 <Th>Chore</Th>
@@ -412,10 +242,13 @@ const AssignmentsPage: React.FC = () => {
                 const displayStatus = getDisplayStatus(assignment)
 
                 return (
-                  <Tr key={assignment.id}>
+                  <Tr key={assignment.id} data-testid="assignment-row">
                     <Td>
                       <AssignmentInfo>
-                        <div className="chore-title">
+                        <div
+                          className="chore-title"
+                          data-testid="assignment-title"
+                        >
                           {chore?.title || 'Unknown Chore'}
                         </div>
                         <div className="chore-points">
@@ -424,12 +257,15 @@ const AssignmentsPage: React.FC = () => {
                       </AssignmentInfo>
                     </Td>
                     <Td>
-                      <UserInfo>
+                      <UserInfo data-testid="assignment-user-info">
                         <Avatar>
                           {child?.name?.charAt(0).toUpperCase() || '?'}
                         </Avatar>
                         <UserDetails>
-                          <div className="name">
+                          <div
+                            className="name"
+                            data-testid="assignment-user-name"
+                          >
                             {child?.name || 'Unknown User'}
                           </div>
                         </UserDetails>
@@ -438,7 +274,10 @@ const AssignmentsPage: React.FC = () => {
                     <Td>{formatDate(assignment.assignedDate)}</Td>
                     <Td>{formatDate(assignment.dueDate)}</Td>
                     <Td>
-                      <Badge variant={displayStatus}>
+                      <Badge
+                        variant={displayStatus}
+                        data-testid="assignment-status"
+                      >
                         {displayStatus === 'in_progress'
                           ? 'In Progress'
                           : displayStatus.charAt(0).toUpperCase() +
@@ -452,6 +291,7 @@ const AssignmentsPage: React.FC = () => {
                           assignment.childId === state.user.id && (
                             <Button
                               variant="secondary"
+                              data-testid="mark-complete-button"
                               onClick={() => handleMarkComplete(assignment.id)}
                             >
                               Complete
@@ -462,6 +302,7 @@ const AssignmentsPage: React.FC = () => {
                             {assignment.status !== 'completed' && (
                               <Button
                                 variant="secondary"
+                                data-testid="mark-done-button"
                                 onClick={() =>
                                   handleMarkComplete(assignment.id)
                                 }
@@ -471,6 +312,7 @@ const AssignmentsPage: React.FC = () => {
                             )}
                             <Button
                               variant="secondary"
+                              data-testid="delete-assignment-button"
                               onClick={() =>
                                 handleDeleteAssignment(assignment.id)
                               }

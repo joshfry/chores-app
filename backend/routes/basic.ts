@@ -3,9 +3,9 @@
  * Health check and API documentation endpoints
  */
 
-import express, { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 
-const router = express.Router()
+const router: Router = express.Router()
 
 // Health check endpoint
 router.get('/health', (req: Request, res: Response) => {

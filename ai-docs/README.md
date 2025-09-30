@@ -11,15 +11,10 @@ This folder contains all documentation specifically designed to help AI agents w
 
 ### **Detailed References (When Needed)**
 
+- [`SETUP.md`](./SETUP.md) - Complete setup guide (linting, formatting, CI/CD)
 - [`ENTERPRISE_STANDARDS.md`](./ENTERPRISE_STANDARDS.md) - Complete enterprise standards
 - [`TESTING_GUIDE.md`](./TESTING_GUIDE.md) - Comprehensive testing documentation
 - [`WORKSPACE_TESTS.md`](./WORKSPACE_TESTS.md) - Test infrastructure setup
-
-### **Troubleshooting & Setup Guides**
-
-- [`CYPRESS_TROUBLESHOOTING.md`](./CYPRESS_TROUBLESHOOTING.md) - E2E testing issues
-- [`E2E_CONCURRENT_SETUP.md`](./E2E_CONCURRENT_SETUP.md) - Concurrent server setup
-- [`JEST_TESTING_REPORT.md`](./JEST_TESTING_REPORT.md) - Jest testing coverage
 
 ### **Context Optimization**
 
