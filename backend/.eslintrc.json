@@ -1,0 +1,14 @@
+{
+  "extends": ["../.eslintrc.json"],
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/await-thenable": "error"
+  }
+}
