@@ -65,6 +65,7 @@ const VerifyPage: React.FC = () => {
     }
 
     verify()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, verifyMagicToken, state.isAuthenticated])
 
   useEffect(() => {
@@ -86,6 +87,7 @@ const VerifyPage: React.FC = () => {
         clearTimeout(timer)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, state.isAuthenticated])
 
   if (status === 'success' && state.isAuthenticated) {

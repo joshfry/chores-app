@@ -264,13 +264,6 @@ class ApiClient {
         }))
       : []
 
-    const normalizedAssignments = Array.isArray(raw.assignments)
-      ? raw.assignments.map((assignment: any) => ({
-          ...assignment,
-          assignmentTitle: assignment.assignmentTitle ?? assignment.title ?? '',
-        }))
-      : []
-
     return {
       totalChildren: raw?.total_children ?? raw?.totalChildren ?? 0,
       totalChores: raw?.total_chores ?? raw?.totalChores ?? 0,

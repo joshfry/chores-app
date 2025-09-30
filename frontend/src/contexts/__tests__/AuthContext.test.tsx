@@ -21,7 +21,31 @@ jest.mock('../../services/api', () => ({
 }))
 
 import { api } from '../../services/api'
+import type { User, Family } from '../../types/api'
 const mockApi = api as jest.Mocked<typeof api>
+
+// Mock data helpers
+const createMockUser = (overrides?: Partial<User>): User => ({
+  id: 1,
+  email: 'test@example.com',
+  name: 'Test User',
+  role: 'parent',
+  familyId: 1,
+  birthdate: '1990-01-01',
+  totalPoints: 0,
+  createdBy: null,
+  lastLogin: new Date().toISOString(),
+  isActive: true,
+  ...overrides,
+})
+
+const createMockFamily = (overrides?: Partial<Family>): Family => ({
+  id: 1,
+  name: 'Test Family',
+  createdDate: new Date().toISOString(),
+  primaryParentId: 1,
+  ...overrides,
+})
 
 // Test component to use the auth context
 const TestComponent: React.FC = () => {
@@ -91,14 +115,10 @@ describe('AuthContext', () => {
       mockApi.getSessionToken.mockReturnValue('test-session-token')
       mockApi.getCurrentUser.mockResolvedValue({
         success: true,
+        message: 'User fetched',
         data: {
-          user: {
-            id: 1,
-            name: 'Test User',
-            email: 'test@example.com',
-            role: 'parent',
-          },
-          family: { id: 1, name: 'Test Family' },
+          user: createMockUser(),
+          family: createMockFamily(),
         },
       })
 
@@ -205,8 +225,8 @@ describe('AuthContext', () => {
         success: true,
         message: 'Account created! Check your email.',
         data: {
-          user: { id: 1, email: 'test@example.com', role: 'parent' },
-          family: { id: 1, name: 'Test Family' },
+          user: createMockUser(),
+          family: createMockFamily(),
         },
       })
 
@@ -240,14 +260,10 @@ describe('AuthContext', () => {
       mockApi.isAuthenticated.mockReturnValue(false)
       mockApi.verifyMagicToken.mockResolvedValue({
         success: true,
+        message: 'Token verified',
         data: {
-          user: {
-            id: 1,
-            name: 'Test User',
-            email: 'test@example.com',
-            role: 'parent',
-          },
-          family: { id: 1, name: 'Test Family' },
+          user: createMockUser(),
+          family: createMockFamily(),
           sessionToken: 'session_123',
         },
       })
@@ -305,14 +321,10 @@ describe('AuthContext', () => {
       mockApi.isAuthenticated.mockReturnValue(true)
       mockApi.getCurrentUser.mockResolvedValue({
         success: true,
+        message: 'User fetched',
         data: {
-          user: {
-            id: 1,
-            name: 'Test User',
-            email: 'test@example.com',
-            role: 'parent',
-          },
-          family: { id: 1, name: 'Test Family' },
+          user: createMockUser(),
+          family: createMockFamily(),
         },
       })
       mockApi.logout.mockResolvedValue()
@@ -378,26 +390,18 @@ describe('AuthContext', () => {
       mockApi.getCurrentUser
         .mockResolvedValueOnce({
           success: true,
+          message: 'User fetched',
           data: {
-            user: {
-              id: 1,
-              name: 'Test User',
-              email: 'test@example.com',
-              role: 'parent',
-            },
-            family: { id: 1, name: 'Test Family' },
+            user: createMockUser(),
+            family: createMockFamily(),
           },
         })
         .mockResolvedValueOnce({
           success: true,
+          message: 'User updated',
           data: {
-            user: {
-              id: 1,
-              name: 'Updated User',
-              email: 'test@example.com',
-              role: 'parent',
-            },
-            family: { id: 1, name: 'Test Family' },
+            user: createMockUser({ name: 'Updated User' }),
+            family: createMockFamily(),
           },
         })
 
