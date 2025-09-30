@@ -197,8 +197,9 @@ lsof -ti:3000 | xargs kill -9
 
 ## 📚 **More Documentation**
 
+- **[`ai-docs/PROJECT_CONTEXT.md`](ai-docs/PROJECT_CONTEXT.md)** - Comprehensive project overview (NEW!)
 - **[`ai-docs/SETUP.md`](ai-docs/SETUP.md)** - Complete setup guide for linting, formatting, CI/CD
-- **[`ai-docs/`](ai-docs/)** - Complete documentation for developers and AI agents
+- **[`ai-docs/`](ai-docs/)** - Complete documentation suite for developers and AI agents
 - `backend/dev-scripts/README.md` - Detailed script documentation
 - `backend/tests/` - Test examples and API usage
 - `.cursorrules` - Project coding standards and AI guidelines

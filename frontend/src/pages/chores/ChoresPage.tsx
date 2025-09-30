@@ -3,6 +3,9 @@ import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { Chore } from '../../types/api'
+import CreateChoreModal from './CreateChoreModal'
+import EditChoreModal from './EditChoreModal'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 const Container = styled.div``
 
@@ -45,6 +48,10 @@ const ChoresPage: React.FC = () => {
   const [chores, setChores] = useState<Chore[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedChore, setSelectedChore] = useState<Chore | null>(null)
 
   useEffect(() => {
     fetchChores()
@@ -71,20 +78,38 @@ const ChoresPage: React.FC = () => {
     }
   }
 
-  const handleCreateChore = () => {
-    console.log('Create chore clicked')
+  const handleCreateChore = async (choreData: {
+    title: string
+    description?: string
+    points: number
+    difficulty: 'easy' | 'medium' | 'hard'
+    isRecurring: boolean
+    recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
+  }) => {
+    await api.createChore(choreData)
+    await fetchChores()
   }
 
-  const handleEditChore = (choreId: number) => {
-    console.log('Edit chore:', choreId)
+  const handleEditChore = async (
+    choreId: number,
+    updates: {
+      title: string
+      description?: string
+      points: number
+      difficulty: 'easy' | 'medium' | 'hard'
+      isRecurring: boolean
+      recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
+    },
+  ) => {
+    await api.updateChore(choreId, updates)
+    await fetchChores()
   }
 
-  const handleDeleteChore = (choreId: number) => {
-    console.log('Delete chore:', choreId)
-  }
-
-  const handleAssignChore = (choreId: number) => {
-    console.log('Assign chore:', choreId)
+  const handleDeleteChore = async () => {
+    if (!selectedChore) return
+    await api.deleteChore(selectedChore.id)
+    await fetchChores()
+    setSelectedChore(null)
   }
 
   if (isLoading) {
@@ -121,7 +146,10 @@ const ChoresPage: React.FC = () => {
       <Header>
         <Title>Chores</Title>
         {state.user?.role === 'parent' && (
-          <Button onClick={handleCreateChore} data-testid="add-chore-button">
+          <Button
+            onClick={() => setIsCreateModalOpen(true)}
+            data-testid="add-chore-button"
+          >
             Create New Chore
           </Button>
         )}
@@ -137,7 +165,7 @@ const ChoresPage: React.FC = () => {
             </div>
             {state.user?.role === 'parent' && (
               <Button
-                onClick={handleCreateChore}
+                onClick={() => setIsCreateModalOpen(true)}
                 data-testid="add-first-chore-button"
               >
                 Create Your First Chore
@@ -187,19 +215,19 @@ const ChoresPage: React.FC = () => {
                 <Actions>
                   <Button
                     variant="secondary"
-                    onClick={() => handleAssignChore(chore.id)}
-                  >
-                    Assign
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleEditChore(chore.id)}
+                    onClick={() => {
+                      setSelectedChore(chore)
+                      setIsEditModalOpen(true)
+                    }}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="secondary"
-                    onClick={() => handleDeleteChore(chore.id)}
+                    onClick={() => {
+                      setSelectedChore(chore)
+                      setIsDeleteDialogOpen(true)
+                    }}
                   >
                     Delete
                   </Button>
@@ -209,6 +237,35 @@ const ChoresPage: React.FC = () => {
           ))
         )}
       </Grid>
+
+      <CreateChoreModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateChore}
+      />
+
+      <EditChoreModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedChore(null)
+        }}
+        chore={selectedChore}
+        onSubmit={handleEditChore}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setSelectedChore(null)
+        }}
+        onConfirm={handleDeleteChore}
+        title="Delete Chore"
+        message={`Are you sure you want to delete "${selectedChore?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </Container>
   )
 }

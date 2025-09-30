@@ -183,6 +183,24 @@ class ApiClient {
     return response.data
   }
 
+  async updateChore(
+    id: number,
+    data: Partial<Chore>,
+  ): Promise<ApiResponse<Chore>> {
+    const response: AxiosResponse<ApiResponse<Chore>> = await this.client.put(
+      `/api/chores/${id}`,
+      data,
+    )
+    return response.data
+  }
+
+  async deleteChore(id: number): Promise<ApiResponse> {
+    const response: AxiosResponse<ApiResponse> = await this.client.delete(
+      `/api/chores/${id}`,
+    )
+    return response.data
+  }
+
   // Assignments (using mock endpoints for now)
   async getAssignments(params?: {
     child_id?: number
@@ -198,6 +216,28 @@ class ApiClient {
   ): Promise<ApiResponse<Assignment>> {
     const response: AxiosResponse<ApiResponse<Assignment>> =
       await this.client.post('/api/assignments', data)
+    return response.data
+  }
+
+  async updateAssignment(
+    id: number,
+    data: Partial<Assignment>,
+  ): Promise<ApiResponse<Assignment>> {
+    const response: AxiosResponse<ApiResponse<Assignment>> =
+      await this.client.put(`/api/assignments/${id}`, data)
+    return response.data
+  }
+
+  async deleteAssignment(id: number): Promise<ApiResponse> {
+    const response: AxiosResponse<ApiResponse> = await this.client.delete(
+      `/api/assignments/${id}`,
+    )
+    return response.data
+  }
+
+  async completeAssignment(id: number): Promise<ApiResponse<Assignment>> {
+    const response: AxiosResponse<ApiResponse<Assignment>> =
+      await this.client.patch(`/api/assignments/${id}/complete`)
     return response.data
   }
 

@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { Assignment, Chore, User } from '../../types/api'
+import CreateAssignmentModal from './CreateAssignmentModal'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 const Container = styled.div``
 
@@ -31,7 +33,7 @@ const Tr = styled.tr``
 const Td = styled.td``
 
 const Badge = styled.span<{
-  variant: 'pending' | 'in_progress' | 'completed' | 'overdue'
+  variant: 'assigned' | 'in_progress' | 'completed' | 'missed' | 'overdue'
 }>``
 
 const AssignmentInfo = styled.div``
@@ -59,6 +61,10 @@ const AssignmentsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [childFilter, setChildFilter] = useState<string>('all')
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<Assignment | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -96,16 +102,30 @@ const AssignmentsPage: React.FC = () => {
     }
   }
 
-  const handleCreateAssignment = () => {
-    console.log('Create assignment clicked')
+  const handleCreateAssignment = async (assignmentData: {
+    childId: number
+    choreId: number
+    dueDate: string
+    notes?: string
+  }) => {
+    await api.createAssignment(assignmentData)
+    await fetchData()
   }
 
-  const handleMarkComplete = (assignmentId: number) => {
-    console.log('Mark complete:', assignmentId)
+  const handleMarkComplete = async (assignmentId: number) => {
+    try {
+      await api.completeAssignment(assignmentId)
+      await fetchData()
+    } catch (err: any) {
+      setError(err.message || 'Failed to complete assignment')
+    }
   }
 
-  const handleDeleteAssignment = (assignmentId: number) => {
-    console.log('Delete assignment:', assignmentId)
+  const handleDeleteAssignment = async () => {
+    if (!selectedAssignment) return
+    await api.deleteAssignment(selectedAssignment.id)
+    await fetchData()
+    setSelectedAssignment(null)
   }
 
   const formatDate = (dateString: string) => {
@@ -128,11 +148,17 @@ const AssignmentsPage: React.FC = () => {
     return status !== 'completed' && new Date(dueDate) < new Date()
   }
 
-  const getDisplayStatus = (assignment: Assignment) => {
+  const getDisplayStatus = (
+    assignment: Assignment,
+  ): 'assigned' | 'in_progress' | 'completed' | 'missed' | 'overdue' => {
     if (isOverdue(assignment.dueDate, assignment.status)) {
       return 'overdue'
     }
-    return assignment.status
+    return assignment.status as
+      | 'assigned'
+      | 'in_progress'
+      | 'completed'
+      | 'missed'
   }
 
   const filteredAssignments = assignments.filter((assignment) => {
@@ -176,7 +202,7 @@ const AssignmentsPage: React.FC = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">All Status</option>
-            <option value="pending">Pending</option>
+            <option value="assigned">Assigned</option>
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </Select>
@@ -195,7 +221,7 @@ const AssignmentsPage: React.FC = () => {
 
           {state.user?.role === 'parent' && (
             <Button
-              onClick={handleCreateAssignment}
+              onClick={() => setIsCreateModalOpen(true)}
               data-testid="create-assignment-button"
             >
               Create Assignment
@@ -216,7 +242,7 @@ const AssignmentsPage: React.FC = () => {
             </div>
             {state.user?.role === 'parent' && assignments.length === 0 && (
               <Button
-                onClick={handleCreateAssignment}
+                onClick={() => setIsCreateModalOpen(true)}
                 data-testid="create-first-assignment-button"
               >
                 Create Your First Assignment
@@ -313,9 +339,10 @@ const AssignmentsPage: React.FC = () => {
                             <Button
                               variant="secondary"
                               data-testid="delete-assignment-button"
-                              onClick={() =>
-                                handleDeleteAssignment(assignment.id)
-                              }
+                              onClick={() => {
+                                setSelectedAssignment(assignment)
+                                setIsDeleteDialogOpen(true)
+                              }}
                             >
                               Delete
                             </Button>
@@ -330,6 +357,27 @@ const AssignmentsPage: React.FC = () => {
           </Table>
         )}
       </Card>
+
+      <CreateAssignmentModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        children={children}
+        chores={chores}
+        onSubmit={handleCreateAssignment}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setSelectedAssignment(null)
+        }}
+        onConfirm={handleDeleteAssignment}
+        title="Delete Assignment"
+        message="Are you sure you want to delete this assignment? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </Container>
   )
 }

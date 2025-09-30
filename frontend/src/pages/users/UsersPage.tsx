@@ -3,6 +3,9 @@ import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { User } from '../../types/api'
+import CreateUserModal from './CreateUserModal'
+import EditUserModal from './EditUserModal'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 const Container = styled.div``
 
@@ -49,6 +52,10 @@ const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   useEffect(() => {
     fetchUsers()
@@ -75,8 +82,36 @@ const UsersPage: React.FC = () => {
     }
   }
 
-  const handleCreateChild = () => {
-    console.log('Create child clicked')
+  const handleCreateUser = async (userData: {
+    name: string
+    email: string
+    role: 'parent' | 'child'
+    birthdate?: string
+  }) => {
+    const payload: any = {
+      name: userData.name,
+      email: userData.email,
+    }
+    if (userData.birthdate) {
+      payload.birthdate = userData.birthdate
+    }
+    await api.createChild(payload)
+    await fetchUsers()
+  }
+
+  const handleEditUser = async (
+    userId: number,
+    updates: { name: string; birthdate?: string },
+  ) => {
+    await api.updateUser(userId, updates)
+    await fetchUsers()
+  }
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return
+    await api.deleteUser(selectedUser.id)
+    await fetchUsers()
+    setSelectedUser(null)
   }
 
   const formatDate = (dateString: string | Date) => {
@@ -111,7 +146,10 @@ const UsersPage: React.FC = () => {
       <Header>
         <Title>Family Members</Title>
         {state.user?.role === 'parent' && (
-          <Button onClick={handleCreateChild} data-testid="add-child-button">
+          <Button
+            onClick={() => setIsCreateModalOpen(true)}
+            data-testid="add-child-button"
+          >
             Add Child Account
           </Button>
         )}
@@ -127,7 +165,7 @@ const UsersPage: React.FC = () => {
             </div>
             {state.user?.role === 'parent' && (
               <Button
-                onClick={handleCreateChild}
+                onClick={() => setIsCreateModalOpen(true)}
                 data-testid="add-first-child-button"
               >
                 Add Your First Child
@@ -172,10 +210,26 @@ const UsersPage: React.FC = () => {
                   </Td>
                   <Td>
                     <Actions>
-                      <Button variant="secondary">Edit</Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setIsEditModalOpen(true)
+                        }}
+                      >
+                        Edit
+                      </Button>
                       {state.user?.role === 'parent' &&
                         user.id !== state.user.id && (
-                          <Button variant="secondary">Remove</Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              setSelectedUser(user)
+                              setIsDeleteDialogOpen(true)
+                            }}
+                          >
+                            Remove
+                          </Button>
                         )}
                     </Actions>
                   </Td>
@@ -185,6 +239,35 @@ const UsersPage: React.FC = () => {
           </Table>
         )}
       </Card>
+
+      <CreateUserModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateUser}
+      />
+
+      <EditUserModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedUser(null)
+        }}
+        user={selectedUser}
+        onSubmit={handleEditUser}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setSelectedUser(null)
+        }}
+        onConfirm={handleDeleteUser}
+        title="Remove User"
+        message={`Are you sure you want to remove ${selectedUser?.name}? This action cannot be undone.`}
+        confirmText="Remove"
+        cancelText="Cancel"
+      />
     </Container>
   )
 }
