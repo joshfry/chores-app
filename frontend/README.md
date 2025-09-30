@@ -154,9 +154,9 @@ const children = response.data.data
 ### Protected Routes (Login Required)
 
 - `/dashboard` - Main dashboard with stats
-- `/dashboard/users` - User management
-- `/dashboard/chores` - Chore management
-- `/dashboard/assignments` - Assignment tracking
+- `/users` - User management
+- `/chores` - Chore management
+- `/assignments` - Assignment tracking
 
 ## 🎨 Component Guidelines
 

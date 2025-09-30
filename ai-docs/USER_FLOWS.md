@@ -239,9 +239,9 @@ Route: /dashboard/*
 #### Navigation Items:
 
 1. **Dashboard** (`/dashboard`) - Overview and statistics
-2. **Users** (`/dashboard/users`) - Family member management
-3. **Chores** (`/dashboard/chores`) - Chore library
-4. **Assignments** (`/dashboard/assignments`) - Active assignments
+2. **Users** (`/users`) - Family member management
+3. **Chores** (`/chores`) - Chore library
+4. **Assignments** (`/assignments`) - Active assignments
 
 #### Sidebar Features:
 
@@ -319,7 +319,7 @@ Shows children with most points earned this week
 
 ## User Management Flow
 
-**Route**: `/dashboard/users`  
+**Route**: `/users`  
 **Component**: `UsersPage.tsx`  
 **Permission**: All authenticated users can view; parents can add/edit/remove
 
@@ -393,7 +393,7 @@ Response: [{ id, name, email, role, totalPoints, lastLogin, isActive, ... }]
 
 ## Chores Management Flow
 
-**Route**: `/dashboard/chores`  
+**Route**: `/chores`  
 **Component**: `ChoresPage.tsx`  
 **Permission**: All users can view; parents can create/edit/delete/assign
 
@@ -507,7 +507,7 @@ Response: [
 
 ## Assignments Management Flow
 
-**Route**: `/dashboard/assignments`  
+**Route**: `/assignments`  
 **Component**: `AssignmentsPage.tsx`  
 **Permission**: All users can view their assignments; parents can manage all
 
@@ -824,9 +824,9 @@ All methods return: `{ success: boolean, data?: any, error?: string }`
 **Protected Routes** (authentication required):
 
 - `/dashboard` - Dashboard home
-- `/dashboard/users` - User management
-- `/dashboard/chores` - Chore library
-- `/dashboard/assignments` - Assignment tracking
+- `/users` - User management
+- `/chores` - Chore library
+- `/assignments` - Assignment tracking
 
 **Redirects**:
 

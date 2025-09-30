@@ -47,9 +47,9 @@ const DashboardLayout: React.FC = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { name: 'Users', href: '/dashboard/users', icon: '👥' },
-    { name: 'Chores', href: '/dashboard/chores', icon: '✅' },
-    { name: 'Assignments', href: '/dashboard/assignments', icon: '📋' },
+    { name: 'Users', href: '/users', icon: '👥' },
+    { name: 'Chores', href: '/chores', icon: '✅' },
+    { name: 'Assignments', href: '/assignments', icon: '📋' },
   ]
 
   const getPageTitle = () => {

@@ -242,7 +242,7 @@ const DashboardPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Family Members</CardTitle>
-            <Button to="/dashboard/users" data-testid="manage-users-link">
+            <Button to="/users" data-testid="manage-users-link">
               Manage Users
             </Button>
           </CardHeader>
@@ -275,10 +275,7 @@ const DashboardPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Recent Assignments</CardTitle>
-            <Button
-              to="/dashboard/assignments"
-              data-testid="view-assignments-link"
-            >
+            <Button to="/assignments" data-testid="view-assignments-link">
               View All
             </Button>
           </CardHeader>

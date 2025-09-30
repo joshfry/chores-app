@@ -70,13 +70,13 @@ This guide shows you how to add `data-testid` attributes to your React component
     <Link to="/dashboard" data-testid="nav-dashboard">
       Dashboard
     </Link>
-    <Link to="/dashboard/users" data-testid="nav-users">
+    <Link to="/users" data-testid="nav-users">
       Users
     </Link>
-    <Link to="/dashboard/chores" data-testid="nav-chores">
+    <Link to="/chores" data-testid="nav-chores">
       Chores
     </Link>
-    <Link to="/dashboard/assignments" data-testid="nav-assignments">
+    <Link to="/assignments" data-testid="nav-assignments">
       Assignments
     </Link>
     <button data-testid="logout-button" onClick={handleLogout}>

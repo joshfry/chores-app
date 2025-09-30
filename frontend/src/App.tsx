@@ -34,7 +34,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify" element={<VerifyPage />} />
 
-          {/* Protected Dashboard Routes */}
+          {/* Protected Routes */}
           <Route
             path="/dashboard"
             element={
@@ -44,9 +44,39 @@ function App() {
             }
           >
             <Route index element={<DashboardPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="chores" element={<ChoresPage />} />
-            <Route path="assignments" element={<AssignmentsPage />} />
+          </Route>
+
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<UsersPage />} />
+          </Route>
+
+          <Route
+            path="/chores"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<ChoresPage />} />
+          </Route>
+
+          <Route
+            path="/assignments"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<AssignmentsPage />} />
           </Route>
 
           {/* Redirect root to dashboard */}
