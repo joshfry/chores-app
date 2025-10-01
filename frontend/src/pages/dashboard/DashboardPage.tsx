@@ -293,6 +293,88 @@ const DashboardPage: React.FC = () => {
         </div>
       ) : null}
 
+      {/* Chores Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">All Chores</h3>
+          <Link
+            to="/chores"
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            data-testid="manage-chores-link"
+          >
+            Manage Chores
+          </Link>
+        </div>
+        {chores.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full" data-testid="dashboard-chores-table">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Title
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Difficulty
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Recurrence
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {chores.map((chore) => (
+                  <tr
+                    key={chore.id}
+                    className="hover:bg-gray-50 transition-colors"
+                    data-testid="dashboard-chore-row"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-gray-900">
+                        {chore.title}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600">
+                        {chore.description || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          chore.difficulty === 'easy'
+                            ? 'bg-green-100 text-green-800'
+                            : chore.difficulty === 'medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {chore.difficulty}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600">
+                        {chore.isRecurring &&
+                        chore.recurrenceDays &&
+                        chore.recurrenceDays.length > 0
+                          ? chore.recurrenceDays.join(', ')
+                          : 'One-time'}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="px-6 py-8 text-center text-gray-500">
+            No chores found. Create your first chore to get started.
+          </div>
+        )}
+      </div>
+
       {/* Family Members and Recent Assignments */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">

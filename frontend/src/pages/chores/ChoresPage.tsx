@@ -129,10 +129,10 @@ const ChoresPage: React.FC = () => {
         )}
       </div>
 
-      {/* Chores Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Chores Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         {chores.length === 0 ? (
-          <div className="col-span-full bg-white rounded-lg shadow p-12 text-center">
+          <div className="p-12 text-center">
             <div className="text-6xl mb-4">✅</div>
             <div className="text-xl font-semibold text-gray-900 mb-2">
               No chores created yet
@@ -151,77 +151,98 @@ const ChoresPage: React.FC = () => {
             )}
           </div>
         ) : (
-          chores.map((chore) => (
-            <div
-              key={chore.id}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
-              data-testid="chore-card"
-            >
-              {/* Chore Header */}
-              <div className="mb-4">
-                <h3
-                  className="text-lg font-semibold text-gray-900 mb-2"
-                  data-testid="chore-title"
-                >
-                  {chore.title}
-                </h3>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${getDifficultyBadgeClasses(chore.difficulty)}`}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Title
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Difficulty
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Recurrence
+                  </th>
+                  {state.user?.role === 'parent' && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {chores.map((chore) => (
+                  <tr
+                    key={chore.id}
+                    className="hover:bg-gray-50 transition-colors"
+                    data-testid="chore-card"
                   >
-                    {chore.difficulty}
-                  </span>
-                  <span className="text-gray-400">•</span>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      chore.isRecurring
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}
-                  >
-                    {chore.isRecurring ? 'Recurring' : 'One-time'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Chore Description */}
-              <p className="text-gray-600 text-sm mb-4">{chore.description}</p>
-
-              {/* Recurrence Days */}
-              {chore.isRecurring &&
-                chore.recurrenceDays &&
-                chore.recurrenceDays.length > 0 && (
-                  <div className="mb-4 text-sm text-gray-600">
-                    <span className="font-medium">Days:</span>{' '}
-                    {chore.recurrenceDays.join(', ')}
-                  </div>
-                )}
-
-              {/* Actions */}
-              {state.user?.role === 'parent' && (
-                <div className="flex gap-2 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => {
-                      setSelectedChore(chore)
-                      setIsEditModalOpen(true)
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedChore(chore)
-                      setIsDeleteDialogOpen(true)
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          ))
+                    <td className="px-6 py-4">
+                      <div
+                        className="font-medium text-gray-900"
+                        data-testid="chore-title"
+                      >
+                        {chore.title}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600">
+                        {chore.description || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyBadgeClasses(chore.difficulty)}`}
+                      >
+                        {chore.difficulty}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm">
+                        {chore.isRecurring &&
+                        chore.recurrenceDays &&
+                        chore.recurrenceDays.length > 0 ? (
+                          <div className="text-gray-900">
+                            {chore.recurrenceDays.join(', ')}
+                          </div>
+                        ) : (
+                          <span className="text-gray-500">One-time</span>
+                        )}
+                      </div>
+                    </td>
+                    {state.user?.role === 'parent' && (
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setSelectedChore(chore)
+                              setIsEditModalOpen(true)
+                            }}
+                            className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedChore(chore)
+                              setIsDeleteDialogOpen(true)
+                            }}
+                            className="px-3 py-1 text-sm border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
