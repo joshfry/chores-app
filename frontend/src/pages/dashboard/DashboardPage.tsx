@@ -130,355 +130,127 @@ const DashboardPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Progress Card */}
-      {stats && stats.totalAssignments > 0 && (
-        <div
-          className="bg-white rounded-lg shadow p-6"
-          data-testid="progress-card"
-        >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Assignment Completion
-          </h3>
-          <div className="mb-2">
-            <progress
-              className="w-full h-4 [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-value]:bg-blue-600 [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:bg-blue-600"
-              value={stats.completedAssignments}
-              max={stats.totalAssignments}
-              data-testid="assignment-progress-bar"
-            />
-          </div>
-          <div className="text-sm text-gray-600" data-testid="progress-label">
-            {stats.completedAssignments} of {stats.totalAssignments} assignments
-            completed (
-            {Math.round(
-              (stats.completedAssignments / stats.totalAssignments) * 100,
-            )}
-            %)
-          </div>
-        </div>
-      )}
-
-      {/* Stats Grid */}
-      <div
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
-        data-testid="dashboard-stats"
-      >
-        <div
-          className="bg-white rounded-lg shadow p-4"
-          data-testid="stat-members"
-        >
-          <div
-            className="text-3xl font-bold text-gray-900"
-            data-testid="stat-members-value"
-          >
-            {stats?.totalChildren ?? activeUsers.length}
-          </div>
-          <div className="text-sm text-gray-600">Family Members</div>
-        </div>
-
-        <div
-          className="bg-white rounded-lg shadow p-4"
-          data-testid="stat-children"
-        >
-          <div
-            className="text-3xl font-bold text-gray-900"
-            data-testid="stat-children-value"
-          >
-            {stats?.totalChildren ?? children.length}
-          </div>
-          <div className="text-sm text-gray-600">Children</div>
-        </div>
-
-        <div
-          className="bg-white rounded-lg shadow p-4"
-          data-testid="stat-chores"
-        >
-          <div
-            className="text-3xl font-bold text-gray-900"
-            data-testid="stat-chores-value"
-          >
-            {stats?.totalChores ?? chores.length}
-          </div>
-          <div className="text-sm text-gray-600">Total Chores</div>
-        </div>
-
-        <div
-          className="bg-white rounded-lg shadow p-4"
-          data-testid="stat-assignments"
-        >
-          <div
-            className="text-3xl font-bold text-gray-900"
-            data-testid="stat-assignments-value"
-          >
-            {stats?.totalAssignments ?? assignments.length}
-          </div>
-          <div className="text-sm text-gray-600">Total Assignments</div>
-        </div>
-
-        <div
-          className="bg-white rounded-lg shadow p-4"
-          data-testid="stat-completed"
-        >
-          <div
-            className="text-3xl font-bold text-green-600"
-            data-testid="stat-completed-value"
-          >
-            {stats?.completedAssignments ?? completedAssignments.length}
-          </div>
-          <div className="text-sm text-gray-600">Completed</div>
-        </div>
-
-        <div
-          className="bg-white rounded-lg shadow p-4"
-          data-testid="stat-pending"
-        >
-          <div
-            className="text-3xl font-bold text-yellow-600"
-            data-testid="stat-pending-value"
-          >
-            {stats?.pendingAssignments ?? pendingAssignments.length}
-          </div>
-          <div className="text-sm text-gray-600">Pending</div>
-        </div>
-      </div>
-
-      {/* Weekly Stats */}
-      {stats?.thisWeek && (
-        <div className="grid grid-cols-1 gap-4" data-testid="weekly-stats">
-          <div
-            className="bg-white rounded-lg shadow p-6"
-            data-testid="weekly-completed"
-          >
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              This Week's Completed
-            </h3>
-            <div className="text-4xl font-bold text-blue-600">
-              {stats.thisWeek.assignmentsCompleted}
-            </div>
-            <div className="text-sm text-gray-600">Assignments completed</div>
-          </div>
-        </div>
-      )}
-
-      {/* Top Performers */}
-      {stats?.topPerformers?.length ? (
-        <div
-          className="bg-white rounded-lg shadow p-6"
-          data-testid="leaderboard"
-        >
+      {/* Child Progress Cards */}
+      {children.length > 0 && (
+        <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Top Performers
+            Children's Progress
           </h2>
-          <div className="space-y-3">
-            {stats.topPerformers.map((performer: any) => (
-              <div
-                key={performer.childId}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                data-testid="top-performer"
-              >
-                <div>
-                  <div className="font-medium text-gray-900">
-                    {performer.childName}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {performer.choresCompleted} chores completed this week
-                  </div>
-                </div>
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                  Star
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {children.map((child) => {
+              // Get all assignments for this child
+              const childAssignments = assignments.filter(
+                (a) => a.childId === child.id,
+              )
 
-      {/* Chores Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">All Chores</h3>
-          <Link
-            to="/chores"
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            data-testid="manage-chores-link"
-          >
-            Manage Chores
-          </Link>
-        </div>
-        {chores.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full" data-testid="dashboard-chores-table">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Difficulty
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Recurrence
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {chores.map((chore) => (
-                  <tr
-                    key={chore.id}
-                    className="hover:bg-gray-50 transition-colors"
-                    data-testid="dashboard-chore-row"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">
-                        {chore.title}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-600">
-                        {chore.description || '-'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          chore.difficulty === 'easy'
-                            ? 'bg-green-100 text-green-800'
-                            : chore.difficulty === 'medium'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {chore.difficulty}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-600">
-                        {chore.isRecurring &&
-                        chore.recurrenceDays &&
-                        chore.recurrenceDays.length > 0
-                          ? chore.recurrenceDays.join(', ')
-                          : 'One-time'}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="px-6 py-8 text-center text-gray-500">
-            No chores found. Create your first chore to get started.
-          </div>
-        )}
-      </div>
+              const totalAssignments = childAssignments.length
 
-      {/* Family Members and Recent Assignments */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Family Members
-            </h3>
-            <Link
-              to="/users"
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              data-testid="manage-users-link"
-            >
-              Manage Users
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {activeUsers.length > 0 ? (
-              activeUsers.slice(0, 3).map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  data-testid="dashboard-user-item"
-                >
-                  <div>
-                    <div
-                      className="font-medium text-gray-900"
-                      data-testid="dashboard-user-name"
-                    >
-                      {user.name}
-                    </div>
-                    <div className="text-sm text-gray-600 capitalize">
-                      {user.role}
-                    </div>
-                  </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getBadgeClasses(user.role === 'parent' ? 'info' : 'success')}`}
-                    data-testid="dashboard-user-role"
-                  >
-                    {user.role}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="text-gray-500">No family members found</div>
-            )}
-          </div>
-        </div>
+              // Calculate chore-level statistics
+              let totalChores = 0
+              let completedChores = 0
+              let pendingChores = 0
+              let skippedChores = 0
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Recent Assignments
-            </h3>
-            <Link
-              to="/assignments"
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              data-testid="view-assignments-link"
-            >
-              View All
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {recentAssignments.length > 0 ? (
-              recentAssignments.map((assignment) => {
-                const child = users.find((u) => u.id === assignment.childId)
-                const choreCount = assignment.chores?.length || 0
+              childAssignments.forEach((assignment) => {
+                const chores = assignment.chores || []
+                totalChores += chores.length
 
-                return (
-                  <div
-                    key={assignment.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    data-testid="dashboard-assignment-item"
-                  >
-                    <div>
-                      <div
-                        className="font-medium text-gray-900"
-                        data-testid="dashboard-assignment-title"
-                      >
-                        Week of{' '}
-                        {new Date(assignment.startDate).toLocaleDateString()}
-                      </div>
-                      <div
-                        className="text-sm text-gray-600"
-                        data-testid="dashboard-assignment-subtitle"
-                      >
-                        {child?.name || 'Unknown'} • {choreCount} chore
-                        {choreCount !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getBadgeClasses(getAssignmentBadgeVariant(assignment.status))}`}
-                      data-testid="dashboard-assignment-status"
-                    >
-                      {assignment.status.replace('_', ' ')}
-                    </span>
-                  </div>
-                )
+                chores.forEach((chore) => {
+                  if (chore.status === 'completed') {
+                    completedChores++
+                  } else if (chore.status === 'pending') {
+                    pendingChores++
+                  } else if (chore.status === 'skipped') {
+                    skippedChores++
+                  }
+                })
               })
-            ) : (
-              <div className="text-gray-500">No assignments yet</div>
-            )}
+
+              // Calculate remaining chores (not completed)
+              const remainingChores = totalChores - completedChores
+
+              const completionPercentage =
+                totalChores > 0
+                  ? Math.round((completedChores / totalChores) * 100)
+                  : 0
+
+              return (
+                <div
+                  key={child.id}
+                  className="bg-white rounded-lg shadow p-6"
+                  data-testid={`child-progress-${child.id}`}
+                >
+                  {/* Child Header */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg">
+                      {child.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {child.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {totalAssignments} assignment
+                        {totalAssignments !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Overall Progress
+                      </span>
+                      <span className="text-sm font-bold text-blue-600">
+                        {completionPercentage}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 h-full transition-all duration-300"
+                        style={{ width: `${completionPercentage}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center p-2 bg-green-50 rounded-lg">
+                      <div className="text-lg font-bold text-green-600">
+                        {completedChores}
+                      </div>
+                      <div className="text-xs text-gray-600">Completed</div>
+                    </div>
+                    <div className="text-center p-2 bg-blue-50 rounded-lg">
+                      <div className="text-lg font-bold text-blue-600">
+                        {pendingChores}
+                      </div>
+                      <div className="text-xs text-gray-600">Pending</div>
+                    </div>
+                    <div className="text-center p-2 bg-gray-50 rounded-lg">
+                      <div className="text-lg font-bold text-gray-600">
+                        {skippedChores}
+                      </div>
+                      <div className="text-xs text-gray-600">Skipped</div>
+                    </div>
+                  </div>
+
+                  {/* Chore Details */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Chores</span>
+                      <span className="font-medium text-gray-900">
+                        {completedChores} / {totalChores} completed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
-      </div>
+      )}
 
       {/* Error Message */}
       {error && (
