@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Modal from '../../components/Modal'
+import RecurrenceDaysSelector from './RecurrenceDaysSelector'
 import type { Chore } from '../../types/api'
 
 const Form = styled.form``
@@ -36,7 +37,7 @@ interface EditChoreModalProps {
       description?: string
       difficulty: 'easy' | 'medium' | 'hard'
       isRecurring: boolean
-      recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
+      recurrenceDays?: string[]
     },
   ) => Promise<void>
 }
@@ -52,7 +53,7 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
     description: '',
     difficulty: 'easy' as 'easy' | 'medium' | 'hard',
     isRecurring: false,
-    recurrencePattern: '' as '' | 'daily' | 'weekly' | 'monthly' | 'custom',
+    recurrenceDays: [] as string[],
   })
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -64,7 +65,7 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
         description: chore.description || '',
         difficulty: chore.difficulty,
         isRecurring: chore.isRecurring,
-        recurrencePattern: chore.recurrencePattern || '',
+        recurrenceDays: chore.recurrenceDays || [],
       })
     }
   }, [chore])
@@ -95,9 +96,9 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
         description: formData.description || undefined,
         difficulty: formData.difficulty,
         isRecurring: formData.isRecurring,
-        recurrencePattern:
-          formData.isRecurring && formData.recurrencePattern
-            ? formData.recurrencePattern
+        recurrenceDays:
+          formData.isRecurring && formData.recurrenceDays.length > 0
+            ? formData.recurrenceDays
             : undefined,
       })
       onClose()
@@ -191,19 +192,13 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
 
         {formData.isRecurring && (
           <FormGroup>
-            <Label htmlFor="recurrencePattern">Recurrence Pattern</Label>
-            <Select
-              id="recurrencePattern"
-              name="recurrencePattern"
-              value={formData.recurrencePattern}
-              onChange={handleChange}
-              data-testid="recurrence-select"
-            >
-              <option value="">Select pattern</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </Select>
+            <Label>Recurrence Days</Label>
+            <RecurrenceDaysSelector
+              selectedDays={formData.recurrenceDays}
+              onChange={(days) =>
+                setFormData((prev) => ({ ...prev, recurrenceDays: days }))
+              }
+            />
           </FormGroup>
         )}
       </Form>

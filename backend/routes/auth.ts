@@ -106,6 +106,10 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
           email: user.email,
           name: user.name,
           role: user.role,
+          familyId: user.familyId,
+          birthdate: user.birthdate,
+          lastLogin: user.lastLogin,
+          isActive: user.isActive,
         },
         family: {
           id: family.id,
@@ -251,6 +255,9 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
           name: user.name,
           role: user.role,
           familyId: user.familyId,
+          birthdate: user.birthdate,
+          lastLogin: user.lastLogin,
+          isActive: user.isActive,
         },
         family: family
           ? {
@@ -296,6 +303,7 @@ router.get(
             familyId: user!.familyId,
             birthdate: user!.birthdate,
             lastLogin: user!.lastLogin,
+            isActive: user!.isActive,
           },
           family: family
             ? {
@@ -425,6 +433,7 @@ router.get(
         birthdate: user.birthdate,
         createdBy: user.createdBy,
         lastLogin: user.lastLogin,
+        isActive: user.isActive,
       }))
 
       res.json({

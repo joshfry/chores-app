@@ -58,8 +58,7 @@ chores/
    {
      "id": number,
      "name": string,
-     "birthdate": "YYYY-MM-DD",
-     "total_points": number
+     "birthdate": "YYYY-MM-DD"
    }
    ```
 
@@ -71,22 +70,27 @@ chores/
      "title": string,
      "description": string,
      "difficulty": "easy|medium|hard",
-     "points": number,
      "is_recurring": boolean,
-     "recurrence_pattern": "daily|weekly|monthly|custom"
+     "recurrence_days": ["monday", "wednesday", "friday"] // Array of days
    }
    ```
 
-3. **Assignments**
+3. **Assignments** (Weekly Collections)
    ```json
    {
      "id": number,
      "child_id": number,
-     "chore_id": number,
-     "assigned_date": "YYYY-MM-DD",
-     "due_date": "YYYY-MM-DD",
-     "status": "pending|in_progress|completed|overdue",
-     "completed_date": "YYYY-MM-DD" | null
+     "start_date": "YYYY-MM-DD", // Always Sunday
+     "end_date": "YYYY-MM-DD", // Always Saturday
+     "status": "assigned|in_progress|completed|missed",
+     "chores": [
+       {
+         "id": number,
+         "chore_id": number,
+         "status": "pending|completed|skipped",
+         "completed_on": "monday" | null
+       }
+     ]
    }
    ```
 
@@ -94,7 +98,8 @@ chores/
 
 - **Children**: `/api/children` (GET, POST, PUT, DELETE)
 - **Chores**: `/api/chores` (GET, POST, PUT, DELETE)
-- **Assignments**: `/api/assignments` (GET, POST, PUT, PATCH, DELETE)
+- **Assignments**: `/api/assignments` (GET, POST, DELETE)
+  - `/api/assignments/:id/chores/:choreId` (PATCH) - Update individual chore status
 - **Dashboard**: `/api/dashboard/stats`
 - **Health**: `/health`
 - **Root**: `/` (API documentation)

@@ -276,21 +276,19 @@ Displays 7 key metrics:
 - **Total Assignments**: All assignments
 - **Completed**: Completed assignments
 - **Pending**: Pending assignments
-- **Total Points**: Points earned by all children
 
 ##### 3. Weekly Stats (if available)
 
 - Assignments completed this week
-- Points earned this week
 
 ##### 4. Top Performers Leaderboard
 
-Shows children with most points earned this week
+Shows children with most assignments completed this week
 
 ##### 5. Family Members Preview
 
 - Shows first 3 active users
-- Displays: name, role, total points
+- Displays: name, role
 - "Manage Users" link to full users page
 
 ##### 6. Recent Assignments Preview
@@ -334,10 +332,9 @@ Shows children with most points earned this week
 
 1. **User**: Avatar + name + email
 2. **Role**: Badge (parent/child)
-3. **Points**: Total points earned
-4. **Last Active**: Last login date
-5. **Status**: Active/Inactive badge
-6. **Actions**: Edit and Remove buttons (parents only)
+3. **Last Active**: Last login date
+4. **Status**: Active/Inactive badge
+5. **Actions**: Edit and Remove buttons (parents only)
 
 ### User Flow: Adding a Child
 
@@ -386,7 +383,7 @@ Start by adding child accounts to manage chores together.
 ```javascript
 // On mount:
 GET /api/users
-Response: [{ id, name, email, role, totalPoints, lastLogin, isActive, ... }]
+Response: [{ id, name, email, role, lastLogin, isActive, ... }]
 ```
 
 ---
@@ -410,7 +407,6 @@ Each chore displays:
 
 - **Title**: Chore name
 - **Description**: What needs to be done
-- **Points**: ⭐ point value
 - **Difficulty Badge**: easy/medium/hard
 - **Type Badge**: Recurring or One-time
 - **Recurrence Pattern**: daily/weekly/monthly (if recurring)
@@ -426,32 +422,31 @@ Each chore displays:
 #### Steps:
 
 1. Parent clicks "Create New Chore" button
-2. **(Currently console.log - not implemented yet)**
-3. **Expected**: Modal/form with fields:
+2. Modal opens with form fields:
    - Title (required)
    - Description (required)
    - Difficulty (easy/medium/hard)
-   - Points value (number)
    - Is Recurring? (checkbox)
-   - Recurrence Pattern (if recurring)
-4. Parent submits form
-5. Backend creates chore
-6. Grid refreshes to show new chore
+   - Recurrence Days (if recurring) - checkboxes for Mon-Sun
+3. Parent submits form
+4. Backend creates chore with `recurrenceDays` as JSON array
+5. Grid refreshes to show new chore with selected days displayed
 
-### Chore Flow: Assigning a Chore
+### Chore Flow: Assigning Chores (Weekly Assignment)
 
 #### Steps:
 
-1. Parent clicks "Assign" button on chore card
-2. **(Currently console.log - not implemented yet)**
-3. **Expected**: Modal to select:
-   - Which child
-   - Assigned date (default: today)
-   - Due date
-   - Initial status (default: pending)
-4. Parent submits
-5. Backend creates assignment
-6. User can navigate to Assignments to see it
+1. Parent navigates to Assignments page
+2. Clicks "Create Assignment" button
+3. Modal opens with:
+   - Select child (dropdown)
+   - Start date (auto-suggests next Sunday)
+   - Select multiple chores (checkboxes)
+   - Optional notes
+4. System auto-calculates end date (6 days after start = Saturday)
+5. Parent submits
+6. Backend creates assignment with all selected chores in "pending" status
+7. Assignment appears in table showing week range and chore count
 
 ### Chore Flow: Editing a Chore
 
@@ -496,7 +491,6 @@ Response: [
     title,
     description,
     difficulty,
-    points,
     isRecurring,
     recurrencePattern,
   },
@@ -511,77 +505,75 @@ Response: [
 **Component**: `AssignmentsPage.tsx`  
 **Permission**: All users can view their assignments; parents can manage all
 
+### **🔄 NEW: Weekly Assignment System**
+
+Assignments are now **weekly collections of chores** (Sunday-Saturday) instead of single chores.
+
 ### Page Layout
 
 #### Header:
 
 - Title: "Assignments"
 - **Filters**:
-  - Status filter: All/Pending/In Progress/Completed
+  - Status filter: All/Assigned/In Progress/Completed/Missed
   - Child filter: All Children/[Specific Child]
 - "Create Assignment" button (parents only)
 
-#### Assignment Table Columns:
+#### Assignment Cards:
 
-1. **Chore**: Chore title + points display
-2. **Assigned To**: Avatar + child name
-3. **Assigned Date**: When assignment was created
-4. **Due Date**: When assignment is due
-5. **Status**: Badge (pending/in_progress/completed/overdue)
-6. **Actions**: Context-specific buttons
+Each assignment displays:
 
-### Assignment Flow: Creating an Assignment
+1. **Week Range**: "Oct 6 - Oct 12, 2024" (Sun-Sat)
+2. **Child**: Avatar + name
+3. **Status**: Badge (assigned/in_progress/completed/missed)
+4. **Chores List**: All chores in this assignment with individual status
+5. **Actions**: Delete button (parents only)
+
+#### Individual Chore Items (within assignment):
+
+- Chore title + description
+- Status toggle: Pending ↔ Completed ↔ Skipped
+- Completion day display (if completed)
+
+### Assignment Flow: Creating Weekly Assignment
 
 #### Steps:
 
 1. Parent clicks "Create Assignment" button
-2. **(Currently console.log - not implemented yet)**
-3. **Expected**: Modal/form with:
-   - Select chore (dropdown)
+2. Modal opens with:
    - Select child (dropdown)
-   - Assigned date (date picker, default: today)
-   - Due date (date picker)
-   - Initial status (default: pending)
+   - Start date (auto-suggests next Sunday)
+   - Select multiple chores (checkboxes with recurrence days shown)
+   - Optional notes
+3. System auto-calculates end date (6 days later = Saturday)
 4. Parent submits
-5. Backend creates assignment
-6. Table refreshes
+5. Backend creates:
+   - One Assignment record (week container)
+   - Multiple AssignmentChore records (junction table)
+6. New assignment card appears showing all selected chores
 
-### Assignment Flow: Child Marks Complete
+### Assignment Flow: Completing Individual Chores
 
-#### Steps (Child User Only):
+#### Steps:
 
-1. Child sees their assignments in table
-2. "Complete" button shown only for:
-   - Assignments where `childId === currentUser.id`
-   - Assignments where `status !== 'completed'`
-3. Child clicks "Complete" button
-4. **(Currently console.log - not implemented yet)**
-5. **Expected**: Backend updates assignment:
-   - `status = 'completed'`
-   - `completedDate = now`
-   - User `totalPoints` increased by chore points
-6. Table refreshes
-7. Dashboard stats update
+1. User opens assignment card
+2. Sees list of all chores in that week
+3. Clicks status toggle on individual chore
+4. Backend updates specific AssignmentChore record:
+   - `PATCH /api/assignments/:id/chores/:choreId`
+   - Updates status (pending/completed/skipped)
+   - Records completion day if completed
+5. UI updates to show new status
+6. Assignment overall status updates if all chores complete
 
-### Assignment Flow: Parent Marks Done
-
-#### Steps (Parent User Only):
-
-1. Parent can mark any incomplete assignment done
-2. Parent clicks "Mark Done" button
-3. **(Currently console.log - not implemented yet)**
-4. **Expected**: Same as child complete, but parent-initiated
-5. Table refreshes
-
-### Assignment Flow: Deleting an Assignment
+### Assignment Flow: Deleting Assignment
 
 #### Steps (Parent Only):
 
-1. Parent clicks "Delete" button on assignment
-2. **(Currently console.log - not implemented yet)**
-3. **Expected**: Confirmation dialog
-4. Backend deletes assignment
-5. Table refreshes
+1. Parent clicks "Delete" button on assignment card
+2. Confirmation dialog appears
+3. Backend deletes assignment (cascade deletes all AssignmentChore records)
+4. Card removed from view
 
 ### Filtering Logic
 
@@ -845,7 +837,6 @@ All methods return: `{ success: boolean, data?: any, error?: string }`
   role: 'parent' | 'child'
   familyId: number
   birthdate?: string
-  totalPoints: number
   lastLogin?: Date
   isActive: boolean
   createdAt: Date
@@ -872,28 +863,41 @@ All methods return: `{ success: boolean, data?: any, error?: string }`
   title: string
   description: string
   difficulty: 'easy' | 'medium' | 'hard'
-  points: number
   isRecurring: boolean
-  recurrencePattern?: 'daily' | 'weekly' | 'monthly'
+  recurrenceDays?: string[] // ["monday", "wednesday", "friday"]
   familyId: number
   createdAt: Date
   updatedAt: Date
 }
 ```
 
-#### Assignment
+#### Assignment (Weekly Collection)
 
 ```typescript
 {
   id: number
   childId: number
-  choreId: number
-  assignedDate: string
-  dueDate: string
-  status: 'pending' | 'in_progress' | 'completed' | 'overdue'
-  completedDate?: string
+  childName?: string
+  startDate: string // YYYY-MM-DD (Sunday)
+  endDate: string // YYYY-MM-DD (Saturday)
+  status: 'assigned' | 'in_progress' | 'completed' | 'missed'
+  notes?: string
+  chores: AssignmentChore[]
   createdAt: Date
   updatedAt: Date
+}
+```
+
+#### AssignmentChore (Junction)
+
+```typescript
+{
+  id: number
+  assignmentId: number
+  choreId: number
+  status: 'pending' | 'completed' | 'skipped'
+  completedOn?: string // Day of week when completed
+  chore: Chore // Full chore object
 }
 ```
 
@@ -925,7 +929,6 @@ All methods return: `{ success: boolean, data?: any, error?: string }`
 6. Child navigates to "Assignments"
 7. Child filters to see only their assignments
 8. Child marks completed chores as done
-9. Child sees points increase on dashboard
 
 ### Parent Daily Management
 

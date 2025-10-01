@@ -28,6 +28,8 @@ This folder contains all documentation specifically designed to help AI agents w
 - [`QA_REPORT.md`](./QA_REPORT.md) - Quality assurance audit and recommendations
 - [`QA_ACTION_ITEMS.md`](./QA_ACTION_ITEMS.md) - Action items from QA review
 - [`CRUD_IMPLEMENTATION.md`](./CRUD_IMPLEMENTATION.md) - CRUD implementation tracking
+- [`ASSIGNMENT_REDESIGN_STATUS.md`](./ASSIGNMENT_REDESIGN_STATUS.md) - Assignment redesign progress
+- [`ASSIGNMENT_REDESIGN_COMPLETE.md`](./ASSIGNMENT_REDESIGN_COMPLETE.md) - ✅ Redesign completion summary
 
 ## 🎯 Reading Strategy
 

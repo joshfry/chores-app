@@ -294,8 +294,12 @@ describe('Auth Prisma Models', () => {
   describe('Database Seeding', () => {
     it('should seed database with sample data', async () => {
       // Mock all the database operations
+      mockPrisma.user.count.mockResolvedValue(0)
       mockPrisma.family.create.mockResolvedValue({ id: 1 } as any)
-      mockPrisma.user.create.mockResolvedValue({ id: 1 } as any)
+      mockPrisma.user.create.mockResolvedValue({ id: 1, familyId: 1 } as any)
+      mockPrisma.family.update.mockResolvedValue({ id: 1 } as any)
+      mockPrisma.chore.create.mockResolvedValue({ id: 1 } as any)
+      mockPrisma.assignment.create.mockResolvedValue({ id: 1 } as any)
 
       await authModels.seedDatabase()
 

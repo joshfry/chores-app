@@ -1,156 +1,298 @@
 import express, { Request, Response, Router } from 'express'
+import { prisma } from '../lib/prisma'
+import { requireAuth } from '../middleware/auth'
 
 const router: Router = express.Router()
 
-// GET /chores - Get all chores
-router.get('/', (req: Request, res: Response): void => {
-  // TODO: Connect to database
-  res.json({
-    success: true,
-    data: [
-      {
-        id: 1,
-        title: 'Clean bedroom',
-        description: 'Make bed, organize toys, vacuum floor',
-        difficulty: 'medium',
-        category: 'cleaning',
-        is_recurring: false,
-        recurrence_pattern: null,
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z',
-      },
-      {
-        id: 2,
-        title: 'Take out trash',
-        description: 'Empty all trash cans and take to curb',
-        difficulty: 'easy',
-        category: 'cleaning',
-        is_recurring: true,
-        recurrence_pattern: 'weekly',
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z',
-      },
-    ],
-  })
-})
+// GET /chores - Get all chores for authenticated user's family
+router.get(
+  '/',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = (req as any).user
+
+      const chores = await prisma.chore.findMany({
+        where: { familyId: user.familyId },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      res.json({
+        success: true,
+        data: chores.map((chore) => ({
+          id: chore.id,
+          title: chore.title,
+          description: chore.description,
+          difficulty: chore.difficulty,
+          category: chore.category,
+          isRecurring: chore.isRecurring,
+          recurrenceDays: chore.recurrenceDays
+            ? JSON.parse(chore.recurrenceDays)
+            : null,
+          familyId: chore.familyId,
+          createdAt: chore.createdAt,
+          updatedAt: chore.updatedAt,
+        })),
+      })
+    } catch (error) {
+      console.error('Error fetching chores:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
 // GET /chores/:id - Get specific chore
-router.get('/:id', (req: Request, res: Response) => {
-  const { id } = req.params
-  // TODO: Connect to database
-  res.json({
-    success: true,
-    data: {
-      id: parseInt(id),
-      title: 'Clean bedroom',
-      description: 'Make bed, organize toys, vacuum floor',
-      difficulty: 'medium',
-      category: 'cleaning',
-      is_recurring: false,
-      recurrence_pattern: null,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-01T00:00:00Z',
-    },
-  })
-})
+router.get(
+  '/:id',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params
+      const user = (req as any).user
+
+      const chore = await prisma.chore.findFirst({
+        where: {
+          id: parseInt(id),
+          familyId: user.familyId,
+        },
+      })
+
+      if (!chore) {
+        res.status(404).json({
+          success: false,
+          error: 'Chore not found',
+        })
+        return
+      }
+
+      res.json({
+        success: true,
+        data: {
+          id: chore.id,
+          title: chore.title,
+          description: chore.description,
+          difficulty: chore.difficulty,
+          category: chore.category,
+          isRecurring: chore.isRecurring,
+          recurrenceDays: chore.recurrenceDays
+            ? JSON.parse(chore.recurrenceDays)
+            : null,
+          familyId: chore.familyId,
+          createdAt: chore.createdAt,
+          updatedAt: chore.updatedAt,
+        },
+      })
+    } catch (error) {
+      console.error('Error fetching chore:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
 // POST /chores - Create new chore
-router.post('/', (req: Request, res: Response): void => {
-  const {
-    title,
-    description,
-    points = 1,
-    difficulty = 'easy',
-    category,
-    is_recurring = false,
-    recurrence_pattern,
-  } = req.body
+router.post(
+  '/',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = (req as any).user
+      const {
+        title,
+        description,
+        difficulty = 'easy',
+        category,
+        isRecurring = false,
+        recurrenceDays,
+      } = req.body
 
-  if (!title) {
-    res.status(400).json({
-      success: false,
-      error: 'Title is required',
-    })
-  }
+      if (!title) {
+        res.status(400).json({
+          success: false,
+          error: 'Title is required',
+        })
+        return
+      }
 
-  if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
-    res.status(400).json({
-      success: false,
-      error: 'Difficulty must be easy, medium, or hard',
-    })
-  }
+      if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
+        res.status(400).json({
+          success: false,
+          error: 'Difficulty must be easy, medium, or hard',
+        })
+        return
+      }
 
-  if (is_recurring && !recurrence_pattern) {
-    res.status(400).json({
-      success: false,
-      error: 'Recurrence pattern required for recurring chores',
-    })
-  }
+      const chore = await prisma.chore.create({
+        data: {
+          title,
+          description: description || null,
+          difficulty,
+          category: category || null,
+          isRecurring,
+          recurrenceDays:
+            isRecurring && recurrenceDays && recurrenceDays.length > 0
+              ? JSON.stringify(recurrenceDays)
+              : null,
+          familyId: user.familyId,
+        },
+      })
 
-  // TODO: Connect to database
-  res.status(201).json({
-    success: true,
-    data: {
-      id: 3,
-      title,
-      description: description || null,
-      points,
-      difficulty,
-      category: category || null,
-      is_recurring,
-      recurrence_pattern: recurrence_pattern || null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  })
-})
+      res.status(201).json({
+        success: true,
+        data: {
+          id: chore.id,
+          title: chore.title,
+          description: chore.description,
+          difficulty: chore.difficulty,
+          category: chore.category,
+          isRecurring: chore.isRecurring,
+          recurrenceDays: chore.recurrenceDays
+            ? JSON.parse(chore.recurrenceDays)
+            : null,
+          familyId: chore.familyId,
+          createdAt: chore.createdAt,
+          updatedAt: chore.updatedAt,
+        },
+      })
+    } catch (error) {
+      console.error('Error creating chore:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
 // PUT /chores/:id - Update chore
-router.put('/:id', (req: Request, res: Response) => {
-  const { id } = req.params
-  const {
-    title,
-    description,
-    points,
-    difficulty,
-    category,
-    is_recurring,
-    recurrence_pattern,
-  } = req.body
+router.put(
+  '/:id',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params
+      const user = (req as any).user
+      const {
+        title,
+        description,
+        difficulty,
+        category,
+        isRecurring,
+        recurrenceDays,
+      } = req.body
 
-  if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
-    res.status(400).json({
-      success: false,
-      error: 'Difficulty must be easy, medium, or hard',
-    })
-  }
+      if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
+        res.status(400).json({
+          success: false,
+          error: 'Difficulty must be easy, medium, or hard',
+        })
+        return
+      }
 
-  // TODO: Connect to database and validate chore exists
-  res.json({
-    success: true,
-    data: {
-      id: parseInt(id),
-      title: title || 'Clean bedroom',
-      description: description || 'Make bed, organize toys, vacuum floor',
-      difficulty: difficulty || 'medium',
-      category: category || 'cleaning',
-      is_recurring: is_recurring !== undefined ? is_recurring : false,
-      recurrence_pattern: recurrence_pattern || null,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: new Date().toISOString(),
-    },
-  })
-})
+      const existingChore = await prisma.chore.findFirst({
+        where: {
+          id: parseInt(id),
+          familyId: user.familyId,
+        },
+      })
+
+      if (!existingChore) {
+        res.status(404).json({
+          success: false,
+          error: 'Chore not found',
+        })
+        return
+      }
+
+      const chore = await prisma.chore.update({
+        where: { id: parseInt(id) },
+        data: {
+          title: title || existingChore.title,
+          description:
+            description !== undefined ? description : existingChore.description,
+          difficulty: difficulty || existingChore.difficulty,
+          category: category !== undefined ? category : existingChore.category,
+          isRecurring:
+            isRecurring !== undefined ? isRecurring : existingChore.isRecurring,
+          recurrenceDays:
+            isRecurring && recurrenceDays && recurrenceDays.length > 0
+              ? JSON.stringify(recurrenceDays)
+              : null,
+        },
+      })
+
+      res.json({
+        success: true,
+        data: {
+          id: chore.id,
+          title: chore.title,
+          description: chore.description,
+          difficulty: chore.difficulty,
+          category: chore.category,
+          isRecurring: chore.isRecurring,
+          recurrenceDays: chore.recurrenceDays
+            ? JSON.parse(chore.recurrenceDays)
+            : null,
+          familyId: chore.familyId,
+          createdAt: chore.createdAt,
+          updatedAt: chore.updatedAt,
+        },
+      })
+    } catch (error) {
+      console.error('Error updating chore:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
 // DELETE /chores/:id - Delete chore
-router.delete('/:id', (req: Request, res: Response) => {
-  const { id } = req.params
+router.delete(
+  '/:id',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params
+      const user = (req as any).user
 
-  // TODO: Connect to database and validate chore exists
-  res.json({
-    success: true,
-    message: 'Chore deleted successfully',
-  })
-})
+      const chore = await prisma.chore.findFirst({
+        where: {
+          id: parseInt(id),
+          familyId: user.familyId,
+        },
+      })
+
+      if (!chore) {
+        res.status(404).json({
+          success: false,
+          error: 'Chore not found',
+        })
+        return
+      }
+
+      await prisma.chore.delete({
+        where: { id: parseInt(id) },
+      })
+
+      res.json({
+        success: true,
+        message: 'Chore deleted successfully',
+      })
+    } catch (error) {
+      console.error('Error deleting chore:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
 export default router

@@ -9,6 +9,7 @@ export interface User {
   createdBy: number | null
   lastLogin: Date | string
   isActive: boolean
+  totalPoints?: number // Optional - may not be returned by all endpoints
 }
 
 export interface Family {
@@ -24,7 +25,7 @@ export interface Chore {
   description: string
   difficulty: 'easy' | 'medium' | 'hard'
   isRecurring: boolean
-  recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
+  recurrenceDays?: string[] // e.g., ["monday", "wednesday", "friday"]
   familyId: number
   category?: string
 }
@@ -32,14 +33,21 @@ export interface Chore {
 export interface Assignment {
   id: number
   childId: number
-  choreId: number
-  assignedDate: string
-  dueDate: string
-  status: 'pending' | 'in_progress' | 'completed' | 'overdue'
-  completedDate?: string | null
+  startDate: string // Always Sunday
+  endDate?: string // Always Saturday
+  status: 'assigned' | 'in_progress' | 'completed' | 'missed'
   notes?: string
-  choreTitle?: string
+  chores?: AssignmentChore[]
   childName?: string
+}
+
+export interface AssignmentChore {
+  id: number
+  assignmentId: number
+  choreId: number
+  status: 'pending' | 'completed' | 'skipped'
+  completedOn?: string // Day of week
+  chore?: Chore
 }
 
 export interface AuthResponse {
@@ -94,6 +102,6 @@ export interface DashboardStats {
   topPerformers: Array<{
     childId: number
     childName: string
-    pointsThisWeek: number
+    choresCompleted: number
   }>
 }

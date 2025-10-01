@@ -1,241 +1,352 @@
 import express, { Request, Response, Router } from 'express'
+import { prisma } from '../lib/prisma'
+import { requireAuth } from '../middleware/auth'
 
 const router: Router = express.Router()
 
-interface Assignment {
-  id: number
-  child_id: number
-  child_name: string
-  chore_id: number
-  chore_title: string
-  chore_description: string
-  assigned_date: string
-  due_date: string
-  status: string
-  completed_date: string | null
-  points_earned: number
-  notes: string | null
-  created_at: string
-  updated_at: string
-}
+// Get all assignments for authenticated user's family
+router.get(
+  '/',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = (req as any).user
 
-// GET /assignments - Get all assignments with optional filtering
-router.get('/', (req: Request, res: Response): void => {
-  const { child_id, status, chore_id } = req.query
+      const assignments = await prisma.assignment.findMany({
+        where: { familyId: user.familyId },
+        include: {
+          child: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          assignmentChores: {
+            include: {
+              chore: true,
+            },
+          },
+        },
+        orderBy: { startDate: 'desc' },
+      })
 
-  // TODO: Connect to database and apply filters
-  let mockData: Assignment[] = [
-    {
-      id: 1,
-      child_id: 1,
-      child_name: 'Alice',
-      chore_id: 1,
-      chore_title: 'Clean bedroom',
-      chore_description: 'Make bed, organize toys, vacuum floor',
-      assigned_date: '2024-01-15',
-      due_date: '2024-01-16',
-      status: 'completed',
-      completed_date: '2024-01-16T10:30:00Z',
-      points_earned: 5,
-      notes: null,
-      created_at: '2024-01-15T08:00:00Z',
-      updated_at: '2024-01-16T10:30:00Z',
-    },
-    {
-      id: 2,
-      child_id: 2,
-      child_name: 'Bob',
-      chore_id: 2,
-      chore_title: 'Take out trash',
-      chore_description: 'Empty all trash cans and take to curb',
-      assigned_date: '2024-01-16',
-      due_date: '2024-01-17',
-      status: 'in_progress',
-      completed_date: null,
-      points_earned: 3,
-      notes: 'Started but not finished',
-      created_at: '2024-01-16T09:00:00Z',
-      updated_at: '2024-01-16T15:00:00Z',
-    },
-  ]
+      res.json({
+        success: true,
+        data: assignments.map((assignment) => ({
+          id: assignment.id,
+          childId: assignment.childId,
+          childName: assignment.child.name,
+          startDate: assignment.startDate,
+          endDate: assignment.endDate,
+          status: assignment.status,
+          notes: assignment.notes,
+          chores: assignment.assignmentChores.map((ac) => ({
+            id: ac.id,
+            assignmentId: ac.assignmentId,
+            choreId: ac.choreId,
+            status: ac.status,
+            completedOn: ac.completedOn,
+            chore: {
+              id: ac.chore.id,
+              title: ac.chore.title,
+              description: ac.chore.description,
+              difficulty: ac.chore.difficulty,
+              isRecurring: ac.chore.isRecurring,
+              recurrenceDays: ac.chore.recurrenceDays
+                ? JSON.parse(ac.chore.recurrenceDays)
+                : [],
+            },
+          })),
+        })),
+      })
+    } catch (error) {
+      console.error('Error fetching assignments:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
-  // Apply filters (mock filtering)
-  if (child_id) {
-    mockData = mockData.filter(
-      (a) => a.child_id === parseInt(child_id as string),
-    )
-  }
-  if (status) {
-    mockData = mockData.filter((a) => a.status === status)
-  }
-  if (chore_id) {
-    mockData = mockData.filter(
-      (a) => a.chore_id === parseInt(chore_id as string),
-    )
-  }
+// Create new assignment
+router.post(
+  '/',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = (req as any).user
+      const { childId, startDate, choreIds, notes } = req.body
 
-  res.json({
-    success: true,
-    data: mockData,
-  })
-})
+      if (!childId || !startDate || !choreIds || choreIds.length === 0) {
+        res.status(400).json({
+          success: false,
+          error: 'childId, startDate, and choreIds are required',
+        })
+        return
+      }
 
-// GET /assignments/:id - Get specific assignment
-router.get('/:id', (req: Request, res: Response) => {
-  const { id } = req.params
+      // Calculate end date (6 days after start - Saturday)
+      const start = new Date(startDate)
+      const end = new Date(start)
+      end.setDate(start.getDate() + 6)
+      const endDate = end.toISOString().split('T')[0]
 
-  // TODO: Connect to database
-  res.json({
-    success: true,
-    data: {
-      id: parseInt(id),
-      child_id: 1,
-      child_name: 'Alice',
-      chore_id: 1,
-      chore_title: 'Clean bedroom',
-      chore_description: 'Make bed, organize toys, vacuum floor',
-      assigned_date: '2024-01-15',
-      due_date: '2024-01-16',
-      status: 'completed',
-      completed_date: '2024-01-16T10:30:00Z',
-      points_earned: 5,
-      notes: null,
-      created_at: '2024-01-15T08:00:00Z',
-      updated_at: '2024-01-16T10:30:00Z',
-    },
-  })
-})
+      const assignment = await prisma.assignment.create({
+        data: {
+          childId: parseInt(childId),
+          startDate,
+          endDate,
+          status: 'assigned',
+          notes: notes || null,
+          familyId: user.familyId,
+          assignmentChores: {
+            create: choreIds.map((choreId: number) => ({
+              choreId: Number(choreId),
+              status: 'pending',
+            })),
+          },
+        },
+        include: {
+          assignmentChores: {
+            include: {
+              chore: true,
+            },
+          },
+        },
+      })
 
-// POST /assignments - Create new assignment
-router.post('/', (req: Request, res: Response): void => {
-  const { child_id, chore_id, assigned_date, due_date, notes } = req.body
+      res.status(201).json({
+        success: true,
+        data: {
+          id: assignment.id,
+          childId: assignment.childId,
+          startDate: assignment.startDate,
+          endDate: assignment.endDate,
+          status: assignment.status,
+          notes: assignment.notes,
+          chores: assignment.assignmentChores.map((ac) => ({
+            id: ac.id,
+            assignmentId: ac.assignmentId,
+            choreId: ac.choreId,
+            status: ac.status,
+            chore: ac.chore,
+          })),
+        },
+      })
+    } catch (error) {
+      console.error('Error creating assignment:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
-  if (!child_id || !chore_id || !assigned_date) {
-    res.status(400).json({
-      success: false,
-      error: 'child_id, chore_id, and assigned_date are required',
-    })
-  }
+// Update assignment
+router.put(
+  '/:id',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params
+      const user = (req as any).user
+      const { childId, startDate, choreIds, notes } = req.body
 
-  // Validate date format (basic check)
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!dateRegex.test(assigned_date)) {
-    res.status(400).json({
-      success: false,
-      error: 'assigned_date must be in YYYY-MM-DD format',
-    })
-  }
+      // Verify assignment exists and belongs to user's family
+      const existingAssignment = await prisma.assignment.findFirst({
+        where: {
+          id: parseInt(id),
+          familyId: user.familyId,
+        },
+      })
 
-  if (due_date && !dateRegex.test(due_date)) {
-    res.status(400).json({
-      success: false,
-      error: 'due_date must be in YYYY-MM-DD format',
-    })
-  }
+      if (!existingAssignment) {
+        res.status(404).json({
+          success: false,
+          error: 'Assignment not found',
+        })
+        return
+      }
 
-  // TODO: Validate child_id and chore_id exist in database
-  // TODO: Get points from chore table
+      // Calculate end date if start date changed
+      let endDate = existingAssignment.endDate
+      if (startDate && startDate !== existingAssignment.startDate) {
+        const start = new Date(startDate)
+        const end = new Date(start)
+        end.setDate(start.getDate() + 6)
+        endDate = end.toISOString().split('T')[0]
+      }
 
-  res.status(201).json({
-    success: true,
-    data: {
-      id: 3,
-      child_id,
-      child_name: 'Alice', // TODO: Get from database
-      chore_id,
-      chore_title: 'Clean bedroom', // TODO: Get from database
-      assigned_date,
-      due_date: due_date || null,
-      status: 'assigned',
-      completed_date: null,
-      points_earned: 5, // TODO: Get from chore.points
-      notes: notes || null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  })
-})
+      // Update assignment and handle chores if provided
+      const updateData: any = {
+        childId: childId ? parseInt(childId) : existingAssignment.childId,
+        startDate: startDate || existingAssignment.startDate,
+        endDate: endDate,
+        notes: notes !== undefined ? notes : existingAssignment.notes,
+      }
 
-// PUT /assignments/:id - Update assignment
-router.put('/:id', (req: Request, res: Response) => {
-  const { id } = req.params
-  const { status, due_date, notes } = req.body
+      // If choreIds are provided, update the assignment chores
+      if (choreIds && Array.isArray(choreIds)) {
+        // Delete existing assignment chores
+        await prisma.assignmentChore.deleteMany({
+          where: { assignmentId: parseInt(id) },
+        })
 
-  if (
-    status &&
-    !['assigned', 'in_progress', 'completed', 'missed'].includes(status)
-  ) {
-    res.status(400).json({
-      success: false,
-      error: 'Status must be: assigned, in_progress, completed, or missed',
-    })
-  }
+        // Create new assignment chores
+        updateData.assignmentChores = {
+          create: choreIds.map((choreId: number) => ({
+            choreId: Number(choreId),
+            status: 'pending',
+          })),
+        }
+      }
 
-  if (due_date && !/^\d{4}-\d{2}-\d{2}$/.test(due_date)) {
-    res.status(400).json({
-      success: false,
-      error: 'due_date must be in YYYY-MM-DD format',
-    })
-  }
+      const assignment = await prisma.assignment.update({
+        where: { id: parseInt(id) },
+        data: updateData,
+        include: {
+          assignmentChores: {
+            include: {
+              chore: true,
+            },
+          },
+          child: true,
+        },
+      })
 
-  // TODO: Connect to database and validate assignment exists
-  const completed_date =
-    status === 'completed' ? new Date().toISOString() : null
+      res.json({
+        success: true,
+        data: {
+          id: assignment.id,
+          childId: assignment.childId,
+          childName: assignment.child.name,
+          startDate: assignment.startDate,
+          endDate: assignment.endDate,
+          status: assignment.status,
+          notes: assignment.notes,
+          chores: assignment.assignmentChores.map((ac) => ({
+            id: ac.id,
+            assignmentId: ac.assignmentId,
+            choreId: ac.choreId,
+            status: ac.status,
+            completedOn: ac.completedOn,
+            chore: {
+              id: ac.chore.id,
+              title: ac.chore.title,
+              description: ac.chore.description,
+              difficulty: ac.chore.difficulty,
+              isRecurring: ac.chore.isRecurring,
+              recurrenceDays: ac.chore.recurrenceDays
+                ? JSON.parse(ac.chore.recurrenceDays)
+                : [],
+            },
+          })),
+        },
+      })
+    } catch (error) {
+      console.error('Error updating assignment:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
-  res.json({
-    success: true,
-    data: {
-      id: parseInt(id),
-      child_id: 1,
-      child_name: 'Alice',
-      chore_id: 1,
-      chore_title: 'Clean bedroom',
-      assigned_date: '2024-01-15',
-      due_date: due_date || '2024-01-16',
-      status: status || 'assigned',
-      completed_date,
-      points_earned: 5,
-      notes: notes || null,
-      created_at: '2024-01-15T08:00:00Z',
-      updated_at: new Date().toISOString(),
-    },
-  })
-})
+// Update assignment chore status
+router.patch(
+  '/:assignmentId/chores/:choreId',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { assignmentId, choreId } = req.params
+      const { status } = req.body
 
-// PATCH /assignments/:id/complete - Quick complete assignment
-router.patch('/:id/complete', (req: Request, res: Response) => {
-  const { id } = req.params
+      const assignmentChore = await prisma.assignmentChore.findFirst({
+        where: {
+          assignmentId: parseInt(assignmentId),
+          choreId: parseInt(choreId),
+        },
+      })
 
-  // TODO: Connect to database and validate assignment exists
-  res.json({
-    success: true,
-    data: {
-      id: parseInt(id),
-      child_id: 1,
-      child_name: 'Alice',
-      chore_id: 1,
-      chore_title: 'Clean bedroom',
-      assigned_date: '2024-01-15',
-      due_date: '2024-01-16',
-      status: 'completed',
-      completed_date: new Date().toISOString(),
-      points_earned: 5,
-      notes: null,
-      created_at: '2024-01-15T08:00:00Z',
-      updated_at: new Date().toISOString(),
-    },
-  })
-})
+      if (!assignmentChore) {
+        res.status(404).json({
+          success: false,
+          error: 'Assignment chore not found',
+        })
+        return
+      }
 
-// DELETE /assignments/:id - Delete assignment
-router.delete('/:id', (req: Request, res: Response) => {
-  const { id } = req.params
+      const updated = await prisma.assignmentChore.update({
+        where: { id: assignmentChore.id },
+        data: {
+          status: status || 'completed',
+          completedOn:
+            status === 'completed'
+              ? new Date()
+                  .toLocaleDateString('en-US', { weekday: 'long' })
+                  .toLowerCase()
+              : null,
+        },
+      })
 
-  // TODO: Connect to database and validate assignment exists
-  res.json({
-    success: true,
-    message: 'Assignment deleted successfully',
-  })
-})
+      res.json({
+        success: true,
+        data: updated,
+      })
+    } catch (error) {
+      console.error('Error updating assignment chore:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
+
+// Delete assignment
+router.delete(
+  '/:id',
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params
+      const user = (req as any).user
+
+      const assignment = await prisma.assignment.findFirst({
+        where: {
+          id: parseInt(id),
+          familyId: user.familyId,
+        },
+      })
+
+      if (!assignment) {
+        res.status(404).json({
+          success: false,
+          error: 'Assignment not found',
+        })
+        return
+      }
+
+      await prisma.assignment.delete({
+        where: { id: parseInt(id) },
+      })
+
+      res.json({
+        success: true,
+        message: 'Assignment deleted successfully',
+      })
+    } catch (error) {
+      console.error('Error deleting assignment:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      })
+    }
+  },
+)
 
 export default router

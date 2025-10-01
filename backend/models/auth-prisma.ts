@@ -236,7 +236,7 @@ export const seedDatabase = async () => {
   })
 
   // Create sample chores
-  await prisma.chore.create({
+  const chore1 = await prisma.chore.create({
     data: {
       title: 'Clean bedroom',
       description: 'Make bed, organize toys, vacuum floor',
@@ -247,15 +247,43 @@ export const seedDatabase = async () => {
     },
   })
 
-  await prisma.chore.create({
+  const chore2 = await prisma.chore.create({
     data: {
       title: 'Take out trash',
       description: 'Empty all trash cans and take to curb',
       difficulty: 'easy',
       category: 'cleaning',
       isRecurring: true,
-      recurrencePattern: 'weekly',
+      recurrenceDays: JSON.stringify(['monday', 'thursday']),
       familyId: family.id,
+    },
+  })
+
+  // Create sample assignment
+  const nextSunday = new Date()
+  const dayOfWeek = nextSunday.getDay()
+  nextSunday.setDate(
+    nextSunday.getDate() + (dayOfWeek === 0 ? 0 : 7 - dayOfWeek),
+  )
+  const startDate = nextSunday.toISOString().split('T')[0]
+
+  const endDate = new Date(nextSunday)
+  endDate.setDate(nextSunday.getDate() + 6)
+  const endDateStr = endDate.toISOString().split('T')[0]
+
+  await prisma.assignment.create({
+    data: {
+      childId: parent.id + 1, // Assumes first child
+      startDate,
+      endDate: endDateStr,
+      status: 'assigned',
+      familyId: family.id,
+      assignmentChores: {
+        create: [
+          { choreId: chore1.id, status: 'pending' },
+          { choreId: chore2.id, status: 'pending' },
+        ],
+      },
     },
   })
 

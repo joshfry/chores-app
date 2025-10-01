@@ -109,13 +109,11 @@ This guide shows you how to add `data-testid` attributes to your React component
     <div data-testid="stat-chores">{stats.totalChores}</div>
     <div data-testid="stat-assignments">{stats.totalAssignments}</div>
     <div data-testid="stat-completed">{stats.completedAssignments}</div>
-    <div data-testid="stat-points">{stats.totalPoints}</div>
   </div>
 
   {/* Weekly Stats */}
   <div data-testid="weekly-stats">
     <div data-testid="weekly-completed">{weeklyStats.completed}</div>
-    <div data-testid="weekly-points">{weeklyStats.points}</div>
   </div>
 
   {/* Leaderboard */}

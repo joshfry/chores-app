@@ -53,44 +53,60 @@ model User {
 
 // Chore represents a task that can be assigned
 model Chore {
-  id                Int        @id @default(autoincrement())
-  title             String
-  description       String?
-  difficulty        Difficulty @default(easy)
-  category          String?
-  isRecurring       Boolean    @default(false) @map("is_recurring")
-  recurrencePattern String?    @map("recurrence_pattern") // daily, weekly, monthly, custom
-  familyId          Int        @map("family_id")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  updatedAt         DateTime   @updatedAt @map("updated_at")
+  id             Int        @id @default(autoincrement())
+  title          String
+  description    String?
+  difficulty     Difficulty @default(easy)
+  category       String?
+  isRecurring    Boolean    @default(false) @map("is_recurring")
+  recurrenceDays String?    @map("recurrence_days") // JSON array: ["monday","wednesday","friday"]
+  familyId       Int        @map("family_id")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
 
   // Relations
-  family      Family       @relation(fields: [familyId], references: [id])
-  assignments Assignment[]
+  family           Family            @relation(fields: [familyId], references: [id])
+  assignmentChores AssignmentChore[]
 
   @@map("chores")
 }
 
-// Assignment connects a chore to a child
+// Assignment is a weekly collection of chores assigned to a child
 model Assignment {
-  id            Int              @id @default(autoincrement())
-  childId       Int              @map("child_id")
-  choreId       Int              @map("chore_id")
-  assignedDate  String           @map("assigned_date") // YYYY-MM-DD format
-  dueDate       String?          @map("due_date") // YYYY-MM-DD format
-  status        AssignmentStatus @default(assigned)
-  completedDate DateTime?        @map("completed_date")
-  notes         String?
-  familyId      Int              @map("family_id") // For easy querying
-  createdAt     DateTime         @default(now()) @map("created_at")
-  updatedAt     DateTime         @updatedAt @map("updated_at")
+  id        Int              @id @default(autoincrement())
+  childId   Int              @map("child_id")
+  startDate String           @map("start_date") // YYYY-MM-DD format (always Sunday)
+  endDate   String?          @map("end_date") // YYYY-MM-DD format (always Saturday)
+  status    AssignmentStatus @default(assigned)
+  notes     String?
+  familyId  Int              @map("family_id")
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
 
   // Relations
-  child  User   @relation(fields: [childId], references: [id])
-  chore  Chore  @relation(fields: [choreId], references: [id])
-  family Family @relation(fields: [familyId], references: [id])
+  child            User              @relation(fields: [childId], references: [id])
+  family           Family            @relation(fields: [familyId], references: [id])
+  assignmentChores AssignmentChore[]
 
   @@map("assignments")
+}
+
+// Junction table linking assignments to chores
+model AssignmentChore {
+  id           Int         @id @default(autoincrement())
+  assignmentId Int         @map("assignment_id")
+  choreId      Int         @map("chore_id")
+  status       ChoreStatus @default(pending)
+  completedOn  String?     @map("completed_on") // Day of week when completed
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  chore      Chore      @relation(fields: [choreId], references: [id])
+
+  @@unique([assignmentId, choreId])
+  @@map("assignment_chores")
 }
 
 // MagicToken for passwordless authentication
@@ -140,4 +156,10 @@ enum AssignmentStatus {
   in_progress
   completed
   missed
+}
+
+enum ChoreStatus {
+  pending
+  completed
+  skipped
 }

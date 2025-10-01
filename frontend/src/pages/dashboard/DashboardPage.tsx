@@ -116,14 +116,24 @@ const DashboardPage: React.FC = () => {
 
   const activeUsers = users.filter((user) => user.isActive)
   const children = activeUsers.filter((user) => user.role === 'child')
-  const completedAssignments = assignments.filter(
+
+  // Filter assignments for children - only show their own
+  const filteredAssignments =
+    state.user?.role === 'child' && state.user.id
+      ? assignments.filter(
+          (assignment) => assignment.childId === state.user!.id,
+        )
+      : assignments
+
+  const completedAssignments = filteredAssignments.filter(
     (assignment) => assignment.status === 'completed',
   )
-  const pendingAssignments = assignments.filter(
-    (assignment) => assignment.status === 'pending',
+  const pendingAssignments = filteredAssignments.filter(
+    (assignment) =>
+      assignment.status === 'assigned' || assignment.status === 'in_progress',
   )
 
-  const recentAssignments = assignments.slice(-5)
+  const recentAssignments = filteredAssignments.slice(-5)
 
   const getAssignmentBadgeVariant = (status: string) => {
     switch (status) {
@@ -216,7 +226,7 @@ const DashboardPage: React.FC = () => {
                 <ItemInfo>
                   <div className="title">{performer.childName}</div>
                   <div className="subtitle">
-                    {performer.pointsThisWeek} points earned this week
+                    {performer.choresCompleted} chores completed this week
                   </div>
                 </ItemInfo>
                 <Badge variant="success">Star</Badge>
@@ -242,7 +252,9 @@ const DashboardPage: React.FC = () => {
                     <div className="title" data-testid="dashboard-user-name">
                       {user.name}
                     </div>
-                    <div className="subtitle">{user.role}</div>
+                    <div className="subtitle">
+                      {user.role} • {user.totalPoints || 0} points
+                    </div>
                   </ItemInfo>
                   <Badge
                     variant={user.role === 'parent' ? 'info' : 'success'}
@@ -268,8 +280,8 @@ const DashboardPage: React.FC = () => {
           <List>
             {recentAssignments.length > 0 ? (
               recentAssignments.map((assignment) => {
-                const chore = chores.find((c) => c.id === assignment.choreId)
                 const child = users.find((u) => u.id === assignment.childId)
+                const choreCount = assignment.chores?.length || 0
 
                 return (
                   <ListItem
@@ -281,14 +293,15 @@ const DashboardPage: React.FC = () => {
                         className="title"
                         data-testid="dashboard-assignment-title"
                       >
-                        {chore?.title || 'Unknown Chore'}
+                        Week of{' '}
+                        {new Date(assignment.startDate).toLocaleDateString()}
                       </div>
                       <div
                         className="subtitle"
                         data-testid="dashboard-assignment-subtitle"
                       >
-                        Assigned to {child?.name || 'Unknown'} • Due{' '}
-                        {assignment.dueDate}
+                        {child?.name || 'Unknown'} • {choreCount} chore
+                        {choreCount !== 1 ? 's' : ''}
                       </div>
                     </ItemInfo>
                     <Badge

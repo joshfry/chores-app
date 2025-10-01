@@ -211,9 +211,12 @@ class ApiClient {
     return response.data
   }
 
-  async createAssignment(
-    data: Partial<Assignment>,
-  ): Promise<ApiResponse<Assignment>> {
+  async createAssignment(data: {
+    childId: number
+    startDate: string
+    choreIds: number[]
+    notes?: string
+  }): Promise<ApiResponse<Assignment>> {
     const response: AxiosResponse<ApiResponse<Assignment>> =
       await this.client.post('/api/assignments', data)
     return response.data
@@ -221,7 +224,12 @@ class ApiClient {
 
   async updateAssignment(
     id: number,
-    data: Partial<Assignment>,
+    data: {
+      childId?: number
+      startDate?: string
+      choreIds?: number[]
+      notes?: string
+    },
   ): Promise<ApiResponse<Assignment>> {
     const response: AxiosResponse<ApiResponse<Assignment>> =
       await this.client.put(`/api/assignments/${id}`, data)
@@ -235,9 +243,15 @@ class ApiClient {
     return response.data
   }
 
-  async completeAssignment(id: number): Promise<ApiResponse<Assignment>> {
-    const response: AxiosResponse<ApiResponse<Assignment>> =
-      await this.client.patch(`/api/assignments/${id}/complete`)
+  async updateAssignmentChore(
+    assignmentId: number,
+    choreId: number,
+    data: { status: string },
+  ): Promise<ApiResponse> {
+    const response: AxiosResponse<ApiResponse> = await this.client.patch(
+      `/api/assignments/${assignmentId}/chores/${choreId}`,
+      data,
+    )
     return response.data
   }
 
@@ -299,8 +313,8 @@ class ApiClient {
       ? topPerformersSource.map((performer: any) => ({
           childId: performer.child_id ?? performer.childId ?? 0,
           childName: performer.child_name ?? performer.childName ?? '',
-          pointsThisWeek:
-            performer.points_this_week ?? performer.pointsThisWeek ?? 0,
+          choresCompleted:
+            performer.chores_completed ?? performer.choresCompleted ?? 0,
         }))
       : []
 

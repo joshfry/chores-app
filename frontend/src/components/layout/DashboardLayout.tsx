@@ -5,23 +5,23 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const Container = styled.div``
 
-const Sidebar = styled.aside<{ isOpen: boolean }>``
+const Sidebar = styled.aside<{ $isOpen: boolean }>``
 
 const SidebarHeader = styled.div``
 
-const Logo = styled.div<{ collapsed: boolean }>``
+const Logo = styled.div<{ $collapsed: boolean }>``
 
 const ToggleButton = styled.button``
 
 const Nav = styled.nav``
 
-const NavItem = styled(Link)<{ isActive: boolean; collapsed: boolean }>``
+const NavItem = styled(Link)<{ $isActive: boolean; $collapsed: boolean }>``
 
 const UserSection = styled.div``
 
-const UserInfo = styled.div<{ collapsed: boolean }>``
+const UserInfo = styled.div<{ $collapsed: boolean }>``
 
-const LogoutButton = styled.button<{ collapsed: boolean }>``
+const LogoutButton = styled.button<{ $collapsed: boolean }>``
 
 const Main = styled.main``
 
@@ -33,7 +33,7 @@ const PageTitle = styled.h1``
 
 const Content = styled.div``
 
-const Overlay = styled.div<{ show: boolean }>``
+const Overlay = styled.div<{ $show: boolean }>``
 
 const HeaderGroup = styled.div``
 
@@ -75,11 +75,14 @@ const DashboardLayout: React.FC = () => {
 
   return (
     <Container>
-      <Overlay show={mobileMenuOpen} onClick={() => setMobileMenuOpen(false)} />
+      <Overlay
+        $show={mobileMenuOpen}
+        onClick={() => setMobileMenuOpen(false)}
+      />
 
-      <Sidebar isOpen={sidebarOpen || mobileMenuOpen}>
+      <Sidebar $isOpen={sidebarOpen || mobileMenuOpen}>
         <SidebarHeader>
-          <Logo collapsed={!sidebarOpen && !mobileMenuOpen}>
+          <Logo $collapsed={!sidebarOpen && !mobileMenuOpen}>
             <div className="icon">🏠</div>
             <div className="text">Family Chores</div>
           </Logo>
@@ -93,8 +96,8 @@ const DashboardLayout: React.FC = () => {
             <NavItem
               key={item.name}
               to={item.href}
-              isActive={location.pathname === item.href}
-              collapsed={!sidebarOpen && !mobileMenuOpen}
+              $isActive={location.pathname === item.href}
+              $collapsed={!sidebarOpen && !mobileMenuOpen}
               onClick={() => setMobileMenuOpen(false)}
               data-testid={`nav-${item.name.toLowerCase()}`}
             >
@@ -105,7 +108,7 @@ const DashboardLayout: React.FC = () => {
         </Nav>
 
         <UserSection>
-          <UserInfo collapsed={!sidebarOpen && !mobileMenuOpen}>
+          <UserInfo $collapsed={!sidebarOpen && !mobileMenuOpen}>
             <div className="avatar">
               {state.user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
@@ -117,7 +120,7 @@ const DashboardLayout: React.FC = () => {
             </div>
           </UserInfo>
           <LogoutButton
-            collapsed={!sidebarOpen && !mobileMenuOpen}
+            $collapsed={!sidebarOpen && !mobileMenuOpen}
             onClick={handleLogout}
             data-testid="logout-button"
           >

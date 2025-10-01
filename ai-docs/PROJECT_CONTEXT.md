@@ -66,25 +66,32 @@ Family {
 
 User {
   id, email, name, role (parent|child)
-  familyId, birthdate, totalPoints
+  familyId, birthdate
   lastLogin, isActive
   → family, assignments[], magicTokens[], webauthnCreds[]
 }
 
 Chore {
-  id, title, description, points
+  id, title, description
   difficulty (easy|medium|hard), category
-  isRecurring, recurrencePattern
+  isRecurring, recurrenceDays (JSON array of days)
   familyId
-  → family, assignments[]
+  → family, assignmentChores[]
 }
 
 Assignment {
-  id, childId, choreId, familyId
-  assignedDate, dueDate, completedDate
+  id, childId, familyId
+  startDate (Sunday), endDate (Saturday)
   status (assigned|in_progress|completed|missed)
-  pointsEarned, notes
-  → child, chore, family
+  notes
+  → child, family, assignmentChores[]
+}
+
+AssignmentChore (Junction) {
+  id, assignmentId, choreId
+  status (pending|completed|skipped)
+  completedOn (day of week)
+  → assignment, chore
 }
 
 MagicToken {

@@ -15,6 +15,12 @@ const Select = styled.select``
 
 const Textarea = styled.textarea``
 
+const ChoresList = styled.div``
+
+const ChoreCheckbox = styled.label``
+
+const Checkbox = styled.input``
+
 const ErrorMessage = styled.div``
 
 const ButtonGroup = styled.div``
@@ -28,8 +34,8 @@ interface CreateAssignmentModalProps {
   chores: Chore[]
   onSubmit: (assignmentData: {
     childId: number
-    choreId: number
-    dueDate: string
+    startDate: string
+    choreIds: number[]
     notes?: string
   }) => Promise<void>
 }
@@ -43,12 +49,21 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     childId: '',
-    choreId: '',
-    dueDate: '',
+    startDate: getNextSunday(),
+    choreIds: [] as number[],
     notes: '',
   })
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  function getNextSunday(): string {
+    const today = new Date()
+    const dayOfWeek = today.getDay()
+    const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek
+    const nextSunday = new Date(today)
+    nextSunday.setDate(today.getDate() + daysUntilSunday)
+    return nextSunday.toISOString().split('T')[0]
+  }
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -61,6 +76,15 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
     }))
   }
 
+  const handleChoreToggle = (choreId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      choreIds: prev.choreIds.includes(choreId)
+        ? prev.choreIds.filter((id) => id !== choreId)
+        : [...prev.choreIds, choreId],
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -69,11 +93,16 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
     try {
       await onSubmit({
         childId: parseInt(formData.childId),
-        choreId: parseInt(formData.choreId),
-        dueDate: formData.dueDate,
+        startDate: formData.startDate,
+        choreIds: formData.choreIds,
         notes: formData.notes || undefined,
       })
-      setFormData({ childId: '', choreId: '', dueDate: '', notes: '' })
+      setFormData({
+        childId: '',
+        startDate: getNextSunday(),
+        choreIds: [],
+        notes: '',
+      })
       onClose()
     } catch (err: any) {
       setError(err.message || 'Failed to create assignment')
@@ -98,8 +127,8 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
         disabled={
           isSubmitting ||
           !formData.childId ||
-          !formData.choreId ||
-          !formData.dueDate
+          !formData.startDate ||
+          formData.choreIds.length === 0
         }
         data-testid="submit-button"
       >
@@ -112,7 +141,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Create Assignment"
+      title="Create Weekly Assignment"
       footer={footer}
     >
       <Form id="create-assignment-form" onSubmit={handleSubmit}>
@@ -140,35 +169,40 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="choreId">Chore *</Label>
-          <Select
-            id="choreId"
-            name="choreId"
-            value={formData.choreId}
+          <Label htmlFor="startDate">Start Date (Sunday) *</Label>
+          <Input
+            id="startDate"
+            name="startDate"
+            type="date"
+            value={formData.startDate}
             onChange={handleChange}
             required
-            data-testid="chore-select"
-          >
-            <option value="">Select a chore</option>
-            {chores.map((chore) => (
-              <option key={chore.id} value={chore.id}>
-                {chore.title}
-              </option>
-            ))}
-          </Select>
+            data-testid="start-date-input"
+          />
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="dueDate">Due Date *</Label>
-          <Input
-            id="dueDate"
-            name="dueDate"
-            type="date"
-            value={formData.dueDate}
-            onChange={handleChange}
-            required
-            data-testid="due-date-input"
-          />
+          <Label>Select Chores *</Label>
+          <ChoresList>
+            {chores.map((chore) => (
+              <ChoreCheckbox key={chore.id} data-testid={`chore-${chore.id}`}>
+                <Checkbox
+                  type="checkbox"
+                  checked={formData.choreIds.includes(chore.id)}
+                  onChange={() => handleChoreToggle(chore.id)}
+                  data-testid={`checkbox-${chore.id}`}
+                />
+                <span>
+                  {chore.title}
+                  {chore.isRecurring &&
+                    chore.recurrenceDays &&
+                    chore.recurrenceDays.length > 0 && (
+                      <span> ({chore.recurrenceDays.join(', ')})</span>
+                    )}
+                </span>
+              </ChoreCheckbox>
+            ))}
+          </ChoresList>
         </FormGroup>
 
         <FormGroup>

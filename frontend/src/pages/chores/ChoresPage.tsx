@@ -83,7 +83,7 @@ const ChoresPage: React.FC = () => {
     description?: string
     difficulty: 'easy' | 'medium' | 'hard'
     isRecurring: boolean
-    recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
+    recurrenceDays?: string[]
   }) => {
     await api.createChore(choreData)
     await fetchChores()
@@ -96,7 +96,7 @@ const ChoresPage: React.FC = () => {
       description?: string
       difficulty: 'easy' | 'medium' | 'hard'
       isRecurring: boolean
-      recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
+      recurrenceDays?: string[]
     },
   ) => {
     await api.updateChore(choreId, updates)
@@ -194,9 +194,11 @@ const ChoresPage: React.FC = () => {
 
               <ChoreFooter>
                 <ChoreStats>
-                  {chore.isRecurring && chore.recurrencePattern && (
-                    <span>Repeats: {chore.recurrencePattern}</span>
-                  )}
+                  {chore.isRecurring &&
+                    chore.recurrenceDays &&
+                    chore.recurrenceDays.length > 0 && (
+                      <span>Days: {chore.recurrenceDays.join(', ')}</span>
+                    )}
                 </ChoreStats>
               </ChoreFooter>
 

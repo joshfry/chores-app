@@ -1,6 +1,6 @@
 # 👨‍👩‍👧‍👦 Family Chores Management App
 
-Full-stack family chores management application with passwordless authentication, chore tracking, and points system.
+Full-stack family chores management application with passwordless authentication and chore tracking.
 
 ## 🚀 Quick Start (MOST IMPORTANT!)
 
@@ -131,8 +131,7 @@ Your app uses **passwordless authentication**:
 - ✅ **Passwordless Auth** - Magic links + WebAuthn support
 - ✅ **Family Management** - Parent/child roles
 - ✅ **Chore Tracking** - Create, assign, complete chores
-- ✅ **Points System** - Reward system for completed chores
-- ✅ **Dashboard** - Family statistics and leaderboards
+- ✅ **Dashboard** - Family statistics and activity tracking
 - ✅ **Comprehensive Testing** - 67 tests with high coverage (85%+)
 - ✅ **JSON-Only API** - Strict content negotiation
 
