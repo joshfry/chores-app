@@ -11,6 +11,7 @@ import {
   requireParent,
   getCurrentUser,
 } from '../middleware/auth'
+import { sendMagicLinkEmail, sendChildInvitationEmail } from '../lib/email'
 
 const router: Router = express.Router()
 
@@ -30,16 +31,6 @@ router.post('/seed', async (req: Request, res: Response) => {
     })
   }
 })
-
-// Mock email service (replace with real nodemailer setup later)
-const sendMagicLink = async (
-  email: string,
-  token: string,
-): Promise<boolean> => {
-  console.log(`📧 Mock Email sent to ${email}`)
-  console.log(`🔗 Magic Link: http://localhost:3000/verify?token=${token}`)
-  return true
-}
 
 // POST /auth/signup - Parent creates family account
 router.post('/signup', async (req: Request, res: Response): Promise<void> => {
@@ -94,8 +85,8 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
       expiresAt.toISOString(),
     )
 
-    // Send magic link (mock for now)
-    await sendMagicLink(email, magicToken)
+    // Send magic link email
+    await sendMagicLinkEmail(email, magicToken, name)
 
     res.status(201).json({
       success: true,
@@ -163,8 +154,8 @@ router.post(
         expiresAt.toISOString(),
       )
 
-      // Send magic link (mock for now)
-      await sendMagicLink(email, magicToken)
+      // Send magic link email
+      await sendMagicLinkEmail(email, magicToken, user.name)
 
       res.json({
         success: true,
@@ -380,12 +371,17 @@ router.post(
         expiresAt.toISOString(),
       )
 
-      // Send magic link (mock for now)
-      await sendMagicLink(email, magicToken)
+      // Send child invitation email
+      await sendChildInvitationEmail(
+        email,
+        magicToken,
+        child.name,
+        parent!.name,
+      )
 
       res.status(201).json({
         success: true,
-        message: 'Child account created! Magic link sent to child email.',
+        message: 'Child account created! Invitation email sent.',
         data: {
           child: {
             id: child.id,

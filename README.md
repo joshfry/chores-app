@@ -120,11 +120,31 @@ chores/
 Your app uses **passwordless authentication**:
 
 1. **User signs up** → Creates family account
-2. **Magic link sent** → Logged to backend console (simulating email)
+2. **Magic link sent** → Email or console log
 3. **User clicks link** → Gets session token
 4. **Session token used** → For all API requests
 
 **Key Point:** Magic tokens are logged to server console, NOT returned in API responses (security best practice).
+
+### 📧 **Email Configuration (Optional)**
+
+By default, magic links are logged to the console. To send **real emails**:
+
+**Quick Setup (5 minutes):**
+
+```bash
+# See backend/GMAIL_QUICK_SETUP.md for step-by-step Gmail setup
+# Or backend/EMAIL_SETUP.md for production options (SendGrid, Mailgun, SES)
+```
+
+**What you get:**
+
+- ✅ Beautiful HTML email templates
+- ✅ Automatic magic link delivery
+- ✅ Professional sender name
+- ✅ Separate templates for login vs child invitations
+
+**Supported providers:** Gmail, SendGrid, Mailgun, Amazon SES, or any SMTP server.
 
 ## 🎯 **Key Features**
 
