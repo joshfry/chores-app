@@ -1,38 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
-
-const Container = styled.div``
-
-const Card = styled.div``
-
-const Title = styled.h1``
-
-const Subtitle = styled.p``
-
-const Form = styled.form``
-
-const Label = styled.label``
-
-const Input = styled.input``
-
-const Button = styled.button<{
-  variant?: 'primary' | 'secondary'
-  disabled?: boolean
-}>``
-
-const ErrorMessage = styled.div``
-
-const SuccessMessage = styled.div``
-
-const LinkText = styled.p``
-
-const StyledLink = styled(Link)``
-
-const FormGroup = styled.div``
-
-const Row = styled.div``
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate()
@@ -86,26 +54,47 @@ const SignupPage: React.FC = () => {
     formData.familyName.trim()
 
   return (
-    <Container>
-      <Card>
-        <Title>Create Family Account</Title>
-        <Subtitle>Start managing your family's chores together</Subtitle>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Create Family Account
+        </h1>
+        <p className="text-gray-600 mb-6">
+          Start managing your family's chores together
+        </p>
 
         {state.error && (
-          <ErrorMessage data-testid="signup-error">{state.error}</ErrorMessage>
+          <div
+            className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg"
+            data-testid="signup-error"
+          >
+            {state.error}
+          </div>
         )}
 
         {showSuccess && (
-          <SuccessMessage data-testid="signup-success">
+          <div
+            className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg"
+            data-testid="signup-success"
+          >
             🎉 Family account created! Check your email for a magic link to get
             started.
-          </SuccessMessage>
+          </div>
         )}
 
-        <Form onSubmit={handleSubmit} data-testid="signup-form">
-          <FormGroup>
-            <Label htmlFor="email">Email Address</Label>
-            <Input
+        <form
+          onSubmit={handleSubmit}
+          data-testid="signup-form"
+          className="space-y-4"
+        >
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email Address
+            </label>
+            <input
               id="email"
               name="email"
               type="email"
@@ -114,13 +103,19 @@ const SignupPage: React.FC = () => {
               placeholder="parent@example.com"
               required
               data-testid="signup-email"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             />
-          </FormGroup>
+          </div>
 
-          <Row>
-            <FormGroup>
-              <Label htmlFor="name">Your Name</Label>
-              <Input
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Your Name
+              </label>
+              <input
                 id="name"
                 name="name"
                 type="text"
@@ -129,12 +124,18 @@ const SignupPage: React.FC = () => {
                 placeholder="Sarah Johnson"
                 required
                 data-testid="signup-name"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
               />
-            </FormGroup>
+            </div>
 
-            <FormGroup>
-              <Label htmlFor="familyName">Family Name</Label>
-              <Input
+            <div>
+              <label
+                htmlFor="familyName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Family Name
+              </label>
+              <input
                 id="familyName"
                 name="familyName"
                 type="text"
@@ -143,38 +144,49 @@ const SignupPage: React.FC = () => {
                 placeholder="Johnson Family"
                 required
                 data-testid="signup-family-name"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
               />
-            </FormGroup>
-          </Row>
+            </div>
+          </div>
 
-          <FormGroup>
-            <Label htmlFor="birthdate">Birthdate (Optional)</Label>
-            <Input
+          <div>
+            <label
+              htmlFor="birthdate"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Birthdate (Optional)
+            </label>
+            <input
               id="birthdate"
               name="birthdate"
               type="date"
               value={formData.birthdate}
               onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             />
-          </FormGroup>
+          </div>
 
-          <FormGroup>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isValid}
-              data-testid="signup-submit"
-            >
-              {isSubmitting ? 'Creating Account...' : 'Create Family Account'}
-            </Button>
-          </FormGroup>
-        </Form>
+          <button
+            type="submit"
+            disabled={isSubmitting || !isValid}
+            data-testid="signup-submit"
+            className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            {isSubmitting ? 'Creating Account...' : 'Create Family Account'}
+          </button>
+        </form>
 
-        <LinkText>
+        <p className="mt-6 text-center text-gray-600">
           Already have an account?{' '}
-          <StyledLink to="/login">Sign in instead</StyledLink>
-        </LinkText>
-      </Card>
-    </Container>
+          <Link
+            to="/login"
+            className="text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Sign in instead
+          </Link>
+        </p>
+      </div>
+    </div>
   )
 }
 

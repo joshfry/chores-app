@@ -1,15 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
-
-const Container = styled.div``
-
-const DaysGrid = styled.div``
-
-const DayCheckbox = styled.label``
-
-const Checkbox = styled.input``
-
-const DayLabel = styled.span``
 
 interface RecurrenceDaysSelectorProps {
   selectedDays: string[]
@@ -52,22 +41,35 @@ const RecurrenceDaysSelector: React.FC<RecurrenceDaysSelectorProps> = ({
   }
 
   return (
-    <Container>
-      <DaysGrid>
+    <div>
+      <div className="grid grid-cols-4 gap-2">
         {DAYS_OF_WEEK.map((day) => (
-          <DayCheckbox key={day.value} data-testid={`day-${day.value}`}>
-            <Checkbox
+          <label
+            key={day.value}
+            data-testid={`day-${day.value}`}
+            className={`
+              flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors
+              ${
+                selectedDays.includes(day.value)
+                  ? 'bg-blue-50 border-blue-300 text-blue-700'
+                  : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+              }
+              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
+          >
+            <input
               type="checkbox"
               checked={selectedDays.includes(day.value)}
               onChange={() => handleDayToggle(day.value)}
               disabled={disabled}
               data-testid={`checkbox-${day.value}`}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
             />
-            <DayLabel>{day.label}</DayLabel>
-          </DayCheckbox>
+            <span className="text-sm font-medium">{day.label}</span>
+          </label>
         ))}
-      </DaysGrid>
-    </Container>
+      </div>
+    </div>
   )
 }
 

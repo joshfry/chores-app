@@ -41,8 +41,6 @@ const ErrorCard = styled(ChoreCard)``
 
 const EmptyState = styled.div``
 
-const PointsDisplay = styled.div``
-
 const ChoresPage: React.FC = () => {
   const { state } = useAuth()
   const [chores, setChores] = useState<Chore[]>([])

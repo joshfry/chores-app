@@ -1,19 +1,4 @@
 import React, { ReactNode } from 'react'
-import styled from 'styled-components'
-
-const Overlay = styled.div``
-
-const ModalContainer = styled.div``
-
-const ModalHeader = styled.div``
-
-const ModalTitle = styled.h2``
-
-const CloseButton = styled.button``
-
-const ModalBody = styled.div``
-
-const ModalFooter = styled.div``
 
 interface ModalProps {
   isOpen: boolean
@@ -33,20 +18,47 @@ const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null
 
   return (
-    <Overlay onClick={onClose} data-testid="modal-overlay">
-      <ModalContainer onClick={(e) => e.stopPropagation()} data-testid="modal">
-        <ModalHeader>
-          <ModalTitle data-testid="modal-title">{title}</ModalTitle>
-          <CloseButton onClick={onClose} data-testid="modal-close">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      onClick={onClose}
+      data-testid="modal-overlay"
+    >
+      <div
+        className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+        data-testid="modal"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2
+            className="text-xl font-semibold text-gray-900"
+            data-testid="modal-title"
+          >
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            data-testid="modal-close"
+          >
             ✕
-          </CloseButton>
-        </ModalHeader>
-        <ModalBody data-testid="modal-body">{children}</ModalBody>
+          </button>
+        </div>
+        <div
+          className="px-6 py-4 overflow-y-auto flex-1"
+          data-testid="modal-body"
+        >
+          {children}
+        </div>
         {footer && (
-          <ModalFooter data-testid="modal-footer">{footer}</ModalFooter>
+          <div
+            className="px-6 py-4 border-t border-gray-200"
+            data-testid="modal-footer"
+          >
+            {footer}
+          </div>
         )}
-      </ModalContainer>
-    </Overlay>
+      </div>
+    </div>
   )
 }
 

@@ -1,53 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { User, Chore, Assignment, DashboardStats } from '../../types/api'
-
-const Grid = styled.div``
-
-const Card = styled.div``
-
-const CardHeader = styled.div``
-
-const CardTitle = styled.h3``
-
-const CardValue = styled.div``
-
-const CardSubtext = styled.div``
-
-const StatsGrid = styled.div``
-
-const StatCard = styled.div``
-
-const StatValue = styled.div``
-
-const StatLabel = styled.div``
-
-const Section = styled.div``
-
-const SectionHeader = styled.div``
-
-const SectionTitle = styled.h2``
-
-const Button = styled(Link)``
-
-const List = styled.div``
-
-const ListItem = styled.div``
-
-const ItemInfo = styled.div``
-
-const Badge = styled.span<{
-  variant: 'success' | 'warning' | 'error' | 'info'
-}>``
-
-const LoadingCard = styled(Card)``
-
-const ErrorCard = styled(Card)``
-
-const WelcomeCard = styled(Card)``
 
 const DashboardPage: React.FC = () => {
   const { state } = useAuth()
@@ -106,10 +61,11 @@ const DashboardPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div>
-        <LoadingCard>
-          <div>Loading dashboard...</div>
-        </LoadingCard>
+      <div className="flex items-center justify-center min-h-96">
+        <div className="bg-white rounded-lg shadow p-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <div className="text-gray-600">Loading dashboard...</div>
+        </div>
       </div>
     )
   }
@@ -135,6 +91,20 @@ const DashboardPage: React.FC = () => {
 
   const recentAssignments = filteredAssignments.slice(-5)
 
+  const getBadgeClasses = (variant: string) => {
+    switch (variant) {
+      case 'success':
+        return 'bg-green-100 text-green-700'
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-700'
+      case 'error':
+        return 'bg-red-100 text-red-700'
+      case 'info':
+      default:
+        return 'bg-blue-100 text-blue-700'
+    }
+  }
+
   const getAssignmentBadgeVariant = (status: string) => {
     switch (status) {
       case 'completed':
@@ -149,182 +119,302 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div>
-      <Grid>
-        <WelcomeCard>
-          <CardTitle data-testid="user-welcome">
-            Welcome back, {state.user?.name}! 👋
-          </CardTitle>
-          <CardSubtext data-testid="family-name">
-            Here's what's happening with {state.family?.name} today.
-          </CardSubtext>
-        </WelcomeCard>
-      </Grid>
+    <div className="space-y-6">
+      {/* Welcome Card */}
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg p-6 text-white">
+        <h2 className="text-2xl font-bold mb-2" data-testid="user-welcome">
+          Welcome back, {state.user?.name}! 👋
+        </h2>
+        <p className="text-blue-100" data-testid="family-name">
+          Here's what's happening with {state.family?.name} today.
+        </p>
+      </div>
 
-      <StatsGrid data-testid="dashboard-stats">
-        <StatCard data-testid="stat-members">
-          <StatValue data-testid="stat-members-value">
-            {stats?.totalChildren ?? activeUsers.length}
-          </StatValue>
-          <StatLabel>Family Members</StatLabel>
-        </StatCard>
-
-        <StatCard data-testid="stat-children">
-          <StatValue data-testid="stat-children-value">
-            {stats?.totalChildren ?? children.length}
-          </StatValue>
-          <StatLabel>Children</StatLabel>
-        </StatCard>
-
-        <StatCard data-testid="stat-chores">
-          <StatValue data-testid="stat-chores-value">
-            {stats?.totalChores ?? chores.length}
-          </StatValue>
-          <StatLabel>Total Chores</StatLabel>
-        </StatCard>
-
-        <StatCard data-testid="stat-assignments">
-          <StatValue data-testid="stat-assignments-value">
-            {stats?.totalAssignments ?? assignments.length}
-          </StatValue>
-          <StatLabel>Total Assignments</StatLabel>
-        </StatCard>
-
-        <StatCard data-testid="stat-completed">
-          <StatValue data-testid="stat-completed-value">
-            {stats?.completedAssignments ?? completedAssignments.length}
-          </StatValue>
-          <StatLabel>Completed</StatLabel>
-        </StatCard>
-
-        <StatCard data-testid="stat-pending">
-          <StatValue data-testid="stat-pending-value">
-            {stats?.pendingAssignments ?? pendingAssignments.length}
-          </StatValue>
-          <StatLabel>Pending</StatLabel>
-        </StatCard>
-      </StatsGrid>
-
-      {stats?.thisWeek && (
-        <StatsGrid data-testid="weekly-stats">
-          <StatCard data-testid="weekly-completed">
-            <CardTitle>This Week's Completed</CardTitle>
-            <CardValue>{stats.thisWeek.assignmentsCompleted}</CardValue>
-            <CardSubtext>Assignments completed</CardSubtext>
-          </StatCard>
-        </StatsGrid>
+      {/* Progress Card */}
+      {stats && stats.totalAssignments > 0 && (
+        <div
+          className="bg-white rounded-lg shadow p-6"
+          data-testid="progress-card"
+        >
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Assignment Completion
+          </h3>
+          <div className="mb-2">
+            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+              <div
+                className="bg-blue-600 h-full transition-all duration-300"
+                style={{
+                  width: `${(stats.completedAssignments / stats.totalAssignments) * 100}%`,
+                }}
+                data-testid="assignment-progress-bar"
+              />
+            </div>
+          </div>
+          <div className="text-sm text-gray-600" data-testid="progress-label">
+            {stats.completedAssignments} of {stats.totalAssignments} assignments
+            completed (
+            {Math.round(
+              (stats.completedAssignments / stats.totalAssignments) * 100,
+            )}
+            %)
+          </div>
+        </div>
       )}
 
+      {/* Stats Grid */}
+      <div
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+        data-testid="dashboard-stats"
+      >
+        <div
+          className="bg-white rounded-lg shadow p-4"
+          data-testid="stat-members"
+        >
+          <div
+            className="text-3xl font-bold text-gray-900"
+            data-testid="stat-members-value"
+          >
+            {stats?.totalChildren ?? activeUsers.length}
+          </div>
+          <div className="text-sm text-gray-600">Family Members</div>
+        </div>
+
+        <div
+          className="bg-white rounded-lg shadow p-4"
+          data-testid="stat-children"
+        >
+          <div
+            className="text-3xl font-bold text-gray-900"
+            data-testid="stat-children-value"
+          >
+            {stats?.totalChildren ?? children.length}
+          </div>
+          <div className="text-sm text-gray-600">Children</div>
+        </div>
+
+        <div
+          className="bg-white rounded-lg shadow p-4"
+          data-testid="stat-chores"
+        >
+          <div
+            className="text-3xl font-bold text-gray-900"
+            data-testid="stat-chores-value"
+          >
+            {stats?.totalChores ?? chores.length}
+          </div>
+          <div className="text-sm text-gray-600">Total Chores</div>
+        </div>
+
+        <div
+          className="bg-white rounded-lg shadow p-4"
+          data-testid="stat-assignments"
+        >
+          <div
+            className="text-3xl font-bold text-gray-900"
+            data-testid="stat-assignments-value"
+          >
+            {stats?.totalAssignments ?? assignments.length}
+          </div>
+          <div className="text-sm text-gray-600">Total Assignments</div>
+        </div>
+
+        <div
+          className="bg-white rounded-lg shadow p-4"
+          data-testid="stat-completed"
+        >
+          <div
+            className="text-3xl font-bold text-green-600"
+            data-testid="stat-completed-value"
+          >
+            {stats?.completedAssignments ?? completedAssignments.length}
+          </div>
+          <div className="text-sm text-gray-600">Completed</div>
+        </div>
+
+        <div
+          className="bg-white rounded-lg shadow p-4"
+          data-testid="stat-pending"
+        >
+          <div
+            className="text-3xl font-bold text-yellow-600"
+            data-testid="stat-pending-value"
+          >
+            {stats?.pendingAssignments ?? pendingAssignments.length}
+          </div>
+          <div className="text-sm text-gray-600">Pending</div>
+        </div>
+      </div>
+
+      {/* Weekly Stats */}
+      {stats?.thisWeek && (
+        <div className="grid grid-cols-1 gap-4" data-testid="weekly-stats">
+          <div
+            className="bg-white rounded-lg shadow p-6"
+            data-testid="weekly-completed"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              This Week's Completed
+            </h3>
+            <div className="text-4xl font-bold text-blue-600">
+              {stats.thisWeek.assignmentsCompleted}
+            </div>
+            <div className="text-sm text-gray-600">Assignments completed</div>
+          </div>
+        </div>
+      )}
+
+      {/* Top Performers */}
       {stats?.topPerformers?.length ? (
-        <Section data-testid="leaderboard">
-          <SectionHeader>
-            <SectionTitle>Top Performers</SectionTitle>
-          </SectionHeader>
-          <List>
+        <div
+          className="bg-white rounded-lg shadow p-6"
+          data-testid="leaderboard"
+        >
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Top Performers
+          </h2>
+          <div className="space-y-3">
             {stats.topPerformers.map((performer: any) => (
-              <ListItem key={performer.childId} data-testid="top-performer">
-                <ItemInfo>
-                  <div className="title">{performer.childName}</div>
-                  <div className="subtitle">
+              <div
+                key={performer.childId}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                data-testid="top-performer"
+              >
+                <div>
+                  <div className="font-medium text-gray-900">
+                    {performer.childName}
+                  </div>
+                  <div className="text-sm text-gray-600">
                     {performer.choresCompleted} chores completed this week
                   </div>
-                </ItemInfo>
-                <Badge variant="success">Star</Badge>
-              </ListItem>
+                </div>
+                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                  Star
+                </span>
+              </div>
             ))}
-          </List>
-        </Section>
+          </div>
+        </div>
       ) : null}
 
-      <Grid>
-        <Card>
-          <CardHeader>
-            <CardTitle>Family Members</CardTitle>
-            <Button to="/users" data-testid="manage-users-link">
+      {/* Family Members and Recent Assignments */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Family Members
+            </h3>
+            <Link
+              to="/users"
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              data-testid="manage-users-link"
+            >
               Manage Users
-            </Button>
-          </CardHeader>
-          <List>
+            </Link>
+          </div>
+          <div className="space-y-3">
             {activeUsers.length > 0 ? (
               activeUsers.slice(0, 3).map((user) => (
-                <ListItem key={user.id} data-testid="dashboard-user-item">
-                  <ItemInfo>
-                    <div className="title" data-testid="dashboard-user-name">
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  data-testid="dashboard-user-item"
+                >
+                  <div>
+                    <div
+                      className="font-medium text-gray-900"
+                      data-testid="dashboard-user-name"
+                    >
                       {user.name}
                     </div>
-                    <div className="subtitle">
-                      {user.role} • {user.totalPoints || 0} points
+                    <div className="text-sm text-gray-600 capitalize">
+                      {user.role}
                     </div>
-                  </ItemInfo>
-                  <Badge
-                    variant={user.role === 'parent' ? 'info' : 'success'}
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getBadgeClasses(user.role === 'parent' ? 'info' : 'success')}`}
                     data-testid="dashboard-user-role"
                   >
                     {user.role}
-                  </Badge>
-                </ListItem>
+                  </span>
+                </div>
               ))
             ) : (
-              <div>No family members found</div>
+              <div className="text-gray-500">No family members found</div>
             )}
-          </List>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Assignments</CardTitle>
-            <Button to="/assignments" data-testid="view-assignments-link">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Recent Assignments
+            </h3>
+            <Link
+              to="/assignments"
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              data-testid="view-assignments-link"
+            >
               View All
-            </Button>
-          </CardHeader>
-          <List>
+            </Link>
+          </div>
+          <div className="space-y-3">
             {recentAssignments.length > 0 ? (
               recentAssignments.map((assignment) => {
                 const child = users.find((u) => u.id === assignment.childId)
                 const choreCount = assignment.chores?.length || 0
 
                 return (
-                  <ListItem
+                  <div
                     key={assignment.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                     data-testid="dashboard-assignment-item"
                   >
-                    <ItemInfo>
+                    <div>
                       <div
-                        className="title"
+                        className="font-medium text-gray-900"
                         data-testid="dashboard-assignment-title"
                       >
                         Week of{' '}
                         {new Date(assignment.startDate).toLocaleDateString()}
                       </div>
                       <div
-                        className="subtitle"
+                        className="text-sm text-gray-600"
                         data-testid="dashboard-assignment-subtitle"
                       >
                         {child?.name || 'Unknown'} • {choreCount} chore
                         {choreCount !== 1 ? 's' : ''}
                       </div>
-                    </ItemInfo>
-                    <Badge
-                      variant={getAssignmentBadgeVariant(assignment.status)}
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${getBadgeClasses(getAssignmentBadgeVariant(assignment.status))}`}
                       data-testid="dashboard-assignment-status"
                     >
                       {assignment.status.replace('_', ' ')}
-                    </Badge>
-                  </ListItem>
+                    </span>
+                  </div>
                 )
               })
             ) : (
-              <div>No assignments yet</div>
+              <div className="text-gray-500">No assignments yet</div>
             )}
-          </List>
-        </Card>
-      </Grid>
+          </div>
+        </div>
+      </div>
 
+      {/* Error Message */}
       {error && (
-        <ErrorCard data-testid="dashboard-error">
-          <div>Error: {error}</div>
-          <button onClick={() => window.location.reload()}>Retry</button>
-        </ErrorCard>
+        <div
+          className="bg-red-50 border border-red-200 rounded-lg p-4"
+          data-testid="dashboard-error"
+        >
+          <div className="text-red-700 mb-2">Error: {error}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
       )}
     </div>
   )

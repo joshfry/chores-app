@@ -9,7 +9,6 @@ export interface User {
   createdBy: number | null
   lastLogin: Date | string
   isActive: boolean
-  totalPoints?: number // Optional - may not be returned by all endpoints
 }
 
 export interface Family {

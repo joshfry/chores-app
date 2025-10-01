@@ -1,21 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams, Navigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
-
-const Container = styled.div``
-
-const Card = styled.div``
-
-const Spinner = styled.div``
-
-const Icon = styled.div<{ type: 'success' | 'error' }>``
-
-const Title = styled.h1``
-
-const Message = styled.p``
-
-const Button = styled.button``
 
 const VerifyPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -104,34 +89,54 @@ const VerifyPage: React.FC = () => {
       case 'verifying':
         return (
           <>
-            <Spinner />
-            <Title>Verifying Your Account</Title>
-            <Message>Please wait while we verify your magic link...</Message>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-6"></div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Verifying Your Account
+            </h1>
+            <p className="text-gray-600">
+              Please wait while we verify your magic link...
+            </p>
           </>
         )
 
       case 'success':
         return (
           <>
-            <Icon type="success">✓</Icon>
-            <Title>Verification Successful!</Title>
-            <Message>
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-3xl font-bold mb-6">
+              ✓
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Verification Successful!
+            </h1>
+            <p className="text-gray-600 mb-6">
               Your account has been verified. Redirecting you to the
               dashboard...
-            </Message>
-            <Button onClick={handleGoToDashboard}>Go to Dashboard</Button>
+            </p>
+            <button
+              onClick={handleGoToDashboard}
+              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Go to Dashboard
+            </button>
           </>
         )
 
       case 'error':
         return (
           <>
-            <Icon type="error">✕</Icon>
-            <Title>Verification Failed</Title>
-            <Message>{errorMessage}</Message>
-            <Button onClick={() => (window.location.href = '/login')}>
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 text-3xl font-bold mb-6">
+              ✕
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Verification Failed
+            </h1>
+            <p className="text-gray-600 mb-6">{errorMessage}</p>
+            <button
+              onClick={() => (window.location.href = '/login')}
+              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
               Back to Login
-            </Button>
+            </button>
           </>
         )
 
@@ -141,9 +146,11 @@ const VerifyPage: React.FC = () => {
   }
 
   return (
-    <Container>
-      <Card>{renderContent()}</Card>
-    </Container>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+        {renderContent()}
+      </div>
+    </div>
   )
 }
 

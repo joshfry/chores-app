@@ -1,43 +1,6 @@
 import React, { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
-
-const Container = styled.div``
-
-const Sidebar = styled.aside<{ $isOpen: boolean }>``
-
-const SidebarHeader = styled.div``
-
-const Logo = styled.div<{ $collapsed: boolean }>``
-
-const ToggleButton = styled.button``
-
-const Nav = styled.nav``
-
-const NavItem = styled(Link)<{ $isActive: boolean; $collapsed: boolean }>``
-
-const UserSection = styled.div``
-
-const UserInfo = styled.div<{ $collapsed: boolean }>``
-
-const LogoutButton = styled.button<{ $collapsed: boolean }>``
-
-const Main = styled.main``
-
-const Header = styled.header``
-
-const MobileMenuButton = styled.button``
-
-const PageTitle = styled.h1``
-
-const Content = styled.div``
-
-const Overlay = styled.div<{ $show: boolean }>``
-
-const HeaderGroup = styled.div``
-
-const FamilyName = styled.div``
 
 const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -73,84 +36,143 @@ const DashboardLayout: React.FC = () => {
     setMobileMenuOpen(!mobileMenuOpen)
   }
 
+  const isCollapsed = !sidebarOpen && !mobileMenuOpen
+
   return (
-    <Container>
-      <Overlay
-        $show={mobileMenuOpen}
-        onClick={() => setMobileMenuOpen(false)}
-      />
+    <div className="flex h-screen bg-gray-100">
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
 
-      <Sidebar $isOpen={sidebarOpen || mobileMenuOpen}>
-        <SidebarHeader>
-          <Logo $collapsed={!sidebarOpen && !mobileMenuOpen}>
-            <div className="icon">🏠</div>
-            <div className="text">Family Chores</div>
-          </Logo>
-          <ToggleButton onClick={toggleSidebar}>
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed lg:sticky top-0 left-0 z-50 h-screen
+          bg-white border-r border-gray-200
+          transition-all duration-300 ease-in-out
+          ${sidebarOpen ? 'w-64' : 'w-20'}
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
+          <div
+            className={`flex items-center gap-3 ${isCollapsed ? 'justify-center w-full' : ''}`}
+          >
+            <div className="text-2xl">🏠</div>
+            {!isCollapsed && (
+              <div className="font-semibold text-gray-900">Family Chores</div>
+            )}
+          </div>
+          <button
+            onClick={toggleSidebar}
+            className={`hidden lg:block text-gray-500 hover:text-gray-700 ${isCollapsed ? 'absolute top-4 right-4' : ''}`}
+          >
             {sidebarOpen ? '←' : '→'}
-          </ToggleButton>
-        </SidebarHeader>
+          </button>
+        </div>
 
-        <Nav>
-          {navigation.map((item) => (
-            <NavItem
-              key={item.name}
-              to={item.href}
-              $isActive={location.pathname === item.href}
-              $collapsed={!sidebarOpen && !mobileMenuOpen}
-              onClick={() => setMobileMenuOpen(false)}
-              data-testid={`nav-${item.name.toLowerCase()}`}
-            >
-              <div className="icon">{item.icon}</div>
-              <div className="text">{item.name}</div>
-            </NavItem>
-          ))}
-        </Nav>
+        {/* Navigation */}
+        <nav className="flex-1 px-2 py-4 space-y-1">
+          {navigation.map((item) => {
+            const isActive = location.pathname === item.href
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                data-testid={`nav-${item.name.toLowerCase()}`}
+                className={`
+                  flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
+                  ${
+                    isActive
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }
+                  ${isCollapsed ? 'justify-center' : ''}
+                `}
+              >
+                <span className="text-xl">{item.icon}</span>
+                {!isCollapsed && (
+                  <span className="font-medium">{item.name}</span>
+                )}
+              </Link>
+            )
+          })}
+        </nav>
 
-        <UserSection>
-          <UserInfo $collapsed={!sidebarOpen && !mobileMenuOpen}>
-            <div className="avatar">
+        {/* User Section */}
+        <div className="border-t border-gray-200 p-4">
+          <div
+            className={`flex items-center gap-3 mb-3 ${isCollapsed ? 'justify-center' : ''}`}
+          >
+            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold">
               {state.user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <div className="info">
-              <div className="name" data-testid="user-name">
-                {state.user?.name}
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <div
+                  className="text-sm font-medium text-gray-900 truncate"
+                  data-testid="user-name"
+                >
+                  {state.user?.name}
+                </div>
+                <div className="text-xs text-gray-500 capitalize">
+                  {state.user?.role}
+                </div>
               </div>
-              <div className="role">{state.user?.role}</div>
-            </div>
-          </UserInfo>
-          <LogoutButton
-            $collapsed={!sidebarOpen && !mobileMenuOpen}
+            )}
+          </div>
+          <button
             onClick={handleLogout}
             data-testid="logout-button"
+            className={`
+              w-full px-3 py-2 text-sm font-medium text-red-600 
+              hover:bg-red-50 rounded-lg transition-colors
+              ${isCollapsed ? 'text-center' : 'text-left'}
+            `}
           >
-            {!sidebarOpen && !mobileMenuOpen ? '🚪' : 'Sign Out'}
-          </LogoutButton>
-        </UserSection>
-      </Sidebar>
+            {isCollapsed ? '🚪' : 'Sign Out'}
+          </button>
+        </div>
+      </aside>
 
-      <Main>
-        <Header>
-          <HeaderGroup>
-            <MobileMenuButton
-              onClick={toggleMobileMenu}
-              data-testid="mobile-nav-toggle"
-            >
-              ☰
-            </MobileMenuButton>
-            <PageTitle>{getPageTitle()}</PageTitle>
-          </HeaderGroup>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={toggleMobileMenu}
+                data-testid="mobile-nav-toggle"
+                className="lg:hidden text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ☰
+              </button>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {getPageTitle()}
+              </h1>
+            </div>
+            <div className="text-sm text-gray-600" data-testid="family-name">
+              {state.family?.name}
+            </div>
+          </div>
+        </header>
 
-          <FamilyName data-testid="family-name">
-            {state.family?.name}
-          </FamilyName>
-        </Header>
-
-        <Content data-testid="dashboard">
+        {/* Page Content */}
+        <div
+          className="flex-1 overflow-auto p-4 lg:p-6"
+          data-testid="dashboard"
+        >
           <Outlet />
-        </Content>
-      </Main>
-    </Container>
+        </div>
+      </main>
+    </div>
   )
 }
 

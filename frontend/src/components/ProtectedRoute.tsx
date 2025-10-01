@@ -1,13 +1,6 @@
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import styled from 'styled-components'
 import { useAuth } from '../contexts/AuthContext'
-
-const LoadingContainer = styled.div``
-
-const Spinner = styled.div``
-
-const LoadingText = styled.div``
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -19,10 +12,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (state.isLoading) {
     return (
-      <LoadingContainer>
-        <Spinner />
-        <LoadingText>Loading your dashboard...</LoadingText>
-      </LoadingContainer>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <div className="text-gray-600">Loading your dashboard...</div>
+      </div>
     )
   }
 
