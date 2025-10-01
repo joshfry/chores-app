@@ -13,86 +13,83 @@ datasource db {
 
 // Family represents a household
 model Family {
-  id               Int      @id @default(autoincrement())
-  name             String
-  createdDate      DateTime @default(now()) @map("created_date")
-  primaryParentId  Int      @map("primary_parent_id")
-  
+  id              Int      @id @default(autoincrement())
+  name            String
+  createdDate     DateTime @default(now()) @map("created_date")
+  primaryParentId Int      @map("primary_parent_id")
+
   // Relations
-  users            User[]
-  chores           Chore[]
-  assignments      Assignment[]
-  
+  users       User[]
+  chores      Chore[]
+  assignments Assignment[]
+
   @@map("families")
 }
 
 // User represents both parents and children
 model User {
-  id          Int       @id @default(autoincrement())
-  email       String    @unique
-  name        String
-  role        Role
-  familyId    Int       @map("family_id")
-  birthdate   String    // Stored as string in YYYY-MM-DD format
-  totalPoints Int?      @map("total_points") // Only used for children
-  createdBy   Int?      @map("created_by") // User ID of who created this user
-  lastLogin   DateTime  @map("last_login")
-  isActive    Boolean   @default(true) @map("is_active")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  role      Role
+  familyId  Int      @map("family_id")
+  birthdate String // Stored as string in YYYY-MM-DD format
+  createdBy Int?     @map("created_by") // User ID of who created this user
+  lastLogin DateTime @map("last_login")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   // Relations
-  family           Family             @relation(fields: [familyId], references: [id])
-  assignments      Assignment[]
-  magicTokens      MagicToken[]
-  webauthnCreds    WebAuthnCredential[]
-  createdUsers     User[]             @relation("UserCreatedBy")
-  creator          User?              @relation("UserCreatedBy", fields: [createdBy], references: [id])
-  
+  family        Family               @relation(fields: [familyId], references: [id])
+  assignments   Assignment[]
+  magicTokens   MagicToken[]
+  webauthnCreds WebAuthnCredential[]
+  createdUsers  User[]               @relation("UserCreatedBy")
+  creator       User?                @relation("UserCreatedBy", fields: [createdBy], references: [id])
+
   @@map("users")
 }
 
 // Chore represents a task that can be assigned
 model Chore {
-  id                Int      @id @default(autoincrement())
+  id                Int        @id @default(autoincrement())
   title             String
   description       String?
-  points            Int      @default(1)
   difficulty        Difficulty @default(easy)
   category          String?
-  isRecurring       Boolean  @default(false) @map("is_recurring")
-  recurrencePattern String?  @map("recurrence_pattern") // daily, weekly, monthly, custom
-  familyId          Int      @map("family_id")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
-  
+  isRecurring       Boolean    @default(false) @map("is_recurring")
+  recurrencePattern String?    @map("recurrence_pattern") // daily, weekly, monthly, custom
+  familyId          Int        @map("family_id")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
   // Relations
-  family            Family       @relation(fields: [familyId], references: [id])
-  assignments       Assignment[]
-  
+  family      Family       @relation(fields: [familyId], references: [id])
+  assignments Assignment[]
+
   @@map("chores")
 }
 
 // Assignment connects a chore to a child
 model Assignment {
-  id             Int         @id @default(autoincrement())
-  childId        Int         @map("child_id")
-  choreId        Int         @map("chore_id")
-  assignedDate   String      @map("assigned_date") // YYYY-MM-DD format
-  dueDate        String?     @map("due_date") // YYYY-MM-DD format
-  status         AssignmentStatus @default(assigned)
-  completedDate  DateTime?   @map("completed_date")
-  pointsEarned   Int         @map("points_earned")
-  notes          String?
-  familyId       Int         @map("family_id") // For easy querying
-  createdAt      DateTime    @default(now()) @map("created_at")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
-  
+  id            Int              @id @default(autoincrement())
+  childId       Int              @map("child_id")
+  choreId       Int              @map("chore_id")
+  assignedDate  String           @map("assigned_date") // YYYY-MM-DD format
+  dueDate       String?          @map("due_date") // YYYY-MM-DD format
+  status        AssignmentStatus @default(assigned)
+  completedDate DateTime?        @map("completed_date")
+  notes         String?
+  familyId      Int              @map("family_id") // For easy querying
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
   // Relations
-  child          User        @relation(fields: [childId], references: [id])
-  chore          Chore       @relation(fields: [choreId], references: [id])
-  family         Family      @relation(fields: [familyId], references: [id])
-  
+  child  User   @relation(fields: [childId], references: [id])
+  chore  Chore  @relation(fields: [choreId], references: [id])
+  family Family @relation(fields: [familyId], references: [id])
+
   @@map("assignments")
 }
 
@@ -104,25 +101,25 @@ model MagicToken {
   expiresAt DateTime @map("expires_at")
   used      Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
-  
+
   // Relations
-  user      User     @relation(fields: [userId], references: [id])
-  
+  user User @relation(fields: [userId], references: [id])
+
   @@map("magic_tokens")
 }
 
 // WebAuthn credentials for advanced authentication
 model WebAuthnCredential {
-  id           Int    @id @default(autoincrement())
-  userId       Int    @map("user_id")
-  credentialId String @unique @map("credential_id")
-  publicKey    String @map("public_key")
-  deviceName   String @map("device_name")
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  credentialId String   @unique @map("credential_id")
+  publicKey    String   @map("public_key")
+  deviceName   String   @map("device_name")
   createdAt    DateTime @default(now()) @map("created_at")
-  
+
   // Relations
-  user         User   @relation(fields: [userId], references: [id])
-  
+  user User @relation(fields: [userId], references: [id])
+
   @@map("webauthn_credentials")
 }
 

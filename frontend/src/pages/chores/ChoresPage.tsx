@@ -81,7 +81,6 @@ const ChoresPage: React.FC = () => {
   const handleCreateChore = async (choreData: {
     title: string
     description?: string
-    points: number
     difficulty: 'easy' | 'medium' | 'hard'
     isRecurring: boolean
     recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
@@ -95,7 +94,6 @@ const ChoresPage: React.FC = () => {
     updates: {
       title: string
       description?: string
-      points: number
       difficulty: 'easy' | 'medium' | 'hard'
       isRecurring: boolean
       recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
@@ -181,11 +179,6 @@ const ChoresPage: React.FC = () => {
                     {chore.title}
                   </ChoreTitle>
                   <ChoreStats>
-                    <PointsDisplay data-testid="chore-points">
-                      <span className="icon">⭐</span>
-                      {chore.points} points
-                    </PointsDisplay>
-                    <span>•</span>
                     <Badge variant={chore.difficulty}>{chore.difficulty}</Badge>
                     <span>•</span>
                     <Badge
@@ -195,10 +188,6 @@ const ChoresPage: React.FC = () => {
                     </Badge>
                   </ChoreStats>
                 </div>
-                <PointsDisplay data-testid="chore-points">
-                  <span className="icon">⭐</span>
-                  <span>{chore.points}</span>
-                </PointsDisplay>
               </ChoreHeader>
 
               <ChoreDescription>{chore.description}</ChoreDescription>

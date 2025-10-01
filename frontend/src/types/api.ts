@@ -6,7 +6,6 @@ export interface User {
   role: 'parent' | 'child'
   familyId: number
   birthdate: string
-  totalPoints: number | null
   createdBy: number | null
   lastLogin: Date | string
   isActive: boolean
@@ -24,7 +23,6 @@ export interface Chore {
   title: string
   description: string
   difficulty: 'easy' | 'medium' | 'hard'
-  points: number
   isRecurring: boolean
   recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
   familyId: number
@@ -90,10 +88,8 @@ export interface DashboardStats {
   totalAssignments: number
   completedAssignments: number
   pendingAssignments: number
-  totalPointsEarned: number
   thisWeek: {
     assignmentsCompleted: number
-    pointsEarned: number
   }
   topPerformers: Array<{
     childId: number

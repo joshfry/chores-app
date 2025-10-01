@@ -312,15 +312,11 @@ class ApiClient {
         raw?.completed_assignments ?? raw?.completedAssignments ?? 0,
       pendingAssignments:
         raw?.pending_assignments ?? raw?.pendingAssignments ?? 0,
-      totalPointsEarned:
-        raw?.total_points_earned ?? raw?.totalPointsEarned ?? 0,
       thisWeek: {
         assignmentsCompleted:
           raw?.this_week?.assignments_completed ??
           raw?.thisWeek?.assignmentsCompleted ??
           0,
-        pointsEarned:
-          raw?.this_week?.points_earned ?? raw?.thisWeek?.pointsEarned ?? 0,
       },
       topPerformers: normalizedTopPerformers,
     }

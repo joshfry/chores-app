@@ -48,7 +48,6 @@ export const createUser = async (userData: {
   familyId: number
   name: string
   birthdate: string
-  totalPoints?: number | null
   createdBy?: number | null
 }): Promise<User> => {
   return prisma.user.create({
@@ -58,7 +57,6 @@ export const createUser = async (userData: {
       familyId: userData.familyId,
       name: userData.name,
       birthdate: userData.birthdate,
-      totalPoints: userData.totalPoints,
       createdBy: userData.createdBy,
       lastLogin: new Date(),
       isActive: true,
@@ -71,9 +69,7 @@ export const createUser = async (userData: {
 
 export const updateUser = async (
   id: number,
-  updates: Partial<
-    Pick<User, 'name' | 'birthdate' | 'totalPoints' | 'lastLogin' | 'isActive'>
-  >,
+  updates: Partial<Pick<User, 'name' | 'birthdate' | 'lastLogin' | 'isActive'>>,
 ): Promise<User | null> => {
   try {
     return await prisma.user.update({
@@ -211,7 +207,6 @@ export const seedDatabase = async () => {
     familyId: family.id,
     name: 'Sarah Johnson',
     birthdate: '1985-03-15',
-    totalPoints: null,
     createdBy: null,
   })
 
@@ -228,7 +223,6 @@ export const seedDatabase = async () => {
     familyId: family.id,
     name: 'Emma Johnson',
     birthdate: '2010-07-22',
-    totalPoints: 145,
     createdBy: parent.id,
   })
 
@@ -238,7 +232,6 @@ export const seedDatabase = async () => {
     familyId: family.id,
     name: 'Alex Johnson',
     birthdate: '2013-11-08',
-    totalPoints: 89,
     createdBy: parent.id,
   })
 
@@ -247,7 +240,6 @@ export const seedDatabase = async () => {
     data: {
       title: 'Clean bedroom',
       description: 'Make bed, organize toys, vacuum floor',
-      points: 5,
       difficulty: 'medium',
       category: 'cleaning',
       isRecurring: false,
@@ -259,7 +251,6 @@ export const seedDatabase = async () => {
     data: {
       title: 'Take out trash',
       description: 'Empty all trash cans and take to curb',
-      points: 3,
       difficulty: 'easy',
       category: 'cleaning',
       isRecurring: true,

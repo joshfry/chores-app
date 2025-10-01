@@ -32,7 +32,6 @@ const createMockUser = (overrides?: Partial<User>): User => ({
   role: 'parent',
   familyId: 1,
   birthdate: '1990-01-01',
-  totalPoints: 0,
   createdBy: null,
   lastLogin: new Date().toISOString(),
   isActive: true,

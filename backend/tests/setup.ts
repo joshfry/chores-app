@@ -44,7 +44,6 @@ global.testUtils = {
     role: 'parent' as const,
     familyId: 1,
     birthdate: '1990-01-01',
-    totalPoints: null,
     createdBy: null,
     ...overrides,
   }),
@@ -60,7 +59,6 @@ global.testUtils = {
   createTestChore: (overrides = {}) => ({
     title: 'Test Chore',
     description: 'Test chore description',
-    points: 5,
     difficulty: 'medium' as const,
     category: 'cleaning',
     isRecurring: false,

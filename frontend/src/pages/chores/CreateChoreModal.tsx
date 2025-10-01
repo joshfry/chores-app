@@ -30,7 +30,6 @@ interface CreateChoreModalProps {
   onSubmit: (choreData: {
     title: string
     description?: string
-    points: number
     difficulty: 'easy' | 'medium' | 'hard'
     isRecurring: boolean
     recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
@@ -45,7 +44,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    points: 10,
     difficulty: 'easy' as 'easy' | 'medium' | 'hard',
     isRecurring: false,
     recurrencePattern: '' as '' | 'daily' | 'weekly' | 'monthly' | 'custom',
@@ -75,7 +73,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
       await onSubmit({
         title: formData.title,
         description: formData.description || undefined,
-        points: formData.points,
         difficulty: formData.difficulty,
         isRecurring: formData.isRecurring,
         recurrencePattern:
@@ -86,7 +83,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
       setFormData({
         title: '',
         description: '',
-        points: 10,
         difficulty: 'easy',
         isRecurring: false,
         recurrencePattern: '',
@@ -154,20 +150,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
             onChange={handleChange}
             rows={3}
             data-testid="description-input"
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label htmlFor="points">Points *</Label>
-          <Input
-            id="points"
-            name="points"
-            type="number"
-            min="1"
-            value={formData.points}
-            onChange={handleChange}
-            required
-            data-testid="points-input"
           />
         </FormGroup>
 

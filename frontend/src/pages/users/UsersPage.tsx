@@ -178,7 +178,6 @@ const UsersPage: React.FC = () => {
               <Tr>
                 <Th>User</Th>
                 <Th>Role</Th>
-                <Th>Points</Th>
                 <Th>Last Active</Th>
                 <Th>Status</Th>
                 <Th>Actions</Th>
@@ -199,7 +198,6 @@ const UsersPage: React.FC = () => {
                   <Td>
                     <Badge variant={user.role}>{user.role}</Badge>
                   </Td>
-                  <Td>{user.totalPoints || 0}</Td>
                   <Td>
                     {user.lastLogin ? formatDate(user.lastLogin) : 'Never'}
                   </Td>

@@ -277,9 +277,6 @@ const AssignmentsPage: React.FC = () => {
                         >
                           {chore?.title || 'Unknown Chore'}
                         </div>
-                        <div className="chore-points">
-                          ⭐ {chore?.points || 0} points
-                        </div>
                       </AssignmentInfo>
                     </Td>
                     <Td>

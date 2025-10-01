@@ -34,7 +34,6 @@ interface EditChoreModalProps {
     updates: {
       title: string
       description?: string
-      points: number
       difficulty: 'easy' | 'medium' | 'hard'
       isRecurring: boolean
       recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom'
@@ -51,7 +50,6 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    points: 10,
     difficulty: 'easy' as 'easy' | 'medium' | 'hard',
     isRecurring: false,
     recurrencePattern: '' as '' | 'daily' | 'weekly' | 'monthly' | 'custom',
@@ -64,7 +62,6 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
       setFormData({
         title: chore.title,
         description: chore.description || '',
-        points: chore.points,
         difficulty: chore.difficulty,
         isRecurring: chore.isRecurring,
         recurrencePattern: chore.recurrencePattern || '',
@@ -96,7 +93,6 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
       await onSubmit(chore.id, {
         title: formData.title,
         description: formData.description || undefined,
-        points: formData.points,
         difficulty: formData.difficulty,
         isRecurring: formData.isRecurring,
         recurrencePattern:
@@ -162,20 +158,6 @@ const EditChoreModal: React.FC<EditChoreModalProps> = ({
             onChange={handleChange}
             rows={3}
             data-testid="description-input"
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label htmlFor="points">Points *</Label>
-          <Input
-            id="points"
-            name="points"
-            type="number"
-            min="1"
-            value={formData.points}
-            onChange={handleChange}
-            required
-            data-testid="points-input"
           />
         </FormGroup>
 

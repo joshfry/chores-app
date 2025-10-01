@@ -74,7 +74,6 @@ describe('Auth Prisma Models', () => {
             name: userData.name,
             familyId: userData.familyId,
             birthdate: userData.birthdate,
-            totalPoints: userData.totalPoints,
             createdBy: userData.createdBy,
             isActive: true,
             lastLogin: expect.any(Date),

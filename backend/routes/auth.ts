@@ -78,7 +78,6 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
       familyId: family.id,
       name,
       birthdate: birthdate || new Date().toISOString().split('T')[0],
-      totalPoints: null,
       createdBy: null,
     })
 
@@ -296,7 +295,6 @@ router.get(
             role: user!.role,
             familyId: user!.familyId,
             birthdate: user!.birthdate,
-            totalPoints: user!.totalPoints,
             lastLogin: user!.lastLogin,
           },
           family: family
@@ -359,7 +357,6 @@ router.post(
         familyId: parent!.familyId,
         name,
         birthdate,
-        totalPoints: 0,
       })
 
       // Create magic token for child
@@ -426,7 +423,6 @@ router.get(
         name: user.name,
         role: user.role,
         birthdate: user.birthdate,
-        totalPoints: user.totalPoints,
         createdBy: user.createdBy,
         lastLogin: user.lastLogin,
       }))
@@ -470,7 +466,6 @@ router.get(
           name: user!.name,
           role: user!.role,
           birthdate: user!.birthdate,
-          totalPoints: user!.totalPoints,
           createdBy: user!.createdBy,
           lastLogin: user!.lastLogin,
           isActive: user!.isActive,
@@ -542,7 +537,6 @@ router.put(
           name: updatedUser!.name,
           role: updatedUser!.role,
           birthdate: updatedUser!.birthdate,
-          totalPoints: updatedUser!.totalPoints,
         },
       })
     } catch (error) {

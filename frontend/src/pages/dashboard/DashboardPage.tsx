@@ -193,13 +193,6 @@ const DashboardPage: React.FC = () => {
           </StatValue>
           <StatLabel>Pending</StatLabel>
         </StatCard>
-
-        <StatCard data-testid="stat-points">
-          <StatValue data-testid="stat-points-value">
-            {stats?.totalPointsEarned ?? 0}
-          </StatValue>
-          <StatLabel>Total Points</StatLabel>
-        </StatCard>
       </StatsGrid>
 
       {stats?.thisWeek && (
@@ -208,11 +201,6 @@ const DashboardPage: React.FC = () => {
             <CardTitle>This Week's Completed</CardTitle>
             <CardValue>{stats.thisWeek.assignmentsCompleted}</CardValue>
             <CardSubtext>Assignments completed</CardSubtext>
-          </StatCard>
-          <StatCard data-testid="weekly-points">
-            <CardTitle>This Week's Points</CardTitle>
-            <CardValue>{stats.thisWeek.pointsEarned}</CardValue>
-            <CardSubtext>Points earned by family</CardSubtext>
           </StatCard>
         </StatsGrid>
       )}
@@ -254,9 +242,7 @@ const DashboardPage: React.FC = () => {
                     <div className="title" data-testid="dashboard-user-name">
                       {user.name}
                     </div>
-                    <div className="subtitle">
-                      {user.role} • {user.totalPoints || 0} points
-                    </div>
+                    <div className="subtitle">{user.role}</div>
                   </ItemInfo>
                   <Badge
                     variant={user.role === 'parent' ? 'info' : 'success'}

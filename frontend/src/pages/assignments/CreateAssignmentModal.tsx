@@ -152,7 +152,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
             <option value="">Select a chore</option>
             {chores.map((chore) => (
               <option key={chore.id} value={chore.id}>
-                {chore.title} ({chore.points} points)
+                {chore.title}
               </option>
             ))}
           </Select>

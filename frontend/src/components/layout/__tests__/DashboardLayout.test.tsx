@@ -11,7 +11,6 @@ const mockAuthContext = {
       email: 'isabella@test.com',
       role: 'parent' as const,
       familyId: 1,
-      totalPoints: 0,
       isActive: true,
       createdBy: null,
       lastLogin: new Date().toISOString(),
