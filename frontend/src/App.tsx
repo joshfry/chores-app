@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 
 // Auth Components
 import LoginPage from './pages/auth/LoginPage'
@@ -24,6 +24,30 @@ import AssignmentsPage from './pages/assignments/AssignmentsPage'
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute'
 
+// Role-based redirect component
+const RoleBasedRedirect: React.FC = () => {
+  const { state } = useAuth()
+
+  // Redirect based on user role
+  if (state.user?.role === 'child') {
+    return <Navigate to="/assignments" replace />
+  }
+  return <Navigate to="/dashboard" replace />
+}
+
+// Parent-only route wrapper
+const ParentOnlyRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { state } = useAuth()
+
+  if (state.user?.role === 'child') {
+    return <Navigate to="/assignments" replace />
+  }
+
+  return <>{children}</>
+}
+
 function App() {
   const tree = (
     <AuthProvider>
@@ -34,12 +58,14 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify" element={<VerifyPage />} />
 
-          {/* Protected Routes */}
+          {/* Protected Routes - Parent Only */}
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <DashboardLayout />
+                <ParentOnlyRoute>
+                  <DashboardLayout />
+                </ParentOnlyRoute>
               </ProtectedRoute>
             }
           >
@@ -50,7 +76,9 @@ function App() {
             path="/users"
             element={
               <ProtectedRoute>
-                <DashboardLayout />
+                <ParentOnlyRoute>
+                  <DashboardLayout />
+                </ParentOnlyRoute>
               </ProtectedRoute>
             }
           >
@@ -61,13 +89,16 @@ function App() {
             path="/chores"
             element={
               <ProtectedRoute>
-                <DashboardLayout />
+                <ParentOnlyRoute>
+                  <DashboardLayout />
+                </ParentOnlyRoute>
               </ProtectedRoute>
             }
           >
             <Route index element={<ChoresPage />} />
           </Route>
 
+          {/* Protected Routes - All Users */}
           <Route
             path="/assignments"
             element={
@@ -79,11 +110,11 @@ function App() {
             <Route index element={<AssignmentsPage />} />
           </Route>
 
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Redirect root based on role */}
+          <Route path="/" element={<RoleBasedRedirect />} />
 
           {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<RoleBasedRedirect />} />
         </Routes>
       </Router>
     </AuthProvider>

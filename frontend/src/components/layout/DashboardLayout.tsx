@@ -8,6 +8,8 @@ const DashboardLayout: React.FC = () => {
   const { state, logout } = useAuth()
   const location = useLocation()
 
+  const isChild = state.user?.role === 'child'
+
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Users', href: '/users', icon: '👥' },
@@ -16,6 +18,7 @@ const DashboardLayout: React.FC = () => {
   ]
 
   const getPageTitle = () => {
+    if (isChild) return 'My Assignments'
     const path = location.pathname
     if (path === '/dashboard') return 'Dashboard'
     if (path.includes('/users')) return 'Users'
@@ -38,6 +41,59 @@ const DashboardLayout: React.FC = () => {
 
   const isCollapsed = !sidebarOpen && !mobileMenuOpen
 
+  // Child users see simplified layout without sidebar
+  if (isChild) {
+    return (
+      <div className="flex flex-col h-screen bg-gray-100">
+        {/* Header for child users */}
+        <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">🏠</div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                My Assignments
+              </h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold">
+                  {state.user?.name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="hidden sm:block">
+                  <div
+                    className="text-sm font-medium text-gray-900"
+                    data-testid="user-name"
+                  >
+                    {state.user?.name}
+                  </div>
+                  <div className="text-xs text-gray-500 capitalize">
+                    {state.user?.role}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                data-testid="logout-button"
+                className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <div
+          className="flex-1 overflow-auto p-4 lg:p-6"
+          data-testid="dashboard"
+        >
+          <Outlet />
+        </div>
+      </div>
+    )
+  }
+
+  // Parent users see full layout with sidebar
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Mobile overlay */}
