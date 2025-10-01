@@ -1,41 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
 import Modal from '../../components/Modal'
 import type { User, Chore, Assignment } from '../../types/api'
-
-const Form = styled.form``
-
-const FormGroup = styled.div``
-
-const Label = styled.label``
-
-const Input = styled.input``
-
-const Select = styled.select``
-
-const Textarea = styled.textarea``
-
-const Table = styled.table``
-
-const Thead = styled.thead``
-
-const Tbody = styled.tbody``
-
-const Tr = styled.tr``
-
-const Th = styled.th``
-
-const Td = styled.td``
-
-const AddChoreSection = styled.div``
-
-const ErrorMessage = styled.div``
-
-const ButtonGroup = styled.div``
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>``
-
-const RemoveButton = styled.button``
 
 interface EditAssignmentModalProps {
   isOpen: boolean
@@ -145,16 +110,16 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
   )
 
   const footer = (
-    <ButtonGroup>
-      <Button
+    <div className="flex gap-3 justify-end">
+      <button
         type="button"
-        variant="secondary"
         onClick={onClose}
+        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
         data-testid="cancel-button"
       >
         Cancel
-      </Button>
-      <Button
+      </button>
+      <button
         type="submit"
         form="edit-assignment-form"
         disabled={
@@ -163,11 +128,12 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
           !formData.startDate ||
           formData.choreIds.length === 0
         }
+        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         data-testid="submit-button"
       >
         {isSubmitting ? 'Updating...' : 'Update Assignment'}
-      </Button>
-    </ButtonGroup>
+      </button>
+    </div>
   )
 
   if (!assignment) return null
@@ -179,19 +145,34 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
       title="Edit Weekly Assignment"
       footer={footer}
     >
-      <Form id="edit-assignment-form" onSubmit={handleSubmit}>
+      <form
+        id="edit-assignment-form"
+        onSubmit={handleSubmit}
+        className="space-y-4"
+      >
         {error && (
-          <ErrorMessage data-testid="error-message">{error}</ErrorMessage>
+          <div
+            className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm"
+            data-testid="error-message"
+          >
+            {error}
+          </div>
         )}
 
-        <FormGroup>
-          <Label htmlFor="childId">Assign To *</Label>
-          <Select
+        <div>
+          <label
+            htmlFor="childId"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Assign To *
+          </label>
+          <select
             id="childId"
             name="childId"
             value={formData.childId}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="child-select"
           >
             <option value="">Select a child</option>
@@ -200,116 +181,164 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
                 {child.name}
               </option>
             ))}
-          </Select>
-        </FormGroup>
+          </select>
+        </div>
 
-        <FormGroup>
-          <Label htmlFor="startDate">Start Date (Sunday) *</Label>
-          <Input
+        <div>
+          <label
+            htmlFor="startDate"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Start Date (Sunday) *
+          </label>
+          <input
             id="startDate"
             name="startDate"
             type="date"
             value={formData.startDate}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="start-date-input"
           />
-        </FormGroup>
+        </div>
 
-        <FormGroup>
-          <Label>Assigned Chores *</Label>
-          <Table data-testid="chores-table">
-            <Thead>
-              <Tr>
-                <Th>Chore</Th>
-                <Th>Recurrence</Th>
-                <Th>Difficulty</Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {formData.choreIds.length === 0 ? (
-                <Tr>
-                  <Td colSpan={4} style={{ textAlign: 'center' }}>
-                    No chores assigned. Add chores below.
-                  </Td>
-                </Tr>
-              ) : (
-                formData.choreIds.map((choreId) => {
-                  const chore = getChoreById(choreId)
-                  if (!chore) return null
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Assigned Chores *
+          </label>
+          <div className="border border-gray-200 rounded-md overflow-hidden">
+            <table className="w-full text-sm" data-testid="chores-table">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Chore
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Recurrence
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Difficulty
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {formData.choreIds.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-3 py-4 text-center text-gray-500"
+                    >
+                      No chores assigned. Add chores below.
+                    </td>
+                  </tr>
+                ) : (
+                  formData.choreIds.map((choreId) => {
+                    const chore = getChoreById(choreId)
+                    if (!chore) return null
 
-                  return (
-                    <Tr key={choreId} data-testid={`assigned-chore-${choreId}`}>
-                      <Td>{chore.title}</Td>
-                      <Td>
-                        {chore.isRecurring && chore.recurrenceDays
-                          ? chore.recurrenceDays.join(', ')
-                          : 'One-time'}
-                      </Td>
-                      <Td>{chore.difficulty}</Td>
-                      <Td>
-                        <RemoveButton
-                          type="button"
-                          onClick={() => handleRemoveChore(choreId)}
-                          data-testid={`remove-chore-${choreId}`}
-                        >
-                          Remove
-                        </RemoveButton>
-                      </Td>
-                    </Tr>
-                  )
-                })
-              )}
-            </Tbody>
-          </Table>
-        </FormGroup>
+                    return (
+                      <tr
+                        key={choreId}
+                        className="hover:bg-gray-50"
+                        data-testid={`assigned-chore-${choreId}`}
+                      >
+                        <td className="px-3 py-2">{chore.title}</td>
+                        <td className="px-3 py-2 text-gray-600">
+                          {chore.isRecurring && chore.recurrenceDays
+                            ? chore.recurrenceDays.join(', ')
+                            : 'One-time'}
+                        </td>
+                        <td className="px-3 py-2">
+                          <span
+                            className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              chore.difficulty === 'easy'
+                                ? 'bg-green-100 text-green-800'
+                                : chore.difficulty === 'medium'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {chore.difficulty}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveChore(choreId)}
+                            className="px-2 py-1 text-xs border border-red-300 rounded text-red-700 hover:bg-red-50 transition-colors"
+                            data-testid={`remove-chore-${choreId}`}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-        <FormGroup>
-          <AddChoreSection>
-            <Label htmlFor="addChore">Add Chore</Label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <Select
-                id="addChore"
-                value={selectedChoreToAdd}
-                onChange={(e) => setSelectedChoreToAdd(e.target.value)}
-                data-testid="add-chore-select"
-                style={{ flex: 1 }}
-              >
-                <option value="">Select a chore to add</option>
-                {availableChores.map((chore) => (
-                  <option key={chore.id} value={chore.id}>
-                    {chore.title}
-                    {chore.recurrenceDays && chore.recurrenceDays.length > 0
-                      ? ` (${chore.recurrenceDays.join(', ')})`
-                      : ''}
-                  </option>
-                ))}
-              </Select>
-              <Button
-                type="button"
-                onClick={handleAddChore}
-                disabled={!selectedChoreToAdd}
-                data-testid="add-chore-button"
-              >
-                Add
-              </Button>
-            </div>
-          </AddChoreSection>
-        </FormGroup>
+        <div>
+          <label
+            htmlFor="addChore"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Add Chore
+          </label>
+          <div className="flex gap-2">
+            <select
+              id="addChore"
+              value={selectedChoreToAdd}
+              onChange={(e) => setSelectedChoreToAdd(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              data-testid="add-chore-select"
+            >
+              <option value="">Select a chore to add</option>
+              {availableChores.map((chore) => (
+                <option key={chore.id} value={chore.id}>
+                  {chore.title}
+                  {chore.recurrenceDays && chore.recurrenceDays.length > 0
+                    ? ` (${chore.recurrenceDays.join(', ')})`
+                    : ''}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={handleAddChore}
+              disabled={!selectedChoreToAdd}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              data-testid="add-chore-button"
+            >
+              Add
+            </button>
+          </div>
+        </div>
 
-        <FormGroup>
-          <Label htmlFor="notes">Notes (Optional)</Label>
-          <Textarea
+        <div>
+          <label
+            htmlFor="notes"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Notes (Optional)
+          </label>
+          <textarea
             id="notes"
             name="notes"
             value={formData.notes}
             onChange={handleChange}
             rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="notes-input"
           />
-        </FormGroup>
-      </Form>
+        </div>
+      </form>
     </Modal>
   )
 }

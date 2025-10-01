@@ -41,7 +41,7 @@ chores/
 ### Frontend
 
 - **Framework**: React 19.1 with TypeScript
-- **Styling**: Styled Components (empty templates - user adds CSS)
+- **Styling**: Tailwind CSS (utility-first framework)
 - **Routing**: React Router v6
 - **State Management**: Context API for authentication
 - **Testing**: Jest + React Testing Library (11 tests, 85%+ coverage)
@@ -164,7 +164,7 @@ chores/
 
 **CRITICAL: This developer is a STAFF-LEVEL FRONTEND DEVELOPER** 🎯
 
-- ✅ **Frontend Expertise**: React, TypeScript, styled-components, modern frontend patterns
+- ✅ **Frontend Expertise**: React, TypeScript, Tailwind CSS, modern frontend patterns
 - ✅ **Strong Skills**: Component architecture, state management, UI/UX, testing
 - ❌ **Needs Help With**: Backend development (Node.js, Express, databases, APIs, authentication)
 - ❌ **Don't Explain**: Basic React concepts, TypeScript usage, frontend best practices
@@ -196,12 +196,14 @@ chores/
 
 ### **🎨 STYLING POLICY (CRITICAL)**
 
-**This project uses styled-components with EMPTY templates. The developer provides all CSS.**
+**This project uses Tailwind CSS for all styling.**
 
-- ✅ **DO**: Keep styled-component declarations with empty templates: ` styled.div` ``
+- ✅ **DO**: Use Tailwind utility classes in className props
+- ✅ **DO**: Follow Tailwind conventions for responsive design (md:, lg:, etc.)
 - ✅ **DO**: Preserve component structure, props, and data-testid attributes
-- ❌ **DON'T**: Add CSS to styled-components or use inline `style={{}}` props
-- ❌ **DON'T**: Suggest CSS frameworks or create new CSS files
+- ❌ **DON'T**: Create styled-components (project no longer uses them)
+- ❌ **DON'T**: Use inline `style={{}}` props unless absolutely necessary
+- ❌ **DON'T**: Create custom CSS files or suggest other CSS frameworks
 
 **See `ai-docs/STYLING_APPROACH.md` for complete details.**
 
@@ -261,8 +263,8 @@ When server issues arise:
 ### Technical Choices
 
 1. **Monorepo Structure**: Single repo with backend/frontend separation
-2. **JavaScript over TypeScript**: For backend simplicity initially
-3. **Styled Components**: Chosen over Tailwind CSS for frontend
+2. **TypeScript**: Used throughout backend and frontend
+3. **Tailwind CSS**: Utility-first CSS framework for consistent, rapid UI development
 4. **Express 5.x**: Latest stable version
 5. **JSON-Only API**: Strict content negotiation for API endpoints
 
@@ -277,10 +279,8 @@ When server issues arise:
 
 ### Avoided Technologies
 
-- **TypeScript**: Not used in backend initially (caused complexity)
-- **Tailwind CSS**: Replaced with Styled Components
-- **pnpm**: Caused ESLint conflicts, stick with npm
-- **Complex ORMs**: Keep database layer simple
+- **Styled-components**: Migrated to Tailwind CSS for better DX
+- **Complex ORMs**: Keep database layer simple with Prisma
 
 ## Future Development Guidelines
 

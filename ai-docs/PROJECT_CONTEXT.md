@@ -16,7 +16,7 @@ A **production-grade, full-stack family chores management application** designed
 - ✅ **Passwordless Authentication**: Magic links + optional WebAuthn support
 - ✅ **Real Database**: SQLite with Prisma ORM (not mock data)
 - ✅ **Type-Safe**: Full TypeScript across frontend and backend
-- ✅ **Modern Stack**: React 19, Express 5, Prisma, Styled Components
+- ✅ **Modern Stack**: React 19, Express 5, Prisma, Tailwind CSS
 - ✅ **Monorepo**: pnpm workspace with backend + frontend
 
 **This is NOT a toy project** - it follows professional development standards suitable for production deployment.
@@ -39,7 +39,7 @@ A **production-grade, full-stack family chores management application** designed
 #### Frontend
 
 - **Framework**: React 19.1 with TypeScript
-- **Styling**: Styled Components (empty templates - user adds CSS)
+- **Styling**: Tailwind CSS (utility-first framework)
 - **Routing**: React Router v6
 - **State**: Context API for auth
 - **Testing**: Jest + React Testing Library (11 tests, 85%+ coverage)
@@ -325,24 +325,24 @@ chores/
 
 ## 🎨 **Styling Approach**
 
-### **Critical: Empty Styled Components**
+### **Critical: Tailwind CSS Only**
 
-The project uses **styled-components with EMPTY templates**:
+The project uses **Tailwind CSS** for all styling:
 
-```typescript
-// ✅ CORRECT - Empty styled component
+```tsx
+// ✅ CORRECT - Tailwind utility classes
+;<button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+  Click me
+</button>
+
+// ❌ WRONG - Do NOT create styled-components
 const Button = styled.button``
-
-// ❌ WRONG - DO NOT add CSS
-const Button = styled.button`
-  color: blue;
-`
 ```
 
-**Why?** The developer (staff-level frontend engineer) adds CSS manually. AI agents should:
+**Why?** Tailwind provides rapid, consistent UI development with utility classes. AI agents should:
 
-- ✅ Create styled component declarations with empty templates
-- ✅ Preserve existing component structure
+- ✅ Use Tailwind utility classes in className props
+- ✅ Follow responsive design patterns (md:, lg:, etc.)
 - ✅ Keep data-testid attributes
 - ❌ Never add CSS styles
 - ❌ Never use inline styles or CSS frameworks
@@ -518,8 +518,8 @@ d514557 Finish TS updates
 
 ### **5. Respect the Styling Approach**
 
-- Never add CSS to styled-components
-- Keep empty template backticks
+- Use Tailwind utility classes for all styling
+- Do NOT create styled-components (project has migrated away)
 - Preserve data-testid attributes
 - Don't suggest CSS frameworks
 

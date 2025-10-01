@@ -94,11 +94,12 @@ api.completeAssignment(id)
 
 ## 🎨 Styling Approach
 
-All components follow the **empty styled-components** pattern:
+All components use **Tailwind CSS** for styling:
 
-```typescript
-const Container = styled.div``
-const Button = styled.button``
+```tsx
+<div className="container mx-auto px-4">
+  <button className="px-4 py-2 bg-blue-500 text-white rounded">Click me</button>
+</div>
 ```
 
 No CSS is included - you have full control to add your custom styles.

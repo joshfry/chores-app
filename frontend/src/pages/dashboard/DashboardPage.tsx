@@ -140,15 +140,12 @@ const DashboardPage: React.FC = () => {
             Assignment Completion
           </h3>
           <div className="mb-2">
-            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-              <div
-                className="bg-blue-600 h-full transition-all duration-300"
-                style={{
-                  width: `${(stats.completedAssignments / stats.totalAssignments) * 100}%`,
-                }}
-                data-testid="assignment-progress-bar"
-              />
-            </div>
+            <progress
+              className="w-full h-4 [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-value]:bg-blue-600 [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:bg-blue-600"
+              value={stats.completedAssignments}
+              max={stats.totalAssignments}
+              data-testid="assignment-progress-bar"
+            />
           </div>
           <div className="text-sm text-gray-600" data-testid="progress-label">
             {stats.completedAssignments} of {stats.totalAssignments} assignments

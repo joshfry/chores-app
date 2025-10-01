@@ -705,7 +705,7 @@ if (user.role !== 'parent') {
 
 - **Framework**: React 18 with TypeScript
 - **Routing**: React Router v6
-- **Styling**: Styled Components (empty templates, CSS added separately)
+- **Styling**: Tailwind CSS (utility-first framework)
 - **State**: React Context API (`AuthContext`)
 - **API Client**: Axios wrapper (`services/api.ts`)
 

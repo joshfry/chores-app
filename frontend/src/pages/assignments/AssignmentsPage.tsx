@@ -1,51 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { Assignment, Chore, User } from '../../types/api'
 import CreateAssignmentModal from './CreateAssignmentModal'
 import EditAssignmentModal from './EditAssignmentModal'
 import ConfirmDialog from '../../components/ConfirmDialog'
-
-const Container = styled.div``
-
-const Header = styled.div``
-
-const Title = styled.h1``
-
-const Filters = styled.div``
-
-const Select = styled.select``
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>``
-
-const Card = styled.div``
-
-const Table = styled.table``
-
-const Thead = styled.thead``
-
-const Tbody = styled.tbody``
-
-const Tr = styled.tr``
-
-const Th = styled.th``
-
-const Td = styled.td``
-
-const ChoreStatus = styled.span<{
-  $status: 'pending' | 'completed' | 'skipped'
-}>``
-
-const ActionButtons = styled.div``
-
-const ChoreTable = styled.table``
-
-const LoadingCard = styled(Card)``
-
-const ErrorCard = styled(Card)``
-
-const EmptyState = styled.div``
 
 const AssignmentsPage: React.FC = () => {
   const { state } = useAuth()
@@ -204,37 +163,48 @@ const AssignmentsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container data-testid="assignments-page">
-        <LoadingCard>Loading assignments...</LoadingCard>
-      </Container>
+      <div className="p-6" data-testid="assignments-page">
+        <div className="bg-white rounded-lg shadow p-6 text-center">
+          Loading assignments...
+        </div>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <Container data-testid="assignments-page">
-        <ErrorCard>
-          <div>Error: {error}</div>
-          <Button onClick={fetchData}>Retry</Button>
-        </ErrorCard>
-      </Container>
+      <div className="p-6" data-testid="assignments-page">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="text-red-600 mb-4">Error: {error}</div>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     )
   }
 
   return (
-    <Container data-testid="assignments-page">
-      <Header data-testid="assignments-header">
-        <Title>
+    <div className="p-6" data-testid="assignments-page">
+      <div
+        className="flex items-center justify-between mb-6"
+        data-testid="assignments-header"
+      >
+        <h1 className="text-2xl font-bold text-gray-900">
           {state.user?.role === 'child'
             ? 'My Assignments'
             : 'Weekly Assignments'}
-        </Title>
-        <Filters>
+        </h1>
+        <div className="flex items-center gap-3">
           {/* Only show filter dropdown for parents */}
           {state.user?.role === 'parent' && (
-            <Select
+            <select
               value={childFilter}
               onChange={(e) => setChildFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             >
               <option value="all">All Children</option>
               {children.map((child) => (
@@ -242,176 +212,216 @@ const AssignmentsPage: React.FC = () => {
                   {child.name}
                 </option>
               ))}
-            </Select>
+            </select>
           )}
 
           {state.user?.role === 'parent' && (
-            <Button
+            <button
               onClick={() => setIsCreateModalOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               data-testid="create-assignment-button"
             >
               Create Assignment
-            </Button>
+            </button>
           )}
-        </Filters>
-      </Header>
+        </div>
+      </div>
 
       {filteredAssignments.length === 0 ? (
-        <EmptyState data-testid="assignments-empty-state">
-          <div className="icon">📋</div>
-          <div className="title">No assignments found</div>
-          <div className="subtitle">
+        <div
+          className="text-center py-12 bg-white rounded-lg shadow"
+          data-testid="assignments-empty-state"
+        >
+          <div className="text-6xl mb-4">📋</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            No assignments found
+          </h3>
+          <p className="text-gray-600 mb-6">
             {assignments.length === 0
               ? 'Create weekly assignments to track chore completion.'
               : 'No assignments match your current filters.'}
-          </div>
+          </p>
           {state.user?.role === 'parent' && assignments.length === 0 && (
-            <Button
+            <button
               onClick={() => setIsCreateModalOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               data-testid="create-first-assignment-button"
             >
               Create Your First Assignment
-            </Button>
+            </button>
           )}
-        </EmptyState>
+        </div>
       ) : (
-        <Table data-testid="assignments-table">
-          <Thead>
-            <Tr>
-              <Th>Child</Th>
-              <Th>Week</Th>
-              <Th>Chores</Th>
-              <Th>Status</Th>
-              <Th>Notes</Th>
-              {state.user?.role === 'parent' && <Th>Actions</Th>}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {filteredAssignments.map((assignment) => {
-              const child = getUserById(assignment.childId)
-              const endDate = assignment.endDate || 'Ongoing'
-              const totalChores = assignment.chores?.length || 0
-              const completedChores =
-                assignment.chores?.filter((c) => c.status === 'completed')
-                  .length || 0
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full" data-testid="assignments-table">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Child
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Week
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Chores
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Notes
+                </th>
+                {state.user?.role === 'parent' && (
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredAssignments.map((assignment) => {
+                const child = getUserById(assignment.childId)
+                const endDate = assignment.endDate || 'Ongoing'
+                const totalChores = assignment.chores?.length || 0
+                const completedChores =
+                  assignment.chores?.filter((c) => c.status === 'completed')
+                    .length || 0
 
-              return (
-                <Tr key={assignment.id} data-testid="assignment-row">
-                  <Td data-testid="assignment-child-name">
-                    {child?.name || 'Unknown'}
-                  </Td>
-                  <Td>
-                    {formatDate(assignment.startDate)} -{' '}
-                    {endDate !== 'Ongoing' ? formatDate(endDate) : endDate}
-                  </Td>
-                  <Td>
-                    <ChoreTable>
-                      <Tbody>
-                        {assignment.chores?.map((assignmentChore) => (
-                          <Tr key={assignmentChore.id} data-testid="chore-item">
-                            <Td>
-                              {assignmentChore.chore?.title || 'Unknown Chore'}
-                              {assignmentChore.chore?.recurrenceDays &&
-                                assignmentChore.chore.recurrenceDays.length >
-                                  0 && (
-                                  <span
-                                    style={{ fontSize: '0.85em', opacity: 0.7 }}
-                                  >
-                                    {' '}
-                                    (
-                                    {assignmentChore.chore.recurrenceDays.join(
-                                      ', ',
-                                    )}
-                                    )
-                                  </span>
-                                )}
-                            </Td>
-                            <Td>
-                              <ChoreStatus
-                                $status={assignmentChore.status}
-                                data-testid="chore-status"
-                              >
-                                {assignmentChore.status}
-                              </ChoreStatus>
-                            </Td>
-                            <Td>
-                              {(state.user?.role === 'parent' ||
-                                (state.user?.role === 'child' &&
-                                  assignment.childId === state.user.id)) && (
-                                <>
-                                  <Button
-                                    variant="secondary"
-                                    onClick={() =>
-                                      handleToggleChoreStatus(
-                                        assignment.id,
-                                        assignmentChore.choreId,
-                                        assignmentChore.status,
+                return (
+                  <tr
+                    key={assignment.id}
+                    className="hover:bg-gray-50 transition-colors"
+                    data-testid="assignment-row"
+                  >
+                    <td
+                      className="px-6 py-4 font-medium text-gray-900"
+                      data-testid="assignment-child-name"
+                    >
+                      {child?.name || 'Unknown'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {formatDate(assignment.startDate)} -{' '}
+                      {endDate !== 'Ongoing' ? formatDate(endDate) : endDate}
+                    </td>
+                    <td className="px-6 py-4">
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {assignment.chores?.map((assignmentChore) => (
+                            <tr
+                              key={assignmentChore.id}
+                              className="border-b last:border-0"
+                              data-testid="chore-item"
+                            >
+                              <td className="py-1 pr-2">
+                                {assignmentChore.chore?.title ||
+                                  'Unknown Chore'}
+                                {assignmentChore.chore?.recurrenceDays &&
+                                  assignmentChore.chore.recurrenceDays.length >
+                                    0 && (
+                                    <span className="text-xs text-gray-500 ml-1">
+                                      (
+                                      {assignmentChore.chore.recurrenceDays.join(
+                                        ', ',
+                                      )}
                                       )
-                                    }
-                                    data-testid="toggle-chore-button"
-                                  >
-                                    {assignmentChore.status === 'completed'
-                                      ? '✗'
-                                      : '✓'}
-                                  </Button>
-                                  {state.user?.role === 'parent' && (
-                                    <Button
-                                      variant="secondary"
+                                    </span>
+                                  )}
+                              </td>
+                              <td className="py-1 px-2 text-center">
+                                <span
+                                  className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                    assignmentChore.status === 'completed'
+                                      ? 'bg-green-100 text-green-800'
+                                      : assignmentChore.status === 'skipped'
+                                        ? 'bg-gray-100 text-gray-800'
+                                        : 'bg-yellow-100 text-yellow-800'
+                                  }`}
+                                  data-testid="chore-status"
+                                >
+                                  {assignmentChore.status}
+                                </span>
+                              </td>
+                              <td className="py-1 pl-2 text-right">
+                                {(state.user?.role === 'parent' ||
+                                  (state.user?.role === 'child' &&
+                                    assignment.childId === state.user.id)) && (
+                                  <div className="flex gap-1 justify-end">
+                                    <button
                                       onClick={() =>
-                                        handleRemoveChoreFromAssignment(
-                                          assignment,
+                                        handleToggleChoreStatus(
+                                          assignment.id,
                                           assignmentChore.choreId,
+                                          assignmentChore.status,
                                         )
                                       }
-                                      data-testid="remove-chore-button"
-                                      title="Remove chore from assignment"
+                                      className="px-2 py-0.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                                      data-testid="toggle-chore-button"
                                     >
-                                      🗑️
-                                    </Button>
-                                  )}
-                                </>
-                              )}
-                            </Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </ChoreTable>
-                  </Td>
-                  <Td>
-                    {completedChores}/{totalChores} completed
-                  </Td>
-                  <Td>{assignment.notes || '-'}</Td>
-                  {state.user?.role === 'parent' && (
-                    <Td>
-                      <ActionButtons>
-                        <Button
-                          variant="secondary"
-                          data-testid="edit-assignment-button"
-                          onClick={() => {
-                            setSelectedAssignment(assignment)
-                            setIsEditModalOpen(true)
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          data-testid="delete-assignment-button"
-                          onClick={() => {
-                            setSelectedAssignment(assignment)
-                            setIsDeleteDialogOpen(true)
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </ActionButtons>
-                    </Td>
-                  )}
-                </Tr>
-              )
-            })}
-          </Tbody>
-        </Table>
+                                      {assignmentChore.status === 'completed'
+                                        ? '✗'
+                                        : '✓'}
+                                    </button>
+                                    {state.user?.role === 'parent' && (
+                                      <button
+                                        onClick={() =>
+                                          handleRemoveChoreFromAssignment(
+                                            assignment,
+                                            assignmentChore.choreId,
+                                          )
+                                        }
+                                        className="px-2 py-0.5 text-xs border border-red-300 rounded hover:bg-red-50 transition-colors"
+                                        data-testid="remove-chore-button"
+                                        title="Remove chore from assignment"
+                                      >
+                                        🗑️
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {completedChores}/{totalChores} completed
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {assignment.notes || '-'}
+                    </td>
+                    {state.user?.role === 'parent' && (
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setSelectedAssignment(assignment)
+                              setIsEditModalOpen(true)
+                            }}
+                            className="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                            data-testid="edit-assignment-button"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedAssignment(assignment)
+                              setIsDeleteDialogOpen(true)
+                            }}
+                            className="px-3 py-1 text-sm border border-red-300 rounded-md text-red-700 hover:bg-red-50 transition-colors"
+                            data-testid="delete-assignment-button"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <CreateAssignmentModal
@@ -446,7 +456,7 @@ const AssignmentsPage: React.FC = () => {
         confirmText="Delete"
         cancelText="Cancel"
       />
-    </Container>
+    </div>
   )
 }
 

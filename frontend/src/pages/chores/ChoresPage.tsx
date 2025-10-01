@@ -1,45 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import type { Chore } from '../../types/api'
 import CreateChoreModal from './CreateChoreModal'
 import EditChoreModal from './EditChoreModal'
 import ConfirmDialog from '../../components/ConfirmDialog'
-
-const Container = styled.div``
-
-const Header = styled.div``
-
-const Title = styled.h1``
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>``
-
-const Grid = styled.div``
-
-const ChoreCard = styled.div``
-
-const ChoreHeader = styled.div``
-
-const ChoreTitle = styled.h3``
-
-const ChoreDescription = styled.p``
-
-const ChoreFooter = styled.div``
-
-const ChoreStats = styled.div``
-
-const Badge = styled.span<{
-  variant: 'easy' | 'medium' | 'hard' | 'recurring' | 'one-time'
-}>``
-
-const Actions = styled.div``
-
-const LoadingCard = styled(ChoreCard)``
-
-const ErrorCard = styled(ChoreCard)``
-
-const EmptyState = styled.div``
 
 const ChoresPage: React.FC = () => {
   const { state } = useAuth()
@@ -108,125 +73,159 @@ const ChoresPage: React.FC = () => {
     setSelectedChore(null)
   }
 
+  const getDifficultyBadgeClasses = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-700'
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-700'
+      case 'hard':
+        return 'bg-red-100 text-red-700'
+      default:
+        return 'bg-gray-100 text-gray-700'
+    }
+  }
+
   if (isLoading) {
     return (
-      <Container data-testid="chores-page">
-        <Header>
-          <Title>Chores</Title>
-        </Header>
-        <Grid>
-          <LoadingCard>Loading chores...</LoadingCard>
-        </Grid>
-      </Container>
+      <div data-testid="chores-page">
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="text-gray-600">Loading chores...</div>
+        </div>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <Container data-testid="chores-page">
-        <Header>
-          <Title>Chores</Title>
-        </Header>
-        <Grid>
-          <ErrorCard>
-            <div>Error: {error}</div>
-            <Button onClick={fetchChores}>Retry</Button>
-          </ErrorCard>
-        </Grid>
-      </Container>
+      <div data-testid="chores-page">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="text-red-700 mb-4">Error: {error}</div>
+          <button
+            onClick={fetchChores}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     )
   }
 
   return (
-    <Container data-testid="chores-page">
-      <Header>
-        <Title>Chores</Title>
+    <div data-testid="chores-page">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Chores</h1>
         {state.user?.role === 'parent' && (
-          <Button
+          <button
             onClick={() => setIsCreateModalOpen(true)}
             data-testid="add-chore-button"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Create New Chore
-          </Button>
+          </button>
         )}
-      </Header>
+      </div>
 
-      <Grid>
+      {/* Chores Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {chores.length === 0 ? (
-          <EmptyState>
-            <div className="icon">✅</div>
-            <div className="title">No chores created yet</div>
-            <div className="subtitle">
+          <div className="col-span-full bg-white rounded-lg shadow p-12 text-center">
+            <div className="text-6xl mb-4">✅</div>
+            <div className="text-xl font-semibold text-gray-900 mb-2">
+              No chores created yet
+            </div>
+            <div className="text-gray-600 mb-6">
               Create your first chore to start managing family tasks.
             </div>
             {state.user?.role === 'parent' && (
-              <Button
+              <button
                 onClick={() => setIsCreateModalOpen(true)}
                 data-testid="add-first-chore-button"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Create Your First Chore
-              </Button>
+              </button>
             )}
-          </EmptyState>
+          </div>
         ) : (
           chores.map((chore) => (
-            <ChoreCard key={chore.id} data-testid="chore-card">
-              <ChoreHeader>
-                <div>
-                  <ChoreTitle data-testid="chore-title">
-                    {chore.title}
-                  </ChoreTitle>
-                  <ChoreStats>
-                    <Badge variant={chore.difficulty}>{chore.difficulty}</Badge>
-                    <span>•</span>
-                    <Badge
-                      variant={chore.isRecurring ? 'recurring' : 'one-time'}
-                    >
-                      {chore.isRecurring ? 'Recurring' : 'One-time'}
-                    </Badge>
-                  </ChoreStats>
+            <div
+              key={chore.id}
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+              data-testid="chore-card"
+            >
+              {/* Chore Header */}
+              <div className="mb-4">
+                <h3
+                  className="text-lg font-semibold text-gray-900 mb-2"
+                  data-testid="chore-title"
+                >
+                  {chore.title}
+                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getDifficultyBadgeClasses(chore.difficulty)}`}
+                  >
+                    {chore.difficulty}
+                  </span>
+                  <span className="text-gray-400">•</span>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      chore.isRecurring
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {chore.isRecurring ? 'Recurring' : 'One-time'}
+                  </span>
                 </div>
-              </ChoreHeader>
+              </div>
 
-              <ChoreDescription>{chore.description}</ChoreDescription>
+              {/* Chore Description */}
+              <p className="text-gray-600 text-sm mb-4">{chore.description}</p>
 
-              <ChoreFooter>
-                <ChoreStats>
-                  {chore.isRecurring &&
-                    chore.recurrenceDays &&
-                    chore.recurrenceDays.length > 0 && (
-                      <span>Days: {chore.recurrenceDays.join(', ')}</span>
-                    )}
-                </ChoreStats>
-              </ChoreFooter>
+              {/* Recurrence Days */}
+              {chore.isRecurring &&
+                chore.recurrenceDays &&
+                chore.recurrenceDays.length > 0 && (
+                  <div className="mb-4 text-sm text-gray-600">
+                    <span className="font-medium">Days:</span>{' '}
+                    {chore.recurrenceDays.join(', ')}
+                  </div>
+                )}
 
+              {/* Actions */}
               {state.user?.role === 'parent' && (
-                <Actions>
-                  <Button
-                    variant="secondary"
+                <div className="flex gap-2 pt-4 border-t border-gray-200">
+                  <button
                     onClick={() => {
                       setSelectedChore(chore)
                       setIsEditModalOpen(true)
                     }}
+                    className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                   >
                     Edit
-                  </Button>
-                  <Button
-                    variant="secondary"
+                  </button>
+                  <button
                     onClick={() => {
                       setSelectedChore(chore)
                       setIsDeleteDialogOpen(true)
                     }}
+                    className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                   >
                     Delete
-                  </Button>
-                </Actions>
+                  </button>
+                </div>
               )}
-            </ChoreCard>
+            </div>
           ))
         )}
-      </Grid>
+      </div>
 
+      {/* Modals */}
       <CreateChoreModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -255,7 +254,7 @@ const ChoresPage: React.FC = () => {
         confirmText="Delete"
         cancelText="Cancel"
       />
-    </Container>
+    </div>
   )
 }
 

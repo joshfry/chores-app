@@ -1,29 +1,6 @@
 import React, { useState } from 'react'
-import styled from 'styled-components'
 import Modal from '../../components/Modal'
 import RecurrenceDaysSelector from './RecurrenceDaysSelector'
-
-const Form = styled.form``
-
-const FormGroup = styled.div``
-
-const Label = styled.label``
-
-const Input = styled.input``
-
-const Textarea = styled.textarea``
-
-const Select = styled.select``
-
-const Checkbox = styled.input``
-
-const CheckboxLabel = styled.label``
-
-const ErrorMessage = styled.div``
-
-const ButtonGroup = styled.div``
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>``
 
 interface CreateChoreModalProps {
   isOpen: boolean
@@ -97,24 +74,25 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
   }
 
   const footer = (
-    <ButtonGroup>
-      <Button
+    <div className="flex gap-3 justify-end">
+      <button
         type="button"
-        variant="secondary"
         onClick={onClose}
+        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
         data-testid="cancel-button"
       >
         Cancel
-      </Button>
-      <Button
+      </button>
+      <button
         type="submit"
         form="create-chore-form"
         disabled={isSubmitting || !formData.title}
+        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         data-testid="submit-button"
       >
         {isSubmitting ? 'Creating...' : 'Create Chore'}
-      </Button>
-    </ButtonGroup>
+      </button>
+    </div>
   )
 
   return (
@@ -124,76 +102,108 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
       title="Create Chore"
       footer={footer}
     >
-      <Form id="create-chore-form" onSubmit={handleSubmit}>
+      <form
+        id="create-chore-form"
+        onSubmit={handleSubmit}
+        className="space-y-4"
+      >
         {error && (
-          <ErrorMessage data-testid="error-message">{error}</ErrorMessage>
+          <div
+            className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm"
+            data-testid="error-message"
+          >
+            {error}
+          </div>
         )}
 
-        <FormGroup>
-          <Label htmlFor="title">Title *</Label>
-          <Input
+        <div>
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Title *
+          </label>
+          <input
             id="title"
             name="title"
             type="text"
             value={formData.title}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="title-input"
           />
-        </FormGroup>
+        </div>
 
-        <FormGroup>
-          <Label htmlFor="description">Description</Label>
-          <Textarea
+        <div>
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Description
+          </label>
+          <textarea
             id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="description-input"
           />
-        </FormGroup>
+        </div>
 
-        <FormGroup>
-          <Label htmlFor="difficulty">Difficulty *</Label>
-          <Select
+        <div>
+          <label
+            htmlFor="difficulty"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Difficulty *
+          </label>
+          <select
             id="difficulty"
             name="difficulty"
             value={formData.difficulty}
             onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="difficulty-select"
           >
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
-          </Select>
-        </FormGroup>
+          </select>
+        </div>
 
-        <FormGroup>
-          <CheckboxLabel>
-            <Checkbox
+        <div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
               type="checkbox"
               name="isRecurring"
               checked={formData.isRecurring}
               onChange={handleChange}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               data-testid="recurring-checkbox"
             />
-            Recurring Chore
-          </CheckboxLabel>
-        </FormGroup>
+            <span className="text-sm font-medium text-gray-700">
+              Recurring Chore
+            </span>
+          </label>
+        </div>
 
         {formData.isRecurring && (
-          <FormGroup>
-            <Label>Recurrence Days</Label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Recurrence Days
+            </label>
             <RecurrenceDaysSelector
               selectedDays={formData.recurrenceDays}
               onChange={(days) =>
                 setFormData((prev) => ({ ...prev, recurrenceDays: days }))
               }
             />
-          </FormGroup>
+          </div>
         )}
-      </Form>
+      </form>
     </Modal>
   )
 }

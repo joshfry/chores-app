@@ -1,21 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
 import Modal from '../../components/Modal'
 import type { User } from '../../types/api'
-
-const Form = styled.form``
-
-const FormGroup = styled.div``
-
-const Label = styled.label``
-
-const Input = styled.input``
-
-const ErrorMessage = styled.div``
-
-const ButtonGroup = styled.div``
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>``
 
 interface EditUserModalProps {
   isOpen: boolean
@@ -77,58 +62,76 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   }
 
   const footer = (
-    <ButtonGroup>
-      <Button
+    <div className="flex gap-3 justify-end">
+      <button
         type="button"
-        variant="secondary"
         onClick={onClose}
+        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
         data-testid="cancel-button"
       >
         Cancel
-      </Button>
-      <Button
+      </button>
+      <button
         type="submit"
         form="edit-user-form"
         disabled={isSubmitting || !formData.name}
+        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         data-testid="submit-button"
       >
         {isSubmitting ? 'Saving...' : 'Save Changes'}
-      </Button>
-    </ButtonGroup>
+      </button>
+    </div>
   )
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit User" footer={footer}>
-      <Form id="edit-user-form" onSubmit={handleSubmit}>
+      <form id="edit-user-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <ErrorMessage data-testid="error-message">{error}</ErrorMessage>
+          <div
+            className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm"
+            data-testid="error-message"
+          >
+            {error}
+          </div>
         )}
 
-        <FormGroup>
-          <Label htmlFor="name">Name *</Label>
-          <Input
+        <div>
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Name *
+          </label>
+          <input
             id="name"
             name="name"
             type="text"
             value={formData.name}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="name-input"
           />
-        </FormGroup>
+        </div>
 
-        <FormGroup>
-          <Label htmlFor="birthdate">Birthdate</Label>
-          <Input
+        <div>
+          <label
+            htmlFor="birthdate"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Birthdate
+          </label>
+          <input
             id="birthdate"
             name="birthdate"
             type="date"
             value={formData.birthdate}
             onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="birthdate-input"
           />
-        </FormGroup>
-      </Form>
+        </div>
+      </form>
     </Modal>
   )
 }

@@ -1,31 +1,6 @@
 import React, { useState } from 'react'
-import styled from 'styled-components'
 import Modal from '../../components/Modal'
 import type { User, Chore } from '../../types/api'
-
-const Form = styled.form``
-
-const FormGroup = styled.div``
-
-const Label = styled.label``
-
-const Input = styled.input``
-
-const Select = styled.select``
-
-const Textarea = styled.textarea``
-
-const ChoresList = styled.div``
-
-const ChoreCheckbox = styled.label``
-
-const Checkbox = styled.input``
-
-const ErrorMessage = styled.div``
-
-const ButtonGroup = styled.div``
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>``
 
 interface CreateAssignmentModalProps {
   isOpen: boolean
@@ -112,16 +87,16 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
   }
 
   const footer = (
-    <ButtonGroup>
-      <Button
+    <div className="flex gap-3 justify-end">
+      <button
         type="button"
-        variant="secondary"
         onClick={onClose}
+        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
         data-testid="cancel-button"
       >
         Cancel
-      </Button>
-      <Button
+      </button>
+      <button
         type="submit"
         form="create-assignment-form"
         disabled={
@@ -130,11 +105,12 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
           !formData.startDate ||
           formData.choreIds.length === 0
         }
+        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         data-testid="submit-button"
       >
         {isSubmitting ? 'Creating...' : 'Create Assignment'}
-      </Button>
-    </ButtonGroup>
+      </button>
+    </div>
   )
 
   return (
@@ -144,19 +120,34 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
       title="Create Weekly Assignment"
       footer={footer}
     >
-      <Form id="create-assignment-form" onSubmit={handleSubmit}>
+      <form
+        id="create-assignment-form"
+        onSubmit={handleSubmit}
+        className="space-y-4"
+      >
         {error && (
-          <ErrorMessage data-testid="error-message">{error}</ErrorMessage>
+          <div
+            className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm"
+            data-testid="error-message"
+          >
+            {error}
+          </div>
         )}
 
-        <FormGroup>
-          <Label htmlFor="childId">Assign To *</Label>
-          <Select
+        <div>
+          <label
+            htmlFor="childId"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Assign To *
+          </label>
+          <select
             id="childId"
             name="childId"
             value={formData.childId}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="child-select"
           >
             <option value="">Select a child</option>
@@ -165,58 +156,79 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
                 {child.name}
               </option>
             ))}
-          </Select>
-        </FormGroup>
+          </select>
+        </div>
 
-        <FormGroup>
-          <Label htmlFor="startDate">Start Date (Sunday) *</Label>
-          <Input
+        <div>
+          <label
+            htmlFor="startDate"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Start Date (Sunday) *
+          </label>
+          <input
             id="startDate"
             name="startDate"
             type="date"
             value={formData.startDate}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="start-date-input"
           />
-        </FormGroup>
+        </div>
 
-        <FormGroup>
-          <Label>Select Chores *</Label>
-          <ChoresList>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select Chores *
+          </label>
+          <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-3">
             {chores.map((chore) => (
-              <ChoreCheckbox key={chore.id} data-testid={`chore-${chore.id}`}>
-                <Checkbox
+              <label
+                key={chore.id}
+                className="flex items-start gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
+                data-testid={`chore-${chore.id}`}
+              >
+                <input
                   type="checkbox"
                   checked={formData.choreIds.includes(chore.id)}
                   onChange={() => handleChoreToggle(chore.id)}
+                  className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   data-testid={`checkbox-${chore.id}`}
                 />
-                <span>
+                <span className="text-sm text-gray-700">
                   {chore.title}
                   {chore.isRecurring &&
                     chore.recurrenceDays &&
                     chore.recurrenceDays.length > 0 && (
-                      <span> ({chore.recurrenceDays.join(', ')})</span>
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({chore.recurrenceDays.join(', ')})
+                      </span>
                     )}
                 </span>
-              </ChoreCheckbox>
+              </label>
             ))}
-          </ChoresList>
-        </FormGroup>
+          </div>
+        </div>
 
-        <FormGroup>
-          <Label htmlFor="notes">Notes</Label>
-          <Textarea
+        <div>
+          <label
+            htmlFor="notes"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Notes
+          </label>
+          <textarea
             id="notes"
             name="notes"
             value={formData.notes}
             onChange={handleChange}
             rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="notes-input"
           />
-        </FormGroup>
-      </Form>
+        </div>
+      </form>
     </Modal>
   )
 }
