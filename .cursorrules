@@ -129,11 +129,16 @@ chores/
 
 ### Git Standards
 
+**CRITICAL: All AI agents MUST follow this commit format.**
+
 - **Commit Format**: `(<Agent Name>): <Short, clear summary of work>`
   - Example: `(DEV): Add db:push npm script for Render deployment`
   - Example: `(DEV): Fix assignment creation validation`
   - Example: `(DEV): Document npm scripts and deployment standards`
-  - **Agent Name**: Use `DEV` for AI assistant commits, or your name for manual commits
+  - **Agent Name**: 
+    - Use `DEV` for AI assistant commits (Claude, GPT, etc.)
+    - Use your actual name for manual commits (e.g., `(Josh):`)
+  - **ALL AI agents working on this project MUST use this format**
 - **Branches**: Use feature branches for new functionality
 - **Ignore**: Comprehensive `.gitignore` for Node.js, React, and databases
 
