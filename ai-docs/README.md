@@ -37,8 +37,10 @@ This folder contains all documentation specifically designed to help AI agents w
 
 ### **Setup & Configuration**
 
+- [`SETUP.md`](./SETUP.md) - Complete setup guide (linting, formatting, CI/CD)
 - [`EMAIL_SETUP.md`](./EMAIL_SETUP.md) - Email configuration guide (Gmail, AWS SES, etc.)
 - [`GMAIL_QUICK_SETUP.md`](./GMAIL_QUICK_SETUP.md) - 5-minute Gmail setup guide
+- [`GIT_STANDARDS.md`](./GIT_STANDARDS.md) - **Git commit message format (REQUIRED)**
 
 ### **Deployment & Operations**
 
