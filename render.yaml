@@ -71,4 +71,3 @@ databases:
     databaseName: family_chores
     user: family_chores_user
     plan: free
-
