@@ -124,6 +124,9 @@ importers:
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
+      ajv:
+        specifier: ^8.12.0
+        version: 8.17.1
       axios:
         specifier: ^1.12.2
         version: 1.12.2
