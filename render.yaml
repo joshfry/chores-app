@@ -1,0 +1,74 @@
+# Render.com Blueprint for Family Chores App
+# This file defines the infrastructure for deploying the full-stack app
+
+services:
+  # Backend API Service
+  - type: web
+    name: family-chores-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install && npx prisma generate && npm run build
+    startCommand: cd backend && npx prisma migrate deploy && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        fromDatabase:
+          name: family-chores-db
+          property: connectionString
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: family-chores-frontend
+          property: host
+      - key: EMAIL_SERVICE
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_FROM_NAME
+        value: Family Chores
+      - key: EMAIL_FROM
+        sync: false
+
+  # Frontend Web Service
+  - type: web
+    name: family-chores-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm install && REACT_APP_API_URL=$BACKEND_URL npm run build
+    staticPublishPath: ./frontend/build
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-XSS-Protection
+        value: 1; mode=block
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: family-chores-backend
+          property: host
+
+# Database (PostgreSQL for production - better than SQLite)
+databases:
+  - name: family-chores-db
+    databaseName: family_chores
+    user: family_chores_user
+    plan: free
+

@@ -16,7 +16,9 @@ class ApiClient {
   private client: AxiosInstance
   private sessionToken: string | null = null
 
-  constructor(baseURL: string = 'http://localhost:3001') {
+  constructor(
+    baseURL: string = process.env.REACT_APP_API_URL || 'http://localhost:3001',
+  ) {
     this.client = axios.create({
       baseURL,
       headers: {
