@@ -31,6 +31,11 @@ This folder contains all documentation specifically designed to help AI agents w
 - [`ASSIGNMENT_REDESIGN_STATUS.md`](./ASSIGNMENT_REDESIGN_STATUS.md) - Assignment redesign progress
 - [`ASSIGNMENT_REDESIGN_COMPLETE.md`](./ASSIGNMENT_REDESIGN_COMPLETE.md) - ✅ Redesign completion summary
 
+### **Setup & Configuration**
+
+- [`EMAIL_SETUP.md`](./EMAIL_SETUP.md) - Email configuration guide (Gmail, AWS SES, etc.)
+- [`GMAIL_QUICK_SETUP.md`](./GMAIL_QUICK_SETUP.md) - 5-minute Gmail setup guide
+
 ## 🎯 Reading Strategy
 
 **For most tasks:** Start with `.agent-notes.md`, `PROJECT_CONTEXT.md`, and `QUICK_STANDARDS.md`  
