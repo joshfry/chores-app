@@ -9,6 +9,7 @@ const DashboardPage: React.FC = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [stats, setStats] = useState<DashboardStats | null>(null)
 
   useEffect(() => {
@@ -65,14 +66,6 @@ const DashboardPage: React.FC = () => {
   const activeUsers = users.filter((user) => user.isActive)
   const children = activeUsers.filter((user) => user.role === 'child')
 
-  // Filter assignments for children - only show their own
-  const filteredAssignments =
-    state.user?.role === 'child' && state.user.id
-      ? assignments.filter(
-          (assignment) => assignment.childId === state.user!.id,
-        )
-      : assignments
-
   return (
     <div className="space-y-6">
       {/* Welcome Card */}
@@ -120,9 +113,6 @@ const DashboardPage: React.FC = () => {
                   }
                 })
               })
-
-              // Calculate remaining chores (not completed)
-              const remainingChores = totalChores - completedChores
 
               const completionPercentage =
                 totalChores > 0
