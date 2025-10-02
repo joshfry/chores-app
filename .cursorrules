@@ -129,7 +129,11 @@ chores/
 
 ### Git Standards
 
-- **Commits**: Clear, descriptive messages
+- **Commit Format**: `(<Agent Name>): <Short, clear summary of work>`
+  - Example: `(DEV): Add db:push npm script for Render deployment`
+  - Example: `(DEV): Fix assignment creation validation`
+  - Example: `(DEV): Document npm scripts and deployment standards`
+  - **Agent Name**: Use `DEV` for AI assistant commits, or your name for manual commits
 - **Branches**: Use feature branches for new functionality
 - **Ignore**: Comprehensive `.gitignore` for Node.js, React, and databases
 
@@ -324,9 +328,9 @@ When server issues arise:
 ```json
 {
   "scripts": {
-    "start": "node dist/index.js",           // Production server start
+    "start": "node dist/index.js", // Production server start
     "build": "tsc --project tsconfig.build.json", // TypeScript compilation
-    "postinstall": "prisma generate",        // Auto-generate Prisma Client
+    "postinstall": "prisma generate", // Auto-generate Prisma Client
     "db:push": "prisma db push --accept-data-loss --skip-generate" // Database initialization
   }
 }
@@ -337,9 +341,9 @@ When server issues arise:
 ```json
 {
   "scripts": {
-    "start": "react-scripts start",          // Development server
+    "start": "react-scripts start", // Development server
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build", // Production build
-    "test": "react-scripts test",            // Run tests
+    "test": "react-scripts test" // Run tests
   }
 }
 ```
@@ -347,11 +351,13 @@ When server issues arise:
 #### Deployment Command Examples
 
 **Good ✅ (Use npm scripts):**
+
 - `npm run build` - Platform-independent, works anywhere
 - `npm run db:push` - Clean, discoverable, maintainable
 - `npm start` - Standard convention
 
 **Bad ❌ (Avoid raw commands):**
+
 - `cd /some/path && npx prisma db push` - Hard-coded paths break portability
 - `tsc --project tsconfig.build.json` - Not discoverable without reading code
 - `node dist/index.js` - Should be wrapped in `npm start`
@@ -379,6 +385,7 @@ When adding operations needed for deployment:
 ```
 
 **Usage in hosting providers:**
+
 - **Render.com Pre-Deploy**: `npm run db:push`
 - **Vercel Build**: `npm run build`
 - **Railway Start**: `npm start`
