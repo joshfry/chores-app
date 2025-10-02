@@ -9,6 +9,7 @@
     "dev": "tsx watch index.ts",
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "postinstall": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
