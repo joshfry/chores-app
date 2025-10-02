@@ -42,7 +42,8 @@ This folder contains all documentation specifically designed to help AI agents w
 
 ### **Deployment & Operations**
 
-- [`DEPLOYMENT.md`](./DEPLOYMENT.md) - Deployment guide and procedures
+- [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) - Complete deployment guide
+- [`DEPLOYMENT.md`](./DEPLOYMENT.md) - Deployment procedures
 - [`DEPLOYMENT_CHECKLIST.md`](./DEPLOYMENT_CHECKLIST.md) - Pre-deployment checklist
 
 ## 🎯 Reading Strategy
