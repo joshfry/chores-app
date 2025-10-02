@@ -3,10 +3,10 @@
  */
 
 import * as authModels from '../../models/auth-prisma'
-import { PrismaClient } from '../../generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
 // Mock Prisma client
-jest.mock('../../generated/prisma', () => ({
+jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn(),
 }))
 

@@ -10,7 +10,7 @@ import type {
   MagicToken,
   WebAuthnCredential,
   Role,
-} from '../generated/prisma/index'
+} from '@prisma/client'
 
 // Re-export types for easier importing
 export type { User, Family, MagicToken, WebAuthnCredential, Role }
