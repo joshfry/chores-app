@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
-import type { User, Chore, Assignment, DashboardStats } from '../../types/api'
+import type { User, Assignment, DashboardStats } from '../../types/api'
 
 const DashboardPage: React.FC = () => {
   const { state } = useAuth()
   const [users, setUsers] = useState<User[]>([])
-  const [chores, setChores] = useState<Chore[]>([])
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -19,19 +17,13 @@ const DashboardPage: React.FC = () => {
         setIsLoading(true)
         setError(null)
 
-        const [usersResponse, choresResponse, assignmentsResponse] =
-          await Promise.all([
-            api.getUsers().catch(() => ({ success: false, data: [] })),
-            api.getChores().catch(() => ({ success: false, data: [] })),
-            api.getAssignments().catch(() => ({ success: false, data: [] })),
-          ])
+        const [usersResponse, assignmentsResponse] = await Promise.all([
+          api.getUsers().catch(() => ({ success: false, data: [] })),
+          api.getAssignments().catch(() => ({ success: false, data: [] })),
+        ])
 
         if (usersResponse.success) {
           setUsers(usersResponse.data || [])
-        }
-
-        if (choresResponse.success) {
-          setChores(choresResponse.data || [])
         }
 
         if (assignmentsResponse.success) {
@@ -80,43 +72,6 @@ const DashboardPage: React.FC = () => {
           (assignment) => assignment.childId === state.user!.id,
         )
       : assignments
-
-  const completedAssignments = filteredAssignments.filter(
-    (assignment) => assignment.status === 'completed',
-  )
-  const pendingAssignments = filteredAssignments.filter(
-    (assignment) =>
-      assignment.status === 'assigned' || assignment.status === 'in_progress',
-  )
-
-  const recentAssignments = filteredAssignments.slice(-5)
-
-  const getBadgeClasses = (variant: string) => {
-    switch (variant) {
-      case 'success':
-        return 'bg-green-100 text-green-700'
-      case 'warning':
-        return 'bg-yellow-100 text-yellow-700'
-      case 'error':
-        return 'bg-red-100 text-red-700'
-      case 'info':
-      default:
-        return 'bg-blue-100 text-blue-700'
-    }
-  }
-
-  const getAssignmentBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'success'
-      case 'overdue':
-        return 'error'
-      case 'in_progress':
-        return 'warning'
-      default:
-        return 'info'
-    }
-  }
 
   return (
     <div className="space-y-6">
