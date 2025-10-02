@@ -12,6 +12,7 @@ This folder contains all documentation specifically designed to help AI agents w
 
 ### **Detailed References (When Needed)**
 
+- [`BEST_PRACTICES.md`](./BEST_PRACTICES.md) - ⭐ **Comprehensive best practices guide**
 - [`SETUP.md`](./SETUP.md) - Complete setup guide (linting, formatting, CI/CD)
 - [`ENTERPRISE_STANDARDS.md`](./ENTERPRISE_STANDARDS.md) - Complete enterprise standards
 - [`TESTING_GUIDE.md`](./TESTING_GUIDE.md) - Comprehensive testing documentation
