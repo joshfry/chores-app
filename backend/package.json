@@ -10,7 +10,7 @@
     "build": "tsc --project tsconfig.build.json",
     "build:watch": "tsc --watch",
     "postinstall": "prisma generate",
-    "db:push": "prisma db push --schema=backend/prisma/schema.prisma --accept-data-loss --skip-generate",
+    "db:push": "prisma db push --accept-data-loss --skip-generate",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
