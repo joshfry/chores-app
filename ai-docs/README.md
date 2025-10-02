@@ -40,6 +40,11 @@ This folder contains all documentation specifically designed to help AI agents w
 - [`EMAIL_SETUP.md`](./EMAIL_SETUP.md) - Email configuration guide (Gmail, AWS SES, etc.)
 - [`GMAIL_QUICK_SETUP.md`](./GMAIL_QUICK_SETUP.md) - 5-minute Gmail setup guide
 
+### **Deployment & Operations**
+
+- [`DEPLOYMENT.md`](./DEPLOYMENT.md) - Deployment guide and procedures
+- [`DEPLOYMENT_CHECKLIST.md`](./DEPLOYMENT_CHECKLIST.md) - Pre-deployment checklist
+
 ## 🎯 Reading Strategy
 
 **For most tasks:** Start with `.agent-notes.md`, `PROJECT_CONTEXT.md`, and `QUICK_STANDARDS.md`  

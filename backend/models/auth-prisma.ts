@@ -4,13 +4,14 @@
  */
 
 import { prisma } from '../lib/prisma'
-import type {
-  User,
-  Family,
-  MagicToken,
-  WebAuthnCredential,
-  Role,
-} from '@prisma/client'
+import { Prisma } from '@prisma/client'
+
+// Type aliases from Prisma schema models
+type User = Prisma.UserGetPayload<{}>
+type Family = Prisma.FamilyGetPayload<{}>
+type MagicToken = Prisma.MagicTokenGetPayload<{}>
+type WebAuthnCredential = Prisma.WebAuthnCredentialGetPayload<{}>
+type Role = Prisma.UserGetPayload<{}>['role']
 
 // Re-export types for easier importing
 export type { User, Family, MagicToken, WebAuthnCredential, Role }
