@@ -10,7 +10,7 @@
 
 ### **Format Rules**
 
-1. **Agent Name**: Describe your role (e.g., "PM Agent", "Backend Agent", "Frontend Agent")
+1. **Agent Name**: Describe your role (e.g., "PM", "Backend", "Frontend")
 2. **Colon**: Always include `: ` after the closing parenthesis
 3. **Summary**: Short (ideally under 72 characters) but clear description
 4. **No body text**: Keep commits focused and simple
@@ -20,12 +20,12 @@
 ✅ **Good:**
 
 ```
-(PM Agent): Organize all documentation into ai-docs folder
-(Backend Agent): Implement passwordless authentication endpoints
-(Frontend Agent): Add Tailwind CSS styling to login page
-(DevOps Agent): Configure Render deployment settings
-(Testing Agent): Add unit tests for auth middleware
-(Database Agent): Create user and family tables migration
+(PM): Organize all documentation into ai-docs folder
+(Backend): Implement passwordless authentication endpoints
+(Frontend): Add Tailwind CSS styling to login page
+(DevOps): Configure Render deployment settings
+(Testing): Add unit tests for auth middleware
+(Database): Create user and family tables migration
 ```
 
 ❌ **Bad:**
