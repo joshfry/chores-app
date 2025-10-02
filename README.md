@@ -133,8 +133,8 @@ By default, magic links are logged to the console. To send **real emails**:
 **Quick Setup (5 minutes):**
 
 ```bash
-# See backend/GMAIL_QUICK_SETUP.md for step-by-step Gmail setup
-# Or backend/EMAIL_SETUP.md for production options (SendGrid, Mailgun, SES)
+# See ai-docs/GMAIL_QUICK_SETUP.md for step-by-step Gmail setup
+# Or ai-docs/EMAIL_SETUP.md for production options (SendGrid, Mailgun, SES)
 ```
 
 **What you get:**

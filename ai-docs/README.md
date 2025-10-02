@@ -17,11 +17,15 @@ This folder contains all documentation specifically designed to help AI agents w
 - [`TESTING_GUIDE.md`](./TESTING_GUIDE.md) - Comprehensive testing documentation
 - [`WORKSPACE_TESTS.md`](./WORKSPACE_TESTS.md) - Test infrastructure setup
 - [`USER_FLOWS.md`](./USER_FLOWS.md) - Feature documentation and user flows
+- [`STYLING_APPROACH.md`](./STYLING_APPROACH.md) - Tailwind CSS styling guidelines
+- [`DATA_ATTRIBUTES_GUIDE.md`](./DATA_ATTRIBUTES_GUIDE.md) - Testing data attributes guide
 
 ### **Context Optimization**
 
 - [`CONTEXT_OPTIMIZATION.md`](./CONTEXT_OPTIMIZATION.md) - Efficient documentation strategies
 - [`QUICK_REFERENCE.md`](./QUICK_REFERENCE.md) - Quick command reference
+- [`JEST_TESTING_REPORT.md`](./JEST_TESTING_REPORT.md) - Jest testing configuration report
+- [`E2E_WORKFLOW.md`](./E2E_WORKFLOW.md) - End-to-end testing workflow
 
 ### **Quality Assurance & Implementation**
 

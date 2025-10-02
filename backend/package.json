@@ -25,20 +25,21 @@
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "@simplewebauthn/server": "^10.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.6.0",
     "@types/nodemailer": "^7.0.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "nodemailer": "^6.10.1",
     "prisma": "^6.16.2",
+    "typescript": "^5.9.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
     "@babel/preset-typescript": "^7.27.1",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.5.2",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
@@ -47,7 +48,6 @@
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3",
     "ts-jest": "^29.4.4",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.2"
+    "tsx": "^4.20.6"
   }
 }
