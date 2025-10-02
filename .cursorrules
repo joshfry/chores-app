@@ -305,6 +305,86 @@ When server issues arise:
 3. **Performance**: Monitor API response times
 4. **Security**: Regular dependency updates
 
+### npm Scripts & Deployment Standards
+
+**CRITICAL: Always use npm scripts for deployment commands, not raw commands.**
+
+#### Why npm Scripts?
+
+- ✅ **Portable**: Works across any hosting provider
+- ✅ **Path Resolution**: npm automatically resolves paths relative to `package.json`
+- ✅ **Maintainable**: Commands are version-controlled with your code
+- ✅ **Discoverable**: All commands documented in `package.json`
+- ✅ **Provider-Agnostic**: No hard-coded paths or assumptions
+
+#### Standard Deployment Scripts
+
+**Backend (`backend/package.json`):**
+
+```json
+{
+  "scripts": {
+    "start": "node dist/index.js",           // Production server start
+    "build": "tsc --project tsconfig.build.json", // TypeScript compilation
+    "postinstall": "prisma generate",        // Auto-generate Prisma Client
+    "db:push": "prisma db push --accept-data-loss --skip-generate" // Database initialization
+  }
+}
+```
+
+**Frontend (`frontend/package.json`):**
+
+```json
+{
+  "scripts": {
+    "start": "react-scripts start",          // Development server
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build", // Production build
+    "test": "react-scripts test",            // Run tests
+  }
+}
+```
+
+#### Deployment Command Examples
+
+**Good ✅ (Use npm scripts):**
+- `npm run build` - Platform-independent, works anywhere
+- `npm run db:push` - Clean, discoverable, maintainable
+- `npm start` - Standard convention
+
+**Bad ❌ (Avoid raw commands):**
+- `cd /some/path && npx prisma db push` - Hard-coded paths break portability
+- `tsc --project tsconfig.build.json` - Not discoverable without reading code
+- `node dist/index.js` - Should be wrapped in `npm start`
+
+#### Adding New Deployment Scripts
+
+When adding operations needed for deployment:
+
+1. **Add to `package.json` scripts section**
+2. **Use descriptive names**: `db:push`, `db:migrate`, `build:prod`
+3. **Document in comments** if the purpose isn't obvious
+4. **Test locally first**: Run `npm run <script>` to verify it works
+
+#### Example: Database Initialization Script
+
+```json
+{
+  "scripts": {
+    "db:push": "prisma db push --accept-data-loss --skip-generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "node scripts/seed.js",
+    "db:reset": "prisma migrate reset --force"
+  }
+}
+```
+
+**Usage in hosting providers:**
+- **Render.com Pre-Deploy**: `npm run db:push`
+- **Vercel Build**: `npm run build`
+- **Railway Start**: `npm start`
+
+**No provider-specific path assumptions needed!**
+
 ## Common Commands
 
 ### Backend Development
