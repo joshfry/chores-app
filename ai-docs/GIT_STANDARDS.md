@@ -41,15 +41,15 @@ backend changes
 
 Use one of these standard agent names:
 
-- **PM Agent** - Project management, documentation organization
-- **Backend Agent** - Server, API, database work
-- **Frontend Agent** - UI, components, styling
-- **DevOps Agent** - Deployment, CI/CD, infrastructure
-- **Testing Agent** - Writing tests, QA work
-- **Database Agent** - Schema, migrations, queries
-- **Documentation Agent** - Writing docs, guides, READMEs
-- **Security Agent** - Auth, permissions, security fixes
-- **Performance Agent** - Optimization, caching, profiling
+- **PM** - Project management, documentation organization
+- **Backend** - Server, API, database work
+- **Frontend** - UI, components, styling
+- **DevOps** - Deployment, CI/CD, infrastructure
+- **Testing** - Writing tests, QA work
+- **Database** - Schema, migrations, queries
+- **Docs** - Writing docs, guides, READMEs
+- **Security** - Auth, permissions, security fixes
+- **Performance** - Optimization, caching, profiling
 
 If your role doesn't fit these, create a clear descriptive name.
 
