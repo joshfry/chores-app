@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
 const LoginPage: React.FC = () => {
@@ -7,6 +7,47 @@ const LoginPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const { state, login, clearError } = useAuth()
+  const navigate = useNavigate()
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const pollingStartTimeRef = useRef<number | null>(null)
+
+  // Poll for authentication after magic link is sent
+  useEffect(() => {
+    if (!showSuccess) return
+
+    const POLL_INTERVAL = 2000 // 2 seconds
+    const POLL_TIMEOUT = 5 * 60 * 1000 // 5 minutes
+
+    pollingStartTimeRef.current = Date.now()
+
+    pollingIntervalRef.current = setInterval(() => {
+      // Check if authenticated
+      if (state.isAuthenticated) {
+        console.log('✅ Authentication detected! Redirecting to dashboard...')
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current)
+        }
+        navigate('/dashboard')
+        return
+      }
+
+      // Check if polling has timed out
+      const elapsed = Date.now() - (pollingStartTimeRef.current || 0)
+      if (elapsed > POLL_TIMEOUT) {
+        console.log('⏱️ Polling timed out after 5 minutes')
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current)
+        }
+      }
+    }, POLL_INTERVAL)
+
+    // Cleanup on unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current)
+      }
+    }
+  }, [showSuccess, state.isAuthenticated, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,7 +89,11 @@ const LoginPage: React.FC = () => {
             className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg"
             data-testid="login-success"
           >
-            📧 Magic link sent! Check your email and click the link to sign in.
+            <div className="font-semibold mb-1">📧 Magic link sent!</div>
+            <div className="text-sm">
+              Check your email and click the link. This page will automatically
+              redirect you when you're signed in.
+            </div>
           </div>
         )}
 

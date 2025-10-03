@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams, Navigate } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
 const VerifyPage: React.FC = () => {
@@ -53,32 +53,7 @@ const VerifyPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, verifyMagicToken, state.isAuthenticated])
 
-  useEffect(() => {
-    console.log(
-      '🚀 Redirect effect triggered - status:',
-      status,
-      'isAuthenticated:',
-      state.isAuthenticated,
-    )
-    if (status === 'success' && state.isAuthenticated) {
-      console.log('🎯 Setting up redirect timer')
-      const timer = setTimeout(() => {
-        console.log('⏰ Timer fired - redirecting to dashboard')
-        window.location.href = '/dashboard'
-      }, 2000)
-
-      return () => {
-        console.log('🧹 Clearing redirect timer')
-        clearTimeout(timer)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, state.isAuthenticated])
-
-  if (status === 'success' && state.isAuthenticated) {
-    console.log('🏃‍♂️ Immediate redirect via Navigate component')
-    return <Navigate to="/dashboard" replace />
-  }
+  // No auto-redirect - let the original tab handle navigation via polling
 
   const handleGoToDashboard = () => {
     window.location.href = '/dashboard'
@@ -106,17 +81,17 @@ const VerifyPage: React.FC = () => {
               ✓
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Verification Successful!
+              You're All Set!
             </h1>
             <p className="text-gray-600 mb-6">
-              Your account has been verified. Redirecting you to the
-              dashboard...
+              Your account has been verified. You can close this tab now - your
+              original tab will automatically redirect to the dashboard.
             </p>
             <button
               onClick={handleGoToDashboard}
               className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Go to Dashboard
+              Or Go to Dashboard Now
             </button>
           </>
         )
