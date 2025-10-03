@@ -439,9 +439,17 @@ router.get(
         return
       }
 
-      const familyUsers = allUsers.filter(
-        (user) => user.familyId === currentUser!.familyId,
-      )
+      const familyUsers = allUsers
+        .filter((user) => user.familyId === currentUser!.familyId)
+        .sort((a, b) => {
+          // Sort by role: parents first, then children
+          if (a.role === b.role) {
+            // If same role, sort alphabetically by name
+            return a.name.localeCompare(b.name)
+          }
+          // Parents come before children
+          return a.role === 'parent' ? -1 : 1
+        })
 
       console.log(
         `Fetching users for family ${currentUser!.familyId}: Found ${familyUsers.length} users`,
