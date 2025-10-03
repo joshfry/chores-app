@@ -120,11 +120,13 @@ const AssignmentsPage: React.FC = () => {
     assignmentId: number,
     choreId: number,
     currentStatus: string,
+    completedOn: string | null,
   ) => {
     try {
       const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
       await api.updateAssignmentChore(assignmentId, choreId, {
         status: newStatus,
+        completedOn,
       })
       await fetchData()
     } catch (err: any) {
@@ -558,6 +560,7 @@ const AssignmentsPage: React.FC = () => {
                                                   assignment.id,
                                                   assignmentChore.choreId,
                                                   assignmentChore.status,
+                                                  assignmentChore.completedOn,
                                                 )
                                               }
                                               className="px-2 py-0.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"

@@ -93,6 +93,42 @@ router.post(
       end.setDate(start.getDate() + 6)
       const endDate = end.toISOString().split('T')[0]
 
+      // Fetch chores to check for recurring ones
+      const chores = await prisma.chore.findMany({
+        where: { id: { in: choreIds.map((id: number) => Number(id)) } },
+      })
+
+      // Expand recurring chores into daily records
+      const assignmentChoreData: Array<{
+        choreId: number
+        status: 'pending' | 'completed' | 'skipped'
+        completedOn: string | null
+      }> = []
+
+      for (const chore of chores) {
+        const recurrenceDays = chore.recurrenceDays
+          ? JSON.parse(chore.recurrenceDays)
+          : []
+
+        if (recurrenceDays.length > 0) {
+          // Create one record per recurrence day
+          for (const day of recurrenceDays) {
+            assignmentChoreData.push({
+              choreId: chore.id,
+              status: 'pending',
+              completedOn: day,
+            })
+          }
+        } else {
+          // Non-recurring chore: single record with null completedOn
+          assignmentChoreData.push({
+            choreId: chore.id,
+            status: 'pending',
+            completedOn: null,
+          })
+        }
+      }
+
       const assignment = await prisma.assignment.create({
         data: {
           childId: parseInt(childId),
@@ -102,10 +138,7 @@ router.post(
           notes: notes || null,
           familyId: user.familyId,
           assignmentChores: {
-            create: choreIds.map((choreId: number) => ({
-              choreId: Number(choreId),
-              status: 'pending',
-            })),
+            create: assignmentChoreData,
           },
         },
         include: {
@@ -126,11 +159,12 @@ router.post(
           endDate: assignment.endDate,
           status: assignment.status,
           notes: assignment.notes,
-          chores: assignment.assignmentChores.map((ac) => ({
+          chores: assignment.assignmentChores.map((ac: any) => ({
             id: ac.id,
             assignmentId: ac.assignmentId,
             choreId: ac.choreId,
             status: ac.status,
+            completedOn: ac.completedOn,
             chore: ac.chore,
           })),
         },
@@ -195,12 +229,45 @@ router.put(
           where: { assignmentId: parseInt(id) },
         })
 
+        // Fetch chores to check for recurring ones
+        const chores = await prisma.chore.findMany({
+          where: { id: { in: choreIds.map((cid: number) => Number(cid)) } },
+        })
+
+        // Expand recurring chores into daily records
+        const assignmentChoreData: Array<{
+          choreId: number
+          status: 'pending' | 'completed' | 'skipped'
+          completedOn: string | null
+        }> = []
+
+        for (const chore of chores) {
+          const recurrenceDays = chore.recurrenceDays
+            ? JSON.parse(chore.recurrenceDays)
+            : []
+
+          if (recurrenceDays.length > 0) {
+            // Create one record per recurrence day
+            for (const day of recurrenceDays) {
+              assignmentChoreData.push({
+                choreId: chore.id,
+                status: 'pending',
+                completedOn: day,
+              })
+            }
+          } else {
+            // Non-recurring chore: single record with null completedOn
+            assignmentChoreData.push({
+              choreId: chore.id,
+              status: 'pending',
+              completedOn: null,
+            })
+          }
+        }
+
         // Create new assignment chores
         updateData.assignmentChores = {
-          create: choreIds.map((choreId: number) => ({
-            choreId: Number(choreId),
-            status: 'pending',
-          })),
+          create: assignmentChoreData,
         }
       }
 
@@ -263,12 +330,14 @@ router.patch(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { assignmentId, choreId } = req.params
-      const { status } = req.body
+      const { status, completedOn } = req.body
 
+      // Find the specific day's assignment chore record
       const assignmentChore = await prisma.assignmentChore.findFirst({
         where: {
           assignmentId: parseInt(assignmentId),
           choreId: parseInt(choreId),
+          completedOn: completedOn || null,
         },
       })
 
@@ -284,12 +353,6 @@ router.patch(
         where: { id: assignmentChore.id },
         data: {
           status: status || 'completed',
-          completedOn:
-            status === 'completed'
-              ? new Date()
-                  .toLocaleDateString('en-US', { weekday: 'long' })
-                  .toLowerCase()
-              : null,
         },
       })
 
