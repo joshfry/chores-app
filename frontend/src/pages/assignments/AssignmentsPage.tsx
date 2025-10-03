@@ -259,6 +259,42 @@ const AssignmentsPage: React.FC = () => {
           className="mb-6 bg-white rounded-lg shadow p-4"
           data-testid="day-selector"
         >
+          {/* Navigation Controls */}
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <button
+              onClick={handlePreviousDay}
+              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              data-testid="previous-day-button"
+              aria-label="Previous day"
+            >
+              ← Previous
+            </button>
+
+            <select
+              value={selectedDay}
+              onChange={(e) => setSelectedDay(e.target.value)}
+              className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none capitalize font-medium"
+              data-testid="day-select"
+            >
+              {daysOfWeek.map((day) => (
+                <option key={day} value={day} className="capitalize">
+                  {day}
+                  {day === today ? ' (Today)' : ''}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={handleNextDay}
+              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              data-testid="next-day-button"
+              aria-label="Next day"
+            >
+              Next →
+            </button>
+          </div>
+
+          {/* Day Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto">
             {daysOfWeek.map((day) => {
               const isToday = day === today
@@ -286,6 +322,7 @@ const AssignmentsPage: React.FC = () => {
               )
             })}
           </div>
+
           <div className="mt-2 text-sm text-gray-600">
             Showing chores for{' '}
             <span className="font-semibold capitalize">{selectedDay}</span>
