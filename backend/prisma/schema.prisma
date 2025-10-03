@@ -45,7 +45,7 @@ model User {
   magicTokens   MagicToken[]
   webauthnCreds WebAuthnCredential[]
   createdUsers  User[]               @relation("UserCreatedBy")
-  creator       User?                @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  creator       User?                @relation("UserCreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
 
   @@map("users")
 }
@@ -82,7 +82,7 @@ model Assignment {
   updatedAt DateTime         @updatedAt @map("updated_at")
 
   // Relations
-  child            User              @relation(fields: [childId], references: [id])
+  child            User              @relation(fields: [childId], references: [id], onDelete: Cascade)
   family           Family            @relation(fields: [familyId], references: [id])
   assignmentChores AssignmentChore[]
 
@@ -117,7 +117,7 @@ model MagicToken {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("magic_tokens")
 }
@@ -132,7 +132,7 @@ model WebAuthnCredential {
   createdAt    DateTime @default(now()) @map("created_at")
 
   // Relations
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("webauthn_credentials")
 }
