@@ -185,6 +185,22 @@ const AssignmentsPage: React.FC = () => {
     return true
   })
 
+  // Debug logging for child users
+  if (state.user?.role === 'child') {
+    console.log('🔍 Child Debug Info:', {
+      userId: state.user.id,
+      userName: state.user.name,
+      childFilter,
+      totalAssignments: assignments.length,
+      filteredAssignments: filteredAssignments.length,
+      assignments: assignments.map((a) => ({
+        id: a.id,
+        childId: a.childId,
+        matches: a.childId === parseInt(childFilter),
+      })),
+    })
+  }
+
   const children = users.filter((user) => user.role === 'child')
 
   if (isLoading) {
