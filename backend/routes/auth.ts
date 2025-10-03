@@ -315,20 +315,39 @@ router.get(
   },
 )
 
-// POST /auth/create-child - Parent creates child account
+// POST /auth/create-child - Parent creates family member account
 router.post(
   '/create-child',
   requireAuth,
   requireParent,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { email, name, birthdate } = req.body
+      const { email, name, birthdate, role = 'child' } = req.body
 
-      if (!email || !name || !birthdate) {
+      if (!email || !name) {
         res.status(400).json({
           success: false,
-          error: 'Email, name, and birthdate are required',
+          error: 'Email and name are required',
         })
+        return
+      }
+
+      // Birthdate is required for children
+      if (role === 'child' && !birthdate) {
+        res.status(400).json({
+          success: false,
+          error: 'Birthdate is required for child accounts',
+        })
+        return
+      }
+
+      // Validate role
+      if (role !== 'parent' && role !== 'child') {
+        res.status(400).json({
+          success: false,
+          error: 'Role must be either "parent" or "child"',
+        })
+        return
       }
 
       // Check if user already exists
@@ -338,6 +357,7 @@ router.post(
           success: false,
           error: 'User with this email already exists',
         })
+        return
       }
 
       // Get parent user
@@ -347,48 +367,49 @@ router.post(
           success: false,
           error: 'Parent user not found',
         })
+        return
       }
 
-      // Create child user
-      const child = await authModels.createUser({
+      // Create user
+      const newUser = await authModels.createUser({
         email,
-        role: 'child',
+        role: role as 'parent' | 'child',
         familyId: parent!.familyId,
         name,
-        birthdate,
+        birthdate: birthdate || new Date().toISOString().split('T')[0], // Use today's date if not provided
       })
 
-      // Create magic token for child
+      // Create magic token
       const expiresAt = new Date()
-      expiresAt.setHours(expiresAt.getHours() + 24) // 24 hour expiry for child setup
+      expiresAt.setHours(expiresAt.getHours() + 24) // 24 hour expiry
       const magicToken = `magic_${Date.now()}_${Math.random()
         .toString(36)
         .substr(2, 9)}`
 
       await authModels.createMagicToken(
-        child.id,
+        newUser.id,
         magicToken,
         expiresAt.toISOString(),
       )
 
-      // Send child invitation email
+      // Send invitation email
       await sendChildInvitationEmail(
         email,
         magicToken,
-        child.name,
+        newUser.name,
         parent!.name,
       )
 
       res.status(201).json({
         success: true,
-        message: 'Child account created! Invitation email sent.',
+        message: `${role === 'parent' ? 'Parent' : 'Child'} account created! Invitation email sent.`,
         data: {
           child: {
-            id: child.id,
-            email: child.email,
-            name: child.name,
-            role: child.role,
-            birthdate: child.birthdate,
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            role: newUser.role,
+            birthdate: newUser.birthdate,
           },
         },
       })
@@ -415,10 +436,23 @@ router.get(
           success: false,
           error: 'Current user not found',
         })
+        return
       }
 
-      const familyUsers = allUsers.filter(
-        (user) => user.familyId === currentUser!.familyId && user.isActive,
+      const familyUsers = allUsers
+        .filter((user) => user.familyId === currentUser!.familyId)
+        .sort((a, b) => {
+          // Sort by role: parents first, then children
+          if (a.role === b.role) {
+            // If same role, sort alphabetically by name
+            return a.name.localeCompare(b.name)
+          }
+          // Parents come before children
+          return a.role === 'parent' ? -1 : 1
+        })
+
+      console.log(
+        `Fetching users for family ${currentUser!.familyId}: Found ${familyUsers.length} users`,
       )
 
       const users = familyUsers.map((user) => ({
@@ -461,6 +495,7 @@ router.get(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
       res.json({
@@ -493,7 +528,7 @@ router.put(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params
-      const { name, birthdate } = req.body
+      const { name, birthdate, role } = req.body
       const targetUserId = parseInt(id)
 
       const targetUser = await authModels.getUserById(targetUserId)
@@ -507,18 +542,31 @@ router.put(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
-      // Check permissions
-      const canUpdate =
-        currentUser!.id === targetUserId || // Own profile
-        (currentUser!.role === 'parent' && targetUser!.role === 'child') // Parent updating child
+      // Check permissions: Users can update their own profile, or parents can update any user in the family
+      const isOwnProfile = currentUser!.id === targetUserId
+      const isParent = currentUser!.role === 'parent'
+      const canUpdate = isOwnProfile || isParent
 
       if (!canUpdate) {
         res.status(403).json({
           success: false,
           error: 'Permission denied',
+          message: `Cannot update user ${targetUserId}. Current user: ${currentUser!.id}, role: ${currentUser!.role}. Only parents or the user themselves can update profiles.`,
         })
+        return
+      }
+
+      // Only parents can update roles
+      if (role && currentUser!.role !== 'parent') {
+        res.status(403).json({
+          success: false,
+          error: 'Permission denied',
+          message: 'Only parents can update user roles',
+        })
+        return
       }
 
       // Update user
@@ -532,6 +580,7 @@ router.put(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
       res.json({
@@ -566,6 +615,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
         success: false,
         error: 'At least one field (name or birthdate) must be provided',
       })
+      return
     }
 
     const targetUser = await authModels.getUserById(targetUserId)
@@ -579,18 +629,21 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
         success: false,
         error: 'User not found',
       })
+      return
     }
 
-    // Check permissions
-    const canUpdate =
-      currentUser!.id === targetUserId || // Own profile
-      (currentUser!.role === 'parent' && targetUser!.role === 'child') // Parent updating child
+    // Check permissions: Users can update their own profile, or parents can update any user in the family
+    const isOwnProfile = currentUser!.id === targetUserId
+    const isParent = currentUser!.role === 'parent'
+    const canUpdate = isOwnProfile || isParent
 
     if (!canUpdate) {
       res.status(403).json({
         success: false,
         error: 'Permission denied',
+        message: `Cannot update user ${targetUserId}. Current user: ${currentUser!.id}, role: ${currentUser!.role}. Only parents or the user themselves can update profiles.`,
       })
+      return
     }
 
     // Update user
@@ -605,6 +658,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
         success: false,
         error: 'User not found',
       })
+      return
     }
 
     res.json({
@@ -624,7 +678,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
   }
 })
 
-// DELETE /auth/users/:id - Deactivate user
+// DELETE /auth/users/:id - Delete user
 router.delete(
   '/users/:id',
   requireAuth,
@@ -644,6 +698,7 @@ router.delete(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
       // Prevent deleting the primary parent
@@ -653,22 +708,32 @@ router.delete(
           success: false,
           error: 'Cannot delete the primary parent',
         })
+        return
       }
 
-      // Only parents can delete child accounts
+      // Only parents can delete accounts
       if (currentUser!.role !== 'parent') {
         res.status(403).json({
           success: false,
           error: 'Only parents can delete accounts',
         })
+        return
       }
 
-      // Deactivate user instead of deleting
-      await authModels.updateUser(targetUserId, { isActive: false })
+      // Delete user
+      const deleted = await authModels.deleteUser(targetUserId)
+
+      if (!deleted) {
+        res.status(500).json({
+          success: false,
+          error: 'Failed to delete user',
+        })
+        return
+      }
 
       res.json({
         success: true,
-        message: 'User account deactivated successfully',
+        message: 'User deleted successfully',
       })
     } catch (error) {
       res.status(500).json({

@@ -44,7 +44,6 @@ const ChoresPage: React.FC = () => {
   const handleCreateChore = async (choreData: {
     title: string
     description?: string
-    difficulty: 'easy' | 'medium' | 'hard'
     isRecurring: boolean
     recurrenceDays?: string[]
   }) => {
@@ -57,7 +56,6 @@ const ChoresPage: React.FC = () => {
     updates: {
       title: string
       description?: string
-      difficulty: 'easy' | 'medium' | 'hard'
       isRecurring: boolean
       recurrenceDays?: string[]
     },
@@ -71,19 +69,6 @@ const ChoresPage: React.FC = () => {
     await api.deleteChore(selectedChore.id)
     await fetchChores()
     setSelectedChore(null)
-  }
-
-  const getDifficultyBadgeClasses = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'bg-green-100 text-green-700'
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-700'
-      case 'hard':
-        return 'bg-red-100 text-red-700'
-      default:
-        return 'bg-gray-100 text-gray-700'
-    }
   }
 
   if (isLoading) {
@@ -162,9 +147,6 @@ const ChoresPage: React.FC = () => {
                     Description
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Difficulty
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Recurrence
                   </th>
                   {state.user?.role === 'parent' && (
@@ -193,13 +175,6 @@ const ChoresPage: React.FC = () => {
                       <div className="text-sm text-gray-600">
                         {chore.description || '-'}
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyBadgeClasses(chore.difficulty)}`}
-                      >
-                        {chore.difficulty}
-                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm">

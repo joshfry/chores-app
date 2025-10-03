@@ -71,7 +71,6 @@ const mockChores = [
     id: 1,
     title: 'Test Chore',
     description: 'Test description',
-    difficulty: 'easy' as const,
     isRecurring: false,
     familyId: 1,
   },

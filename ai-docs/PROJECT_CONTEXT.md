@@ -90,8 +90,9 @@ Assignment {
 AssignmentChore (Junction) {
   id, assignmentId, choreId
   status (pending|completed|skipped)
-  completedOn (day of week)
+  completedOn (String: "monday"|"tuesday"|etc - tracks which day completed)
   → assignment, chore
+  **Note**: completedOn enables per-day tracking for recurring chores
 }
 
 MagicToken {
@@ -111,13 +112,16 @@ WebAuthnCredential {
 
 ## 🔐 **Authentication System**
 
-### **Passwordless Flow**
+### **Passwordless Flow** (Simplified - No Polling/Tab Management)
 
 1. **Signup**: User creates account with email, name, family name
 2. **Magic Link**: Backend generates single-use token, "sends" email (logged to console in dev)
-3. **Verification**: User clicks link → backend validates token → returns session token
-4. **Session**: JWT-style session token stored in localStorage
-5. **Protected Routes**: All API calls include `Authorization: Bearer <token>` header
+3. **User Waits**: Success message shown on login page, user stays on page
+4. **Click Link**: User clicks magic link from email
+5. **Verification**: Opens `/verify?token=...` → backend validates token → returns session token
+6. **Redirect**: Auto-redirects to `/dashboard` after 1.5 seconds
+7. **Session**: JWT-style session token stored in localStorage
+8. **Protected Routes**: All API calls include `Authorization: Bearer <token>` header
 
 ### **Key Features**
 
@@ -143,10 +147,11 @@ WebAuthnCredential {
 
 #### Protected Routes (All use DashboardLayout)
 
-- `/dashboard` - Overview with stats, recent activity
-- `/users` - Family member management
-- `/chores` - Chore library and creation
-- `/assignments` - Assignment tracking and completion
+- `/dashboard` - Overview with stats, recent activity (parent only)
+- `/users` - Family member management (parent only)
+- `/chores` - Chore library and creation (parent only)
+- `/account` - My Account page with Users & Chores tabs (parent only)
+- `/assignments` - Assignment tracking and completion (all users)
 
 **Note**: Routes were recently changed from `/dashboard/users` → `/users` pattern for cleaner URLs.
 

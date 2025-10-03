@@ -12,8 +12,6 @@ const DashboardLayout: React.FC = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { name: 'Users', href: '/users', icon: '👥' },
-    { name: 'Chores', href: '/chores', icon: '✅' },
     { name: 'Assignments', href: '/assignments', icon: '📋' },
   ]
 
@@ -24,6 +22,7 @@ const DashboardLayout: React.FC = () => {
     if (path.includes('/users')) return 'Users'
     if (path.includes('/chores')) return 'Chores'
     if (path.includes('/assignments')) return 'Assignments'
+    if (path.includes('/account')) return 'My Account'
     return 'Dashboard'
   }
 
@@ -183,6 +182,26 @@ const DashboardLayout: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* My Account link */}
+          <Link
+            to="/account"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`
+              w-full flex items-center gap-2 px-3 py-2 mb-2 text-sm font-medium rounded-lg transition-colors
+              ${
+                location.pathname === '/account'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }
+              ${isCollapsed ? 'justify-center' : ''}
+            `}
+            data-testid="nav-account"
+          >
+            <span className="text-base">⚙️</span>
+            {!isCollapsed && <span>My Account</span>}
+          </Link>
+
           <button
             onClick={handleLogout}
             data-testid="logout-button"

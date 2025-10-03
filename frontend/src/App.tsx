@@ -20,6 +20,7 @@ import DashboardPage from './pages/dashboard/DashboardPage'
 import UsersPage from './pages/users/UsersPage'
 import ChoresPage from './pages/chores/ChoresPage'
 import AssignmentsPage from './pages/assignments/AssignmentsPage'
+import MyAccountPage from './pages/account/MyAccountPage'
 
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute'
@@ -96,6 +97,19 @@ function App() {
             }
           >
             <Route index element={<ChoresPage />} />
+          </Route>
+
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <ParentOnlyRoute>
+                  <DashboardLayout />
+                </ParentOnlyRoute>
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<MyAccountPage />} />
           </Route>
 
           {/* Protected Routes - All Users */}

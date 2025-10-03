@@ -22,7 +22,6 @@ export interface Chore {
   id: number
   title: string
   description: string
-  difficulty: 'easy' | 'medium' | 'hard'
   isRecurring: boolean
   recurrenceDays?: string[] // e.g., ["monday", "wednesday", "friday"]
   familyId: number
@@ -45,7 +44,7 @@ export interface AssignmentChore {
   assignmentId: number
   choreId: number
   status: 'pending' | 'completed' | 'skipped'
-  completedOn?: string // Day of week
+  completedOn?: string | null // Day of week (null for non-recurring chores)
   chore?: Chore
 }
 

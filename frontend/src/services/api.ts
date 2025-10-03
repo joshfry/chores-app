@@ -248,7 +248,7 @@ class ApiClient {
   async updateAssignmentChore(
     assignmentId: number,
     choreId: number,
-    data: { status: string },
+    data: { status: string; completedOn?: string | null },
   ): Promise<ApiResponse> {
     const response: AxiosResponse<ApiResponse> = await this.client.patch(
       `/api/assignments/${assignmentId}/chores/${choreId}`,

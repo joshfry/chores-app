@@ -86,6 +86,18 @@ export const updateUser = async (
   }
 }
 
+export const deleteUser = async (id: number): Promise<boolean> => {
+  try {
+    await prisma.user.delete({
+      where: { id },
+    })
+    return true
+  } catch (error) {
+    // User not found or constraint error
+    return false
+  }
+}
+
 // Family CRUD operations
 export const getAllFamilies = async () => {
   return prisma.family.findMany({
@@ -241,7 +253,6 @@ export const seedDatabase = async () => {
     data: {
       title: 'Clean bedroom',
       description: 'Make bed, organize toys, vacuum floor',
-      difficulty: 'medium',
       category: 'cleaning',
       isRecurring: false,
       familyId: family.id,
@@ -252,7 +263,6 @@ export const seedDatabase = async () => {
     data: {
       title: 'Take out trash',
       description: 'Empty all trash cans and take to curb',
-      difficulty: 'easy',
       category: 'cleaning',
       isRecurring: true,
       recurrenceDays: JSON.stringify(['monday', 'thursday']),

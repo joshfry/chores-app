@@ -5,99 +5,14 @@ import { useAuth } from '../../contexts/AuthContext'
 const VerifyPage: React.FC = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const [status, setStatus] = useState<
-    'waiting' | 'verifying' | 'success' | 'error'
-  >('verifying')
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
+    'verifying',
+  )
   const [errorMessage, setErrorMessage] = useState('')
-  const { state, verifyMagicToken } = useAuth()
+  const { verifyMagicToken } = useAuth()
   const hasAttemptedVerification = useRef(false)
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const token = searchParams.get('token')
-  const sent = searchParams.get('sent')
-
-  // Handle "waiting" state (no token yet, just sent email)
-  useEffect(() => {
-    if (sent === 'true' && !token) {
-      setStatus('waiting')
-
-      const POLL_INTERVAL = 2000 // 2 seconds
-      const POLL_TIMEOUT = 10 * 60 * 1000 // 10 minutes
-      const startTime = Date.now()
-
-      // Check for authentication (either from context or localStorage)
-      const checkAuth = () => {
-        // Check context state
-        if (state.isAuthenticated) {
-          console.log(
-            '✅ Authentication detected via context! Redirecting to dashboard...',
-          )
-          if (pollingIntervalRef.current) {
-            clearInterval(pollingIntervalRef.current)
-          }
-          navigate('/dashboard')
-          return true
-        }
-
-        // Also check localStorage directly (for cross-tab updates)
-        const sessionToken = localStorage.getItem('sessionToken')
-        if (sessionToken) {
-          console.log(
-            '✅ Authentication detected via localStorage! Reloading page...',
-          )
-          if (pollingIntervalRef.current) {
-            clearInterval(pollingIntervalRef.current)
-          }
-          // Reload the page to trigger AuthContext's initial auth check
-          window.location.href = '/'
-          return true
-        }
-
-        return false
-      }
-
-      // Set up polling interval
-      pollingIntervalRef.current = setInterval(() => {
-        if (checkAuth()) return
-
-        // Check if polling has timed out
-        const elapsed = Date.now() - startTime
-        if (elapsed > POLL_TIMEOUT) {
-          console.log('⏱️ Polling timed out after 10 minutes')
-          if (pollingIntervalRef.current) {
-            clearInterval(pollingIntervalRef.current)
-          }
-        }
-      }, POLL_INTERVAL)
-
-      // Listen for storage events (cross-tab communication)
-      const handleStorageChange = (e: StorageEvent) => {
-        if (e.key === 'sessionToken' && e.newValue) {
-          console.log(
-            '✅ Authentication detected via storage event! Reloading page...',
-          )
-          if (pollingIntervalRef.current) {
-            clearInterval(pollingIntervalRef.current)
-          }
-          // Reload the page to trigger AuthContext's initial auth check
-          // This ensures the user data is fetched before routing
-          setTimeout(() => {
-            window.location.href = '/'
-          }, 500)
-        }
-      }
-
-      window.addEventListener('storage', handleStorageChange)
-
-      // Cleanup on unmount
-      return () => {
-        if (pollingIntervalRef.current) {
-          clearInterval(pollingIntervalRef.current)
-        }
-        window.removeEventListener('storage', handleStorageChange)
-      }
-    }
-  }, [sent, token, state.isAuthenticated, navigate])
 
   // Handle token verification
   useEffect(() => {
@@ -106,26 +21,16 @@ const VerifyPage: React.FC = () => {
     }
 
     const verify = async () => {
-      console.log('🔍 Starting verification with token:', token)
-
       try {
         hasAttemptedVerification.current = true
         const success = await verifyMagicToken(token)
-        console.log('✅ Verification result:', success)
-        console.log('🔐 Auth state after verification:', state)
 
         if (success) {
-          // Don't show success screen - just close immediately
-          // The original waiting tab will detect auth via storage event and reload
-
-          // Try to close this tab immediately
-          window.close()
-
-          // If window.close() didn't work (tab wasn't opened by script),
-          // reload to root as fallback (AuthContext will redirect appropriately)
+          setStatus('success')
+          // Redirect to dashboard after a short delay
           setTimeout(() => {
-            window.location.href = '/'
-          }, 500)
+            navigate('/dashboard')
+          }, 1500)
         } else {
           setStatus('error')
           setErrorMessage(
@@ -142,44 +47,10 @@ const VerifyPage: React.FC = () => {
 
     verify()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, verifyMagicToken])
+  }, [token, verifyMagicToken, navigate])
 
   const renderContent = () => {
     switch (status) {
-      case 'waiting':
-        return (
-          <>
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-              📧
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              Check Your Email
-            </h1>
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              We've sent you a magic link! Click the link in your email to sign
-              in.
-            </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-800">
-                <span className="font-semibold">💡 Tip:</span> This page will
-                automatically redirect you once you click the magic link.
-              </p>
-            </div>
-            <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-              <span>Waiting for authentication...</span>
-            </div>
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <button
-                onClick={() => navigate('/login')}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                ← Back to Login
-              </button>
-            </div>
-          </>
-        )
-
       case 'verifying':
         return (
           <>
@@ -200,15 +71,14 @@ const VerifyPage: React.FC = () => {
               ✓
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              You're All Set!
+              Successfully Verified!
             </h1>
             <p className="text-gray-600 mb-6">
-              This tab will close automatically. Your other tab will redirect to
-              the dashboard.
+              Your account has been verified. Redirecting to your dashboard...
             </p>
             <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
-              <div className="animate-pulse">✨</div>
-              <span>Closing tab...</span>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+              <span>Loading dashboard...</span>
             </div>
           </>
         )

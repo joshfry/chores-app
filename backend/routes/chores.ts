@@ -23,7 +23,6 @@ router.get(
           id: chore.id,
           title: chore.title,
           description: chore.description,
-          difficulty: chore.difficulty,
           category: chore.category,
           isRecurring: chore.isRecurring,
           recurrenceDays: chore.recurrenceDays
@@ -74,7 +73,6 @@ router.get(
           id: chore.id,
           title: chore.title,
           description: chore.description,
-          difficulty: chore.difficulty,
           category: chore.category,
           isRecurring: chore.isRecurring,
           recurrenceDays: chore.recurrenceDays
@@ -105,7 +103,6 @@ router.post(
       const {
         title,
         description,
-        difficulty = 'easy',
         category,
         isRecurring = false,
         recurrenceDays,
@@ -119,19 +116,10 @@ router.post(
         return
       }
 
-      if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
-        res.status(400).json({
-          success: false,
-          error: 'Difficulty must be easy, medium, or hard',
-        })
-        return
-      }
-
       const chore = await prisma.chore.create({
         data: {
           title,
           description: description || null,
-          difficulty,
           category: category || null,
           isRecurring,
           recurrenceDays:
@@ -148,7 +136,6 @@ router.post(
           id: chore.id,
           title: chore.title,
           description: chore.description,
-          difficulty: chore.difficulty,
           category: chore.category,
           isRecurring: chore.isRecurring,
           recurrenceDays: chore.recurrenceDays
@@ -177,22 +164,8 @@ router.put(
     try {
       const { id } = req.params
       const user = (req as any).user
-      const {
-        title,
-        description,
-        difficulty,
-        category,
-        isRecurring,
-        recurrenceDays,
-      } = req.body
-
-      if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
-        res.status(400).json({
-          success: false,
-          error: 'Difficulty must be easy, medium, or hard',
-        })
-        return
-      }
+      const { title, description, category, isRecurring, recurrenceDays } =
+        req.body
 
       const existingChore = await prisma.chore.findFirst({
         where: {
@@ -215,7 +188,6 @@ router.put(
           title: title || existingChore.title,
           description:
             description !== undefined ? description : existingChore.description,
-          difficulty: difficulty || existingChore.difficulty,
           category: category !== undefined ? category : existingChore.category,
           isRecurring:
             isRecurring !== undefined ? isRecurring : existingChore.isRecurring,
@@ -232,7 +204,6 @@ router.put(
           id: chore.id,
           title: chore.title,
           description: chore.description,
-          difficulty: chore.difficulty,
           category: chore.category,
           isRecurring: chore.isRecurring,
           recurrenceDays: chore.recurrenceDays
