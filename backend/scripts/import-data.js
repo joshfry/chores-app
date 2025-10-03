@@ -16,23 +16,27 @@ async function importData(jsonData) {
   try {
     const data = JSON.parse(jsonData)
 
+    // Track ID mappings (old ID -> new ID)
+    const userIdMap = {}
+    const choreIdMap = {}
+
     // Import families and their related data
     for (const family of data.families) {
       console.log(`📁 Importing family: ${family.name}`)
 
-      // Create family
+      // Create family (we'll update primaryParentId later)
       const createdFamily = await prisma.family.create({
         data: {
           name: family.name,
-          primaryParentId: family.primaryParentId,
+          primaryParentId: 1, // Temporary, will update after creating users
           createdDate: new Date(family.createdDate),
         },
       })
 
-      // Create users
+      // Create users and map old IDs to new IDs
       for (const user of family.users) {
         console.log(`  👤 Importing user: ${user.name} (${user.email})`)
-        await prisma.user.create({
+        const createdUser = await prisma.user.create({
           data: {
             email: user.email,
             role: user.role,
@@ -44,12 +48,22 @@ async function importData(jsonData) {
             isActive: user.isActive,
           },
         })
+        userIdMap[user.id] = createdUser.id
       }
 
-      // Create chores
+      // Update family with correct primary parent ID
+      const newPrimaryParentId = userIdMap[family.primaryParentId]
+      if (newPrimaryParentId) {
+        await prisma.family.update({
+          where: { id: createdFamily.id },
+          data: { primaryParentId: newPrimaryParentId },
+        })
+      }
+
+      // Create chores and map old IDs to new IDs
       for (const chore of family.chores) {
         console.log(`  📋 Importing chore: ${chore.title}`)
-        await prisma.chore.create({
+        const createdChore = await prisma.chore.create({
           data: {
             title: chore.title,
             description: chore.description,
@@ -59,14 +73,18 @@ async function importData(jsonData) {
             familyId: createdFamily.id,
           },
         })
+        choreIdMap[chore.id] = createdChore.id
       }
 
       // Create assignments with assignment chores
       for (const assignment of family.assignments) {
-        console.log(`  📝 Importing assignment for child ${assignment.childId}`)
+        const newChildId = userIdMap[assignment.childId]
+        console.log(
+          `  📝 Importing assignment for child ${newChildId} (was ${assignment.childId})`,
+        )
         await prisma.assignment.create({
           data: {
-            childId: assignment.childId,
+            childId: newChildId,
             startDate: assignment.startDate,
             endDate: assignment.endDate,
             status: assignment.status,
@@ -74,7 +92,7 @@ async function importData(jsonData) {
             familyId: createdFamily.id,
             assignmentChores: {
               create: assignment.assignmentChores.map((ac) => ({
-                choreId: ac.choreId,
+                choreId: choreIdMap[ac.choreId],
                 status: ac.status,
                 completedOn: ac.completedOn,
               })),
@@ -84,34 +102,40 @@ async function importData(jsonData) {
       }
     }
 
-    // Import magic tokens
+    // Import magic tokens with mapped user IDs
     console.log(`\n🔑 Importing ${data.magicTokens.length} magic tokens`)
     for (const token of data.magicTokens) {
-      await prisma.magicToken.create({
-        data: {
-          userId: token.userId,
-          token: token.token,
-          expiresAt: new Date(token.expiresAt),
-          used: token.used,
-        },
-      })
+      const newUserId = userIdMap[token.userId]
+      if (newUserId) {
+        await prisma.magicToken.create({
+          data: {
+            userId: newUserId,
+            token: token.token,
+            expiresAt: new Date(token.expiresAt),
+            used: token.used,
+          },
+        })
+      }
     }
 
-    // Import WebAuthn credentials
+    // Import WebAuthn credentials with mapped user IDs
     console.log(
       `🔐 Importing ${data.webAuthnCredentials.length} webauthn credentials`,
     )
     for (const cred of data.webAuthnCredentials) {
-      await prisma.webAuthnCredential.create({
-        data: {
-          userId: cred.userId,
-          credentialId: cred.credentialId,
-          publicKey: cred.publicKey,
-          deviceName: cred.deviceName,
-          counter: cred.counter,
-          createdAt: new Date(cred.createdAt),
-        },
-      })
+      const newUserId = userIdMap[cred.userId]
+      if (newUserId) {
+        await prisma.webAuthnCredential.create({
+          data: {
+            userId: newUserId,
+            credentialId: cred.credentialId,
+            publicKey: cred.publicKey,
+            deviceName: cred.deviceName,
+            counter: cred.counter,
+            createdAt: new Date(cred.createdAt),
+          },
+        })
+      }
     }
 
     console.log('\n✅ Import complete!')
