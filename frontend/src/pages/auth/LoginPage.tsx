@@ -16,8 +16,8 @@ const LoginPage: React.FC = () => {
     const success = await login(email)
 
     if (success) {
-      // Redirect to waiting page instead of showing success message
-      navigate('/verify-pending')
+      // Redirect to verify page in "waiting" state
+      navigate('/verify?sent=true')
     }
 
     setIsSubmitting(false)

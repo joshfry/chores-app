@@ -1,30 +1,67 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
 const VerifyPage: React.FC = () => {
   const [searchParams] = useSearchParams()
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
-    'verifying',
-  )
+  const navigate = useNavigate()
+  const [status, setStatus] = useState<
+    'waiting' | 'verifying' | 'success' | 'error'
+  >('verifying')
   const [errorMessage, setErrorMessage] = useState('')
   const { state, verifyMagicToken } = useAuth()
   const hasAttemptedVerification = useRef(false)
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const token = searchParams.get('token')
+  const sent = searchParams.get('sent')
 
+  // Handle "waiting" state (no token yet, just sent email)
   useEffect(() => {
-    if (hasAttemptedVerification.current) {
+    if (sent === 'true' && !token) {
+      setStatus('waiting')
+
+      const POLL_INTERVAL = 2000 // 2 seconds
+      const POLL_TIMEOUT = 10 * 60 * 1000 // 10 minutes
+      const startTime = Date.now()
+
+      pollingIntervalRef.current = setInterval(() => {
+        // Check if authenticated
+        if (state.isAuthenticated) {
+          console.log('✅ Authentication detected! Redirecting to dashboard...')
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current)
+          }
+          navigate('/dashboard')
+          return
+        }
+
+        // Check if polling has timed out
+        const elapsed = Date.now() - startTime
+        if (elapsed > POLL_TIMEOUT) {
+          console.log('⏱️ Polling timed out after 10 minutes')
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current)
+          }
+        }
+      }, POLL_INTERVAL)
+
+      // Cleanup on unmount
+      return () => {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current)
+        }
+      }
+    }
+  }, [sent, token, state.isAuthenticated, navigate])
+
+  // Handle token verification
+  useEffect(() => {
+    if (hasAttemptedVerification.current || !token) {
       return
     }
 
     const verify = async () => {
-      if (!token) {
-        setStatus('error')
-        setErrorMessage('No verification token found in the URL.')
-        return
-      }
-
       console.log('🔍 Starting verification with token:', token)
 
       try {
@@ -35,20 +72,10 @@ const VerifyPage: React.FC = () => {
 
         if (success) {
           setStatus('success')
-
-          // If opened from another window (email link), redirect that window and close this one
-          if (window.opener && !window.opener.closed) {
-            console.log('🪟 Redirecting opener window to dashboard...')
-            window.opener.location.href = '/dashboard'
-            setTimeout(() => {
-              window.close()
-            }, 1000)
-          } else {
-            // If not opened from another window, redirect this window
-            setTimeout(() => {
-              window.location.href = '/dashboard'
-            }, 2000)
-          }
+          // Redirect to dashboard after verification
+          setTimeout(() => {
+            navigate('/dashboard')
+          }, 1500)
         } else {
           setStatus('error')
           setErrorMessage(
@@ -65,10 +92,44 @@ const VerifyPage: React.FC = () => {
 
     verify()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, verifyMagicToken, state.isAuthenticated])
+  }, [token, verifyMagicToken])
 
   const renderContent = () => {
     switch (status) {
+      case 'waiting':
+        return (
+          <>
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+              📧
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              Check Your Email
+            </h1>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              We've sent you a magic link! Click the link in your email to sign
+              in.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-800">
+                <span className="font-semibold">💡 Tip:</span> This page will
+                automatically redirect you once you click the magic link.
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span>Waiting for authentication...</span>
+            </div>
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <button
+                onClick={() => navigate('/login')}
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                ← Back to Login
+              </button>
+            </div>
+          </>
+        )
+
       case 'verifying':
         return (
           <>
