@@ -43,15 +43,13 @@ const VerifyPage: React.FC = () => {
         const sessionToken = localStorage.getItem('sessionToken')
         if (sessionToken) {
           console.log(
-            '✅ Authentication detected via localStorage! Redirecting to dashboard...',
+            '✅ Authentication detected via localStorage! Reloading page...',
           )
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current)
           }
-          // Wait a bit for AuthContext to pick up the token, then redirect
-          setTimeout(() => {
-            navigate('/dashboard')
-          }, 1000)
+          // Reload the page to trigger AuthContext's initial auth check
+          window.location.href = '/'
           return true
         }
 
@@ -76,15 +74,16 @@ const VerifyPage: React.FC = () => {
       const handleStorageChange = (e: StorageEvent) => {
         if (e.key === 'sessionToken' && e.newValue) {
           console.log(
-            '✅ Authentication detected via storage event! Redirecting to dashboard...',
+            '✅ Authentication detected via storage event! Reloading page...',
           )
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current)
           }
-          // Wait a bit for AuthContext to pick up the token, then redirect
+          // Reload the page to trigger AuthContext's initial auth check
+          // This ensures the user data is fetched before routing
           setTimeout(() => {
-            navigate('/dashboard')
-          }, 1000)
+            window.location.href = '/'
+          }, 500)
         }
       }
 
