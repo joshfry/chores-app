@@ -115,19 +115,17 @@ const VerifyPage: React.FC = () => {
         console.log('🔐 Auth state after verification:', state)
 
         if (success) {
-          setStatus('success')
+          // Don't show success screen - just close immediately
+          // The original waiting tab will detect auth via storage event and reload
 
-          // Try to close this tab (works if opened by email link)
-          // The original waiting tab will detect auth via polling and redirect
+          // Try to close this tab immediately
+          window.close()
+
+          // If window.close() didn't work (tab wasn't opened by script),
+          // reload to root as fallback (AuthContext will redirect appropriately)
           setTimeout(() => {
-            window.close()
-
-            // If window.close() didn't work (tab wasn't opened by script),
-            // redirect this tab to dashboard as fallback
-            setTimeout(() => {
-              navigate('/dashboard')
-            }, 500)
-          }, 2000)
+            window.location.href = '/'
+          }, 500)
         } else {
           setStatus('error')
           setErrorMessage(
