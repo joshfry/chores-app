@@ -102,7 +102,7 @@ model AssignmentChore {
 
   // Relations
   assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  chore      Chore      @relation(fields: [choreId], references: [id])
+  chore      Chore      @relation(fields: [choreId], references: [id], onDelete: Cascade)
 
   @@unique([assignmentId, choreId, completedOn])
   @@map("assignment_chores")
