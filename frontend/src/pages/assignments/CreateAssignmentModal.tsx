@@ -33,20 +33,13 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
 
   // Pre-select chore(s) when modal opens with a specific set of chores
   useEffect(() => {
-    console.log('🔄 CreateAssignmentModal effect:', {
-      isOpen,
-      choresCount: chores.length,
-      chores,
-    })
     if (isOpen && chores.length === 1) {
-      console.log('✅ Pre-selecting chore:', chores[0].id)
       setFormData((prev) => ({
         ...prev,
         choreIds: [chores[0].id],
       }))
     } else if (!isOpen) {
       // Reset form when modal closes
-      console.log('🔄 Resetting form')
       setFormData({
         childId: '',
         startDate: getNextSunday(),
