@@ -62,14 +62,6 @@ const MyAccountPage: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">My Account</h1>
-        <p className="text-gray-600">
-          Manage your family members and household chores
-        </p>
-      </div>
-
       {/* Users Section */}
       <section>
         <div className="flex items-center justify-between mb-4">
@@ -85,65 +77,61 @@ const MyAccountPage: React.FC = () => {
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr
-                  key={user.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {user.name}
-                    {user.id === state.user?.id && (
-                      <span className="ml-2 text-xs text-blue-600">(You)</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                        user.role === 'parent'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {user.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {users.map((user) => (
+            <div
+              key={user.id}
+              className="bg-white rounded-lg shadow p-4 flex flex-col items-center text-center hover:shadow-lg transition-shadow"
+            >
+              {/* Avatar */}
+              <div
+                className={`w-20 h-20 rounded-full flex items-center justify-center font-bold text-2xl mb-3 ${
+                  user.role === 'parent'
+                    ? 'bg-purple-100 text-purple-600'
+                    : 'bg-green-100 text-green-600'
+                }`}
+              >
+                {user.name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+
+              {/* Name */}
+              <h3 className="font-semibold text-gray-900 mb-1">
+                {user.name}
+                {user.id === state.user?.id && (
+                  <span className="block text-xs text-blue-600 font-normal">
+                    (You)
+                  </span>
+                )}
+              </h3>
+
+              {/* Email */}
+              <p className="text-xs text-gray-600 mb-2 truncate w-full">
+                {user.email}
+              </p>
+
+              {/* Role Badge */}
+              <span
+                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize mb-2 ${
+                  user.role === 'parent'
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-green-100 text-green-800'
+                }`}
+              >
+                {user.role}
+              </span>
+
+              {/* Status Badge */}
+              <span
+                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  user.isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+              >
+                {user.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          ))}
         </div>
       </section>
 
