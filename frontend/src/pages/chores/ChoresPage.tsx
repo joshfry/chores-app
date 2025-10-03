@@ -349,18 +349,16 @@ const ChoresPage: React.FC = () => {
       />
 
       {/* Assignment Modal */}
-      {newlyCreatedChore && (
-        <CreateAssignmentModal
-          isOpen={isAssignModalOpen}
-          onClose={() => {
-            setIsAssignModalOpen(false)
-            setNewlyCreatedChore(null)
-          }}
-          children={childrenOnly}
-          chores={[newlyCreatedChore]}
-          onSubmit={handleCreateAssignment}
-        />
-      )}
+      <CreateAssignmentModal
+        isOpen={isAssignModalOpen}
+        onClose={() => {
+          setIsAssignModalOpen(false)
+          setNewlyCreatedChore(null)
+        }}
+        children={childrenOnly}
+        chores={newlyCreatedChore ? [newlyCreatedChore] : chores}
+        onSubmit={handleCreateAssignment}
+      />
     </div>
   )
 }
