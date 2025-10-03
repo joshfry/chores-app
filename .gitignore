@@ -80,6 +80,7 @@ Thumbs.db
 *.db
 *.sqlite
 *.sqlite3
+data-export.json
 
 # Temporary files
 *.tmp
