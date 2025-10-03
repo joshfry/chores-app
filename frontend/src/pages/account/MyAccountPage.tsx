@@ -48,7 +48,6 @@ const MyAccountPage: React.FC = () => {
       !showEditAssignmentModal &&
       newlyCreatedChore
     ) {
-      console.log('🧹 Cleaning up chore after prompt closed without assigning')
       // Small delay to ensure state updates have settled
       const timeout = setTimeout(() => {
         setNewlyCreatedChore(null)
