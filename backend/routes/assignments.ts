@@ -111,8 +111,21 @@ router.post(
           : []
 
         if (recurrenceDays.length > 0) {
+          // Expand "everyday" into individual days (Monday-Saturday)
+          let daysToCreate = recurrenceDays
+          if (recurrenceDays.includes('everyday')) {
+            daysToCreate = [
+              'monday',
+              'tuesday',
+              'wednesday',
+              'thursday',
+              'friday',
+              'saturday',
+            ]
+          }
+
           // Create one record per recurrence day
-          for (const day of recurrenceDays) {
+          for (const day of daysToCreate) {
             assignmentChoreData.push({
               choreId: chore.id,
               status: 'pending',
@@ -247,8 +260,21 @@ router.put(
             : []
 
           if (recurrenceDays.length > 0) {
+            // Expand "everyday" into individual days (Monday-Saturday)
+            let daysToCreate = recurrenceDays
+            if (recurrenceDays.includes('everyday')) {
+              daysToCreate = [
+                'monday',
+                'tuesday',
+                'wednesday',
+                'thursday',
+                'friday',
+                'saturday',
+              ]
+            }
+
             // Create one record per recurrence day
-            for (const day of recurrenceDays) {
+            for (const day of daysToCreate) {
               assignmentChoreData.push({
                 choreId: chore.id,
                 status: 'pending',
