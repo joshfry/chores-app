@@ -329,6 +329,7 @@ router.post(
           success: false,
           error: 'Email, name, and birthdate are required',
         })
+        return
       }
 
       // Validate role
@@ -337,6 +338,7 @@ router.post(
           success: false,
           error: 'Role must be either "parent" or "child"',
         })
+        return
       }
 
       // Check if user already exists
@@ -346,6 +348,7 @@ router.post(
           success: false,
           error: 'User with this email already exists',
         })
+        return
       }
 
       // Get parent user
@@ -355,6 +358,7 @@ router.post(
           success: false,
           error: 'Parent user not found',
         })
+        return
       }
 
       // Create user
