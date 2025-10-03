@@ -293,10 +293,6 @@ const AssignmentsPage: React.FC = () => {
               Next →
             </button>
           </div>
-          <div className="mt-4 text-sm text-gray-600">
-            Showing chores for{' '}
-            <span className="font-semibold capitalize">{selectedDay}</span>
-          </div>
         </div>
       )}
 
