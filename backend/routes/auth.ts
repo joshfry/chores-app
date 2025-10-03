@@ -545,17 +545,16 @@ router.put(
         return
       }
 
-      // Check permissions
+      // Check permissions: Users can update their own profile, or parents can update any user in the family
       const isOwnProfile = currentUser!.id === targetUserId
-      const isParentUpdatingChild =
-        currentUser!.role === 'parent' && targetUser!.role === 'child'
-      const canUpdate = isOwnProfile || isParentUpdatingChild
+      const isParent = currentUser!.role === 'parent'
+      const canUpdate = isOwnProfile || isParent
 
       if (!canUpdate) {
         res.status(403).json({
           success: false,
           error: 'Permission denied',
-          message: `Cannot update user ${targetUserId}. Current user: ${currentUser!.id}, role: ${currentUser!.role}. Target user: ${targetUserId}, role: ${targetUser!.role}`,
+          message: `Cannot update user ${targetUserId}. Current user: ${currentUser!.id}, role: ${currentUser!.role}. Only parents or the user themselves can update profiles.`,
         })
         return
       }
@@ -633,15 +632,16 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
       return
     }
 
-    // Check permissions
-    const canUpdate =
-      currentUser!.id === targetUserId || // Own profile
-      (currentUser!.role === 'parent' && targetUser!.role === 'child') // Parent updating child
+    // Check permissions: Users can update their own profile, or parents can update any user in the family
+    const isOwnProfile = currentUser!.id === targetUserId
+    const isParent = currentUser!.role === 'parent'
+    const canUpdate = isOwnProfile || isParent
 
     if (!canUpdate) {
       res.status(403).json({
         success: false,
         error: 'Permission denied',
+        message: `Cannot update user ${targetUserId}. Current user: ${currentUser!.id}, role: ${currentUser!.role}. Only parents or the user themselves can update profiles.`,
       })
       return
     }
