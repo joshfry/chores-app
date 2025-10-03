@@ -25,16 +25,39 @@ const VerifyPage: React.FC = () => {
       const POLL_TIMEOUT = 10 * 60 * 1000 // 10 minutes
       const startTime = Date.now()
 
-      pollingIntervalRef.current = setInterval(() => {
-        // Check if authenticated
+      // Check for authentication (either from context or localStorage)
+      const checkAuth = () => {
+        // Check context state
         if (state.isAuthenticated) {
-          console.log('✅ Authentication detected! Redirecting to dashboard...')
+          console.log(
+            '✅ Authentication detected via context! Redirecting to dashboard...',
+          )
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current)
           }
           navigate('/dashboard')
-          return
+          return true
         }
+
+        // Also check localStorage directly (for cross-tab updates)
+        const token = localStorage.getItem('authToken')
+        if (token) {
+          console.log(
+            '✅ Authentication detected via localStorage! Redirecting to dashboard...',
+          )
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current)
+          }
+          navigate('/dashboard')
+          return true
+        }
+
+        return false
+      }
+
+      // Set up polling interval
+      pollingIntervalRef.current = setInterval(() => {
+        if (checkAuth()) return
 
         // Check if polling has timed out
         const elapsed = Date.now() - startTime
@@ -46,11 +69,27 @@ const VerifyPage: React.FC = () => {
         }
       }, POLL_INTERVAL)
 
+      // Listen for storage events (cross-tab communication)
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === 'authToken' && e.newValue) {
+          console.log(
+            '✅ Authentication detected via storage event! Redirecting to dashboard...',
+          )
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current)
+          }
+          navigate('/dashboard')
+        }
+      }
+
+      window.addEventListener('storage', handleStorageChange)
+
       // Cleanup on unmount
       return () => {
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current)
         }
+        window.removeEventListener('storage', handleStorageChange)
       }
     }
   }, [sent, token, state.isAuthenticated, navigate])
