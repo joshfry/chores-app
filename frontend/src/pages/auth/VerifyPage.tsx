@@ -72,10 +72,18 @@ const VerifyPage: React.FC = () => {
 
         if (success) {
           setStatus('success')
-          // Redirect to dashboard after verification
+
+          // Try to close this tab (works if opened by email link)
+          // The original waiting tab will detect auth via polling and redirect
           setTimeout(() => {
-            navigate('/dashboard')
-          }, 1500)
+            window.close()
+
+            // If window.close() didn't work (tab wasn't opened by script),
+            // redirect this tab to dashboard as fallback
+            setTimeout(() => {
+              navigate('/dashboard')
+            }, 500)
+          }, 1000)
         } else {
           setStatus('error')
           setErrorMessage(
@@ -149,13 +157,16 @@ const VerifyPage: React.FC = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-3xl font-bold mb-6">
               ✓
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Success!</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              You're All Set!
+            </h1>
             <p className="text-gray-600 mb-6">
-              Redirecting you to the dashboard...
+              This tab will close automatically. Your other tab will redirect to
+              the dashboard.
             </p>
             <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-              <span>Please wait</span>
+              <div className="animate-pulse">✨</div>
+              <span>Closing tab...</span>
             </div>
           </>
         )
