@@ -185,22 +185,6 @@ const AssignmentsPage: React.FC = () => {
     return true
   })
 
-  // Debug logging for child users
-  if (state.user?.role === 'child') {
-    console.log('🔍 Child Debug Info:', {
-      userId: state.user.id,
-      userName: state.user.name,
-      childFilter,
-      totalAssignments: assignments.length,
-      filteredAssignments: filteredAssignments.length,
-      assignments: assignments.map((a) => ({
-        id: a.id,
-        childId: a.childId,
-        matches: a.childId === parseInt(childFilter),
-      })),
-    })
-  }
-
   const children = users.filter((user) => user.role === 'child')
 
   if (isLoading) {
@@ -309,37 +293,7 @@ const AssignmentsPage: React.FC = () => {
               Next →
             </button>
           </div>
-
-          {/* Day Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto">
-            {daysOfWeek.map((day) => {
-              const isToday = day === today
-              const isSelected = day === selectedDay
-              const dayShort = day.substring(0, 3).toUpperCase()
-
-              return (
-                <button
-                  key={day}
-                  onClick={() => setSelectedDay(day)}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
-                    isSelected
-                      ? 'bg-blue-600 text-white'
-                      : isToday
-                        ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  data-testid={`day-button-${day}`}
-                >
-                  {dayShort}
-                  {isToday && !isSelected && (
-                    <span className="ml-1 text-xs">•</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="mt-4 text-sm text-gray-600">
             Showing chores for{' '}
             <span className="font-semibold capitalize">{selectedDay}</span>
           </div>
