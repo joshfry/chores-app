@@ -11,6 +11,7 @@
     "build:watch": "tsc --watch",
     "postinstall": "prisma generate",
     "db:push": "prisma db push --accept-data-loss --skip-generate",
+    "db:reset": "node scripts/reset-db.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
