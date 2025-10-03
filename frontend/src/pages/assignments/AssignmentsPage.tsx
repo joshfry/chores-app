@@ -215,18 +215,16 @@ const AssignmentsPage: React.FC = () => {
 
   return (
     <div className="p-6" data-testid="assignments-page">
-      <div
-        className="flex items-center justify-between mb-6"
-        data-testid="assignments-header"
-      >
-        <h1 className="text-2xl font-bold text-gray-900">
-          {state.user?.role === 'child'
-            ? 'My Assignments'
-            : 'Weekly Assignments'}
-        </h1>
-        <div className="flex items-center gap-3">
-          {/* Only show filter dropdown for parents */}
-          {state.user?.role === 'parent' && (
+      {/* Only show header for parents (children have header in layout) */}
+      {state.user?.role === 'parent' && (
+        <div
+          className="flex items-center justify-between mb-6"
+          data-testid="assignments-header"
+        >
+          <h1 className="text-2xl font-bold text-gray-900">
+            Weekly Assignments
+          </h1>
+          <div className="flex items-center gap-3">
             <select
               value={childFilter}
               onChange={(e) => setChildFilter(e.target.value)}
@@ -239,9 +237,7 @@ const AssignmentsPage: React.FC = () => {
                 </option>
               ))}
             </select>
-          )}
 
-          {state.user?.role === 'parent' && (
             <button
               onClick={() => setIsCreateModalOpen(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -249,9 +245,9 @@ const AssignmentsPage: React.FC = () => {
             >
               Create Assignment
             </button>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Day selector for child users */}
       {state.user?.role === 'child' && (
