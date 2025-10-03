@@ -32,9 +32,15 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "typecheck": "pnpm --filter backend run typecheck && pnpm --filter frontend run typecheck",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "changeset": "changeset",
+    "changeset:add": "changeset add",
+    "changeset:status": "changeset status",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "concurrently": "^8.2.2",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
