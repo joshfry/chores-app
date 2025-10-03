@@ -528,7 +528,7 @@ router.put(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params
-      const { name, birthdate } = req.body
+      const { name, birthdate, role } = req.body
       const targetUserId = parseInt(id)
 
       const targetUser = await authModels.getUserById(targetUserId)
@@ -546,14 +546,26 @@ router.put(
       }
 
       // Check permissions
-      const canUpdate =
-        currentUser!.id === targetUserId || // Own profile
-        (currentUser!.role === 'parent' && targetUser!.role === 'child') // Parent updating child
+      const isOwnProfile = currentUser!.id === targetUserId
+      const isParentUpdatingChild =
+        currentUser!.role === 'parent' && targetUser!.role === 'child'
+      const canUpdate = isOwnProfile || isParentUpdatingChild
 
       if (!canUpdate) {
         res.status(403).json({
           success: false,
           error: 'Permission denied',
+          message: `Cannot update user ${targetUserId}. Current user: ${currentUser!.id}, role: ${currentUser!.role}. Target user: ${targetUserId}, role: ${targetUser!.role}`,
+        })
+        return
+      }
+
+      // Only parents can update roles
+      if (role && currentUser!.role !== 'parent') {
+        res.status(403).json({
+          success: false,
+          error: 'Permission denied',
+          message: 'Only parents can update user roles',
         })
         return
       }

@@ -51,7 +51,6 @@ router.get(
               id: ac.chore.id,
               title: ac.chore.title,
               description: ac.chore.description,
-              difficulty: ac.chore.difficulty,
               isRecurring: ac.chore.isRecurring,
               recurrenceDays: ac.chore.recurrenceDays
                 ? JSON.parse(ac.chore.recurrenceDays)
@@ -330,7 +329,6 @@ router.put(
               id: ac.chore.id,
               title: ac.chore.title,
               description: ac.chore.description,
-              difficulty: ac.chore.difficulty,
               isRecurring: ac.chore.isRecurring,
               recurrenceDays: ac.chore.recurrenceDays
                 ? JSON.parse(ac.chore.recurrenceDays)
