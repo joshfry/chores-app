@@ -177,7 +177,15 @@ router.post(
             choreId: ac.choreId,
             status: ac.status,
             completedOn: ac.completedOn,
-            chore: ac.chore,
+            chore: {
+              id: ac.chore.id,
+              title: ac.chore.title,
+              description: ac.chore.description,
+              isRecurring: ac.chore.isRecurring,
+              recurrenceDays: ac.chore.recurrenceDays
+                ? JSON.parse(ac.chore.recurrenceDays)
+                : [],
+            },
           })),
         },
       })
