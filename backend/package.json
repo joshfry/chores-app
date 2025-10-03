@@ -12,6 +12,8 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push --accept-data-loss --skip-generate",
     "db:clear": "node scripts/clear-database.js",
+    "db:export": "node scripts/export-data.js",
+    "db:import": "node scripts/import-data.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
