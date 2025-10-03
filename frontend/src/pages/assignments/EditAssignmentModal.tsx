@@ -39,10 +39,15 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
 
   useEffect(() => {
     if (assignment) {
+      // Get unique chore IDs (a recurring chore may have multiple daily instances)
+      const uniqueChoreIds = Array.from(
+        new Set(assignment.chores?.map((ac) => ac.choreId) || []),
+      )
+
       setFormData({
         childId: assignment.childId.toString(),
         startDate: assignment.startDate,
-        choreIds: assignment.chores?.map((ac) => ac.choreId) || [],
+        choreIds: uniqueChoreIds,
         notes: assignment.notes || '',
       })
     }
