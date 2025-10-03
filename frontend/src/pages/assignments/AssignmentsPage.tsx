@@ -217,15 +217,13 @@ const AssignmentsPage: React.FC = () => {
 
   return (
     <div className="p-6" data-testid="assignments-page">
-      {/* Only show header for parents (children have header in layout) */}
-      {state.user?.role === 'parent' && (
-        <div
-          className="flex items-center justify-between mb-6"
-          data-testid="assignments-header"
-        >
-          <h1 className="text-2xl font-bold text-gray-900">
-            Weekly Assignments
-          </h1>
+      {/* Page Header */}
+      <div
+        className="flex items-center justify-between mb-6"
+        data-testid="assignments-header"
+      >
+        <h1 className="text-2xl font-bold text-gray-900">Weekly Assignments</h1>
+        {state.user?.role === 'parent' && (
           <div className="flex items-center gap-3">
             <select
               value={childFilter}
@@ -248,8 +246,8 @@ const AssignmentsPage: React.FC = () => {
               Create Assignment
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Day selector */}
       <div
