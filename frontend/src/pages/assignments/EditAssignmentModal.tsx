@@ -218,9 +218,6 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
                     Recurrence
                   </th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                    Difficulty
-                  </th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                     Actions
                   </th>
                 </tr>
@@ -229,7 +226,7 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
                 {formData.choreIds.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={3}
                       className="px-3 py-4 text-center text-gray-500"
                     >
                       No chores assigned. Add chores below.
@@ -251,19 +248,6 @@ const EditAssignmentModal: React.FC<EditAssignmentModalProps> = ({
                           {chore.isRecurring && chore.recurrenceDays
                             ? chore.recurrenceDays.join(', ')
                             : 'One-time'}
-                        </td>
-                        <td className="px-3 py-2">
-                          <span
-                            className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
-                              chore.difficulty === 'easy'
-                                ? 'bg-green-100 text-green-800'
-                                : chore.difficulty === 'medium'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {chore.difficulty}
-                          </span>
                         </td>
                         <td className="px-3 py-2">
                           <button
