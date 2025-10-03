@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const { state, login, clearError } = useAuth()
-  const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -16,8 +16,7 @@ const LoginPage: React.FC = () => {
     const success = await login(email)
 
     if (success) {
-      // Redirect to verify page in "waiting" state
-      navigate('/verify?sent=true')
+      setEmailSent(true)
     }
 
     setIsSubmitting(false)
@@ -39,6 +38,24 @@ const LoginPage: React.FC = () => {
             data-testid="login-error"
           >
             {state.error}
+          </div>
+        )}
+
+        {emailSent && (
+          <div
+            className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg"
+            data-testid="login-success"
+          >
+            <div className="flex items-start">
+              <div className="text-2xl mr-3">📧</div>
+              <div>
+                <p className="font-semibold mb-1">Check your email!</p>
+                <p className="text-sm">
+                  We've sent a magic link to <strong>{email}</strong>. Click the
+                  link in the email to sign in.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
