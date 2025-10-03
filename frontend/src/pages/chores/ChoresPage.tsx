@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
-import type { Chore } from '../../types/api'
+import type { Chore, User, Assignment } from '../../types/api'
 import CreateChoreModal from './CreateChoreModal'
 import EditChoreModal from './EditChoreModal'
+import CreateAssignmentModal from '../assignments/CreateAssignmentModal'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
 const ChoresPage: React.FC = () => {
   const { state } = useAuth()
   const [chores, setChores] = useState<Chore[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
   const [selectedChore, setSelectedChore] = useState<Chore | null>(null)
+  const [newlyCreatedChore, setNewlyCreatedChore] = useState<Chore | null>(null)
+  const [showAssignPrompt, setShowAssignPrompt] = useState(false)
 
   useEffect(() => {
     fetchChores()
+    fetchUsers()
   }, [])
 
   const fetchChores = async () => {
@@ -41,14 +47,31 @@ const ChoresPage: React.FC = () => {
     }
   }
 
+  const fetchUsers = async () => {
+    try {
+      const response = await api.getUsers()
+      if (response.success) {
+        setUsers(response.data || [])
+      }
+    } catch (err: any) {
+      console.error('Failed to load users:', err)
+    }
+  }
+
   const handleCreateChore = async (choreData: {
     title: string
     description?: string
     isRecurring: boolean
     recurrenceDays?: string[]
   }) => {
-    await api.createChore(choreData)
+    const response = await api.createChore(choreData)
     await fetchChores()
+
+    // Show assign prompt after successful creation
+    if (response.success && response.data) {
+      setNewlyCreatedChore(response.data)
+      setShowAssignPrompt(true)
+    }
   }
 
   const handleEditChore = async (
@@ -70,6 +93,30 @@ const ChoresPage: React.FC = () => {
     await fetchChores()
     setSelectedChore(null)
   }
+
+  const handleCreateAssignment = async (assignmentData: {
+    childId: number
+    startDate: string
+    choreIds: number[]
+    notes?: string
+  }) => {
+    await api.createAssignment(assignmentData)
+    setIsAssignModalOpen(false)
+    setNewlyCreatedChore(null)
+    setShowAssignPrompt(false)
+  }
+
+  const handleAssignNow = () => {
+    setShowAssignPrompt(false)
+    setIsAssignModalOpen(true)
+  }
+
+  const handleSkipAssign = () => {
+    setShowAssignPrompt(false)
+    setNewlyCreatedChore(null)
+  }
+
+  const childrenOnly = users.filter((user) => user.role === 'child')
 
   if (isLoading) {
     return (
@@ -250,6 +297,31 @@ const ChoresPage: React.FC = () => {
         confirmText="Delete"
         cancelText="Cancel"
       />
+
+      {/* Assign Now Prompt */}
+      <ConfirmDialog
+        isOpen={showAssignPrompt}
+        onClose={handleSkipAssign}
+        onConfirm={handleAssignNow}
+        title="Chore Created Successfully!"
+        message={`"${newlyCreatedChore?.title}" has been created. Would you like to assign it to a child now?`}
+        confirmText="Assign Now"
+        cancelText="Maybe Later"
+      />
+
+      {/* Assignment Modal */}
+      {newlyCreatedChore && (
+        <CreateAssignmentModal
+          isOpen={isAssignModalOpen}
+          onClose={() => {
+            setIsAssignModalOpen(false)
+            setNewlyCreatedChore(null)
+          }}
+          children={childrenOnly}
+          chores={[newlyCreatedChore]}
+          onSubmit={handleCreateAssignment}
+        />
+      )}
     </div>
   )
 }
