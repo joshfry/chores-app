@@ -6,6 +6,7 @@ import CreateUserModal from '../users/CreateUserModal'
 import EditUserModal from '../users/EditUserModal'
 import CreateChoreModal from '../chores/CreateChoreModal'
 import EditChoreModal from '../chores/EditChoreModal'
+import CreateAssignmentModal from '../assignments/CreateAssignmentModal'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
 const MyAccountPage: React.FC = () => {
@@ -22,6 +23,9 @@ const MyAccountPage: React.FC = () => {
   const [showEditChoreModal, setShowEditChoreModal] = useState(false)
   const [showDeleteChoreDialog, setShowDeleteChoreDialog] = useState(false)
   const [selectedChore, setSelectedChore] = useState<Chore | null>(null)
+  const [showAssignPrompt, setShowAssignPrompt] = useState(false)
+  const [showAssignModal, setShowAssignModal] = useState(false)
+  const [newlyCreatedChore, setNewlyCreatedChore] = useState<Chore | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -88,8 +92,14 @@ const MyAccountPage: React.FC = () => {
     isRecurring: boolean
     recurrenceDays?: string[]
   }) => {
-    await api.createChore(choreData)
+    const response = await api.createChore(choreData)
     await fetchData()
+
+    // Show assign prompt after successful creation
+    if (response.success && response.data) {
+      setNewlyCreatedChore(response.data)
+      setShowAssignPrompt(true)
+    }
   }
 
   const handleEditChore = async (
@@ -110,6 +120,28 @@ const MyAccountPage: React.FC = () => {
     await api.deleteChore(selectedChore.id)
     await fetchData()
     setSelectedChore(null)
+  }
+
+  const handleCreateAssignment = async (assignmentData: {
+    childId: number
+    startDate: string
+    choreIds: number[]
+    notes?: string
+  }) => {
+    await api.createAssignment(assignmentData)
+    setShowAssignModal(false)
+    setNewlyCreatedChore(null)
+    setShowAssignPrompt(false)
+  }
+
+  const handleAssignNow = () => {
+    setShowAssignPrompt(false)
+    setShowAssignModal(true)
+  }
+
+  const handleSkipAssign = () => {
+    setShowAssignPrompt(false)
+    setNewlyCreatedChore(null)
   }
 
   if (loading) {
@@ -389,6 +421,31 @@ const MyAccountPage: React.FC = () => {
         message={`Are you sure you want to delete "${selectedChore?.title}"? This action cannot be undone.`}
         confirmText="Delete"
       />
+
+      {/* Assign Now Prompt */}
+      <ConfirmDialog
+        isOpen={showAssignPrompt}
+        onClose={handleSkipAssign}
+        onConfirm={handleAssignNow}
+        title="Chore Created Successfully!"
+        message={`"${newlyCreatedChore?.title}" has been created. Would you like to assign it to a child now?`}
+        confirmText="Assign Now"
+        cancelText="Maybe Later"
+      />
+
+      {/* Assignment Modal */}
+      {newlyCreatedChore && (
+        <CreateAssignmentModal
+          isOpen={showAssignModal}
+          onClose={() => {
+            setShowAssignModal(false)
+            setNewlyCreatedChore(null)
+          }}
+          children={users.filter((user) => user.role === 'child')}
+          chores={[newlyCreatedChore]}
+          onSubmit={handleCreateAssignment}
+        />
+      )}
     </div>
   )
 }
