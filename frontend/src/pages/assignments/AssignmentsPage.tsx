@@ -176,21 +176,6 @@ const AssignmentsPage: React.FC = () => {
     })
   }
 
-  // Helper function to get day-of-week order for sorting
-  const getDayOrder = (day: string | null): number => {
-    const dayOrder: { [key: string]: number } = {
-      sunday: 0,
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-      everyday: 7, // Put "everyday" at the end
-    }
-    return day ? (dayOrder[day.toLowerCase()] ?? 999) : 1000 // null (non-recurring) goes last
-  }
-
   const getUserById = (userId: number) => {
     return users.find((user) => user.id === userId)
   }
@@ -266,48 +251,46 @@ const AssignmentsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Day selector for child users */}
-      {state.user?.role === 'child' && (
-        <div
-          className="mb-6 bg-white rounded-lg shadow p-4"
-          data-testid="day-selector"
-        >
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-between gap-4 mb-4">
-            <button
-              onClick={handlePreviousDay}
-              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-              data-testid="previous-day-button"
-              aria-label="Previous day"
-            >
-              ← Previous
-            </button>
+      {/* Day selector */}
+      <div
+        className="mb-6 bg-white rounded-lg shadow p-4"
+        data-testid="day-selector"
+      >
+        {/* Navigation Controls */}
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <button
+            onClick={handlePreviousDay}
+            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            data-testid="previous-day-button"
+            aria-label="Previous day"
+          >
+            ← Previous
+          </button>
 
-            <select
-              value={selectedDay}
-              onChange={(e) => setSelectedDay(e.target.value)}
-              className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none capitalize font-medium"
-              data-testid="day-select"
-            >
-              {daysOfWeek.map((day) => (
-                <option key={day} value={day} className="capitalize">
-                  {day}
-                  {day === today ? ' (Today)' : ''}
-                </option>
-              ))}
-            </select>
+          <select
+            value={selectedDay}
+            onChange={(e) => setSelectedDay(e.target.value)}
+            className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none capitalize font-medium"
+            data-testid="day-select"
+          >
+            {daysOfWeek.map((day) => (
+              <option key={day} value={day} className="capitalize">
+                {day}
+                {day === today ? ' (Today)' : ''}
+              </option>
+            ))}
+          </select>
 
-            <button
-              onClick={handleNextDay}
-              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-              data-testid="next-day-button"
-              aria-label="Next day"
-            >
-              Next →
-            </button>
-          </div>
+          <button
+            onClick={handleNextDay}
+            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            data-testid="next-day-button"
+            aria-label="Next day"
+          >
+            Next →
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Special Sunday message for child users */}
       {state.user?.role === 'child' && selectedDay === 'sunday' ? (
@@ -442,18 +425,17 @@ const AssignmentsPage: React.FC = () => {
                     const child = getUserById(assignment.childId)
                     const endDate = assignment.endDate || 'Ongoing'
 
-                    // Filter chores for child users by selected day using completedOn field
-                    const displayChores =
-                      state.user?.role === 'child'
-                        ? assignment.chores?.filter((assignmentChore) => {
-                            // Match by completedOn field (the scheduled day for this chore)
-                            // If completedOn is null, it's a one-time chore (show on all days)
-                            return (
-                              assignmentChore.completedOn === null ||
-                              assignmentChore.completedOn === selectedDay
-                            )
-                          })
-                        : assignment.chores
+                    // Filter chores by selected day using completedOn field
+                    const displayChores = assignment.chores?.filter(
+                      (assignmentChore) => {
+                        // Match by completedOn field (the scheduled day for this chore)
+                        // If completedOn is null, it's a one-time chore (show on all days)
+                        return (
+                          assignmentChore.completedOn === null ||
+                          assignmentChore.completedOn === selectedDay
+                        )
+                      },
+                    )
 
                     const totalChores = displayChores?.length || 0
                     const completedChores =
@@ -479,7 +461,7 @@ const AssignmentsPage: React.FC = () => {
                             : endDate}
                         </td>
                         <td className="px-6 py-4">
-                          {totalChores === 0 && state.user?.role === 'child' ? (
+                          {totalChores === 0 ? (
                             <div className="text-sm text-gray-500 italic py-2">
                               🎉 No chores scheduled for {selectedDay}
                             </div>
@@ -488,32 +470,17 @@ const AssignmentsPage: React.FC = () => {
                               <tbody>
                                 {assignment.chores
                                   ?.filter((assignmentChore) => {
-                                    // For child users, filter by selected day using completedOn
-                                    if (state.user?.role === 'child') {
-                                      // Match by completedOn field (the scheduled day for this chore)
-                                      // If completedOn is null, it's a one-time chore (show on all days)
-                                      return (
-                                        assignmentChore.completedOn === null ||
-                                        assignmentChore.completedOn ===
-                                          selectedDay
-                                      )
-                                    }
-                                    // For parents, show all chores
-                                    return true
+                                    // Filter by selected day using completedOn
+                                    // Match by completedOn field (the scheduled day for this chore)
+                                    // If completedOn is null, it's a one-time chore (show on all days)
+                                    return (
+                                      assignmentChore.completedOn === null ||
+                                      assignmentChore.completedOn ===
+                                        selectedDay
+                                    )
                                   })
                                   .sort((a, b) => {
-                                    // Sort by day of week for parents
-                                    if (state.user?.role === 'parent') {
-                                      const dayDiff =
-                                        getDayOrder(a.completedOn ?? null) -
-                                        getDayOrder(b.completedOn ?? null)
-                                      if (dayDiff !== 0) return dayDiff
-                                      // If same day, sort by chore title
-                                      return (
-                                        a.chore?.title || ''
-                                      ).localeCompare(b.chore?.title || '')
-                                    }
-                                    // For children, sort by chore title (all same day)
+                                    // Sort by chore title (all same day)
                                     return (a.chore?.title || '').localeCompare(
                                       b.chore?.title || '',
                                     )
@@ -527,12 +494,6 @@ const AssignmentsPage: React.FC = () => {
                                       <td className="py-1 pr-2">
                                         {assignmentChore.chore?.title ||
                                           'Unknown Chore'}
-                                        {state.user?.role === 'parent' &&
-                                          assignmentChore.completedOn && (
-                                            <span className="text-xs font-medium text-blue-600 ml-2 capitalize">
-                                              [{assignmentChore.completedOn}]
-                                            </span>
-                                          )}
                                       </td>
                                       <td className="py-1 px-2 text-center">
                                         <span
@@ -600,11 +561,6 @@ const AssignmentsPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
                           {completedChores}/{totalChores} completed
-                          {state.user?.role === 'child' && totalChores > 0 && (
-                            <div className="text-xs text-gray-500 mt-1">
-                              for {selectedDay}
-                            </div>
-                          )}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
                           {assignment.notes || '-'}
