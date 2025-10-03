@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
-import type { Chore, User, Assignment } from '../../types/api'
+import type { Chore, User } from '../../types/api'
 import CreateChoreModal from './CreateChoreModal'
 import EditChoreModal from './EditChoreModal'
 import CreateAssignmentModal from '../assignments/CreateAssignmentModal'
