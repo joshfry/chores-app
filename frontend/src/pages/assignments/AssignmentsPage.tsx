@@ -342,10 +342,12 @@ const AssignmentsPage: React.FC = () => {
             assignment.chores?.forEach((assignmentChore) => {
               const recurrenceDays = assignmentChore.chore?.recurrenceDays
               // Check if chore should show on selected day
+              // "everyday" means Mon-Sat (no chores on Sunday)
               const shouldShow =
                 !recurrenceDays ||
                 recurrenceDays.length === 0 ||
-                recurrenceDays.includes('everyday') ||
+                (recurrenceDays.includes('everyday') &&
+                  selectedDay !== 'sunday') ||
                 recurrenceDays.includes(selectedDay)
 
               if (shouldShow) {
@@ -459,9 +461,11 @@ const AssignmentsPage: React.FC = () => {
                         if (!recurrenceDays || recurrenceDays.length === 0) {
                           return true
                         }
-                        // Show if "everyday" is selected OR if selected day is in recurrence days
+                        // "everyday" means Mon-Sat (no chores on Sunday)
+                        // Show if "everyday" is selected (and not Sunday) OR if selected day is in recurrence days
                         return (
-                          recurrenceDays.includes('everyday') ||
+                          (recurrenceDays.includes('everyday') &&
+                            selectedDay !== 'sunday') ||
                           recurrenceDays.includes(selectedDay)
                         )
                       })
@@ -509,9 +513,11 @@ const AssignmentsPage: React.FC = () => {
                                   ) {
                                     return true
                                   }
-                                  // Show if "everyday" is selected OR if selected day is in recurrence days
+                                  // "everyday" means Mon-Sat (no chores on Sunday)
+                                  // Show if "everyday" is selected (and not Sunday) OR if selected day is in recurrence days
                                   return (
-                                    recurrenceDays.includes('everyday') ||
+                                    (recurrenceDays.includes('everyday') &&
+                                      selectedDay !== 'sunday') ||
                                     recurrenceDays.includes(selectedDay)
                                   )
                                 }
