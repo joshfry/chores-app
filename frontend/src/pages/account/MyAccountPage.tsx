@@ -31,6 +31,18 @@ const MyAccountPage: React.FC = () => {
     fetchData()
   }, [])
 
+  // Clean up newly created chore if user closes prompt without assigning
+  useEffect(() => {
+    if (!showAssignPrompt && !showAssignModal && newlyCreatedChore) {
+      console.log('🧹 Cleaning up chore after prompt closed without assigning')
+      // Small delay to ensure state updates have settled
+      const timeout = setTimeout(() => {
+        setNewlyCreatedChore(null)
+      }, 100)
+      return () => clearTimeout(timeout)
+    }
+  }, [showAssignPrompt, showAssignModal, newlyCreatedChore])
+
   const fetchData = async () => {
     try {
       setLoading(true)
@@ -145,14 +157,21 @@ const MyAccountPage: React.FC = () => {
       '👶 Children available:',
       users.filter((user) => user.role === 'child'),
     )
+    // Don't clear the chore yet - keep it for the assignment modal
     setShowAssignPrompt(false)
     setShowAssignModal(true)
     console.log('✅ Modal state set to true')
   }
 
-  const handleSkipAssign = () => {
-    console.log('⏭️ Skip assign clicked')
+  const handleClosePrompt = () => {
+    console.log('🚪 Closing prompt (chore cleanup handled by useEffect)')
+    // Just close the prompt - useEffect will handle cleanup if not assigning
     setShowAssignPrompt(false)
+  }
+
+  const handleCloseAssignmentModal = () => {
+    console.log('❌ Assignment modal closed')
+    setShowAssignModal(false)
     setNewlyCreatedChore(null)
   }
 
@@ -437,7 +456,7 @@ const MyAccountPage: React.FC = () => {
       {/* Assign Now Prompt */}
       <ConfirmDialog
         isOpen={showAssignPrompt}
-        onClose={handleSkipAssign}
+        onClose={handleClosePrompt}
         onConfirm={handleAssignNow}
         title="Chore Created Successfully!"
         message={`"${newlyCreatedChore?.title}" has been created. Would you like to assign it to a child now?`}
@@ -449,10 +468,7 @@ const MyAccountPage: React.FC = () => {
       {newlyCreatedChore && (
         <CreateAssignmentModal
           isOpen={showAssignModal}
-          onClose={() => {
-            setShowAssignModal(false)
-            setNewlyCreatedChore(null)
-          }}
+          onClose={handleCloseAssignmentModal}
           children={users.filter((user) => user.role === 'child')}
           chores={[newlyCreatedChore]}
           onSubmit={handleCreateAssignment}
