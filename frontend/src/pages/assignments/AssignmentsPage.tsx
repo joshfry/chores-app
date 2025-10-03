@@ -391,7 +391,188 @@ const AssignmentsPage: React.FC = () => {
                 </button>
               )}
             </div>
+          ) : state.user?.role === 'child' ? (
+            // Card view for children - mobile-friendly
+            <div className="space-y-4" data-testid="assignments-cards">
+              {filteredAssignments.map((assignment) => {
+                const child = getUserById(assignment.childId)
+                const endDate = assignment.endDate || 'Ongoing'
+
+                // For child view, separate recurring chores from bonus chores
+                const recurringChores = assignment.chores?.filter(
+                  (assignmentChore) =>
+                    assignmentChore.completedOn === selectedDay,
+                )
+                const bonusChores = assignment.chores?.filter(
+                  (assignmentChore) => assignmentChore.completedOn === null,
+                )
+
+                const displayChores = recurringChores
+                const totalChores = displayChores?.length || 0
+                const completedChores =
+                  displayChores?.filter((c) => c.status === 'completed')
+                    .length || 0
+
+                return (
+                  <div
+                    key={assignment.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden"
+                    data-testid="assignment-card"
+                  >
+                    {/* Card Header */}
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 text-white">
+                      <div className="text-sm font-medium">
+                        {formatDate(assignment.startDate)} -{' '}
+                        {endDate !== 'Ongoing' ? formatDate(endDate) : endDate}
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-4 space-y-4">
+                      {/* Regular chores for today */}
+                      {totalChores === 0 ? (
+                        <div className="text-center py-6 text-gray-500 italic">
+                          <div className="text-4xl mb-2">🎉</div>
+                          <div>No chores scheduled for {selectedDay}</div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {displayChores
+                            ?.sort((a, b) => {
+                              return (a.chore?.title || '').localeCompare(
+                                b.chore?.title || '',
+                              )
+                            })
+                            .map((assignmentChore) => (
+                              <div
+                                key={assignmentChore.id}
+                                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
+                                data-testid="chore-item"
+                              >
+                                {/* Chore Title */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-900 truncate">
+                                    {assignmentChore.chore?.title ||
+                                      'Unknown Chore'}
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    <span
+                                      className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                        assignmentChore.status === 'completed'
+                                          ? 'bg-green-100 text-green-800'
+                                          : assignmentChore.status === 'skipped'
+                                            ? 'bg-gray-100 text-gray-800'
+                                            : 'bg-yellow-100 text-yellow-800'
+                                      }`}
+                                      data-testid="chore-status"
+                                    >
+                                      {assignmentChore.status}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Toggle Button */}
+                                <button
+                                  onClick={() =>
+                                    handleToggleChoreStatus(
+                                      assignment.id,
+                                      assignmentChore.choreId,
+                                      assignmentChore.status,
+                                      assignmentChore.completedOn ?? null,
+                                    )
+                                  }
+                                  className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center text-xl transition-all ${
+                                    assignmentChore.status === 'completed'
+                                      ? 'bg-green-500 border-green-600 text-white'
+                                      : 'bg-white border-gray-300 text-gray-400 hover:border-green-500 hover:text-green-500'
+                                  }`}
+                                  data-testid="toggle-chore-button"
+                                >
+                                  {assignmentChore.status === 'completed'
+                                    ? '✓'
+                                    : '○'}
+                                </button>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+
+                      {/* Bonus chores */}
+                      {bonusChores && bonusChores.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <h4 className="text-sm font-semibold text-purple-700 mb-3 flex items-center gap-2">
+                            <span>🌟</span>
+                            <span>Bonus Chores</span>
+                          </h4>
+                          <div className="space-y-2">
+                            {bonusChores
+                              .sort((a, b) => {
+                                return (a.chore?.title || '').localeCompare(
+                                  b.chore?.title || '',
+                                )
+                              })
+                              .map((assignmentChore) => (
+                                <div
+                                  key={assignmentChore.id}
+                                  className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200"
+                                  data-testid="bonus-chore-item"
+                                >
+                                  {/* Chore Title */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-gray-900 truncate">
+                                      {assignmentChore.chore?.title ||
+                                        'Unknown Chore'}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-0.5">
+                                      <span
+                                        className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                          assignmentChore.status === 'completed'
+                                            ? 'bg-green-100 text-green-800'
+                                            : assignmentChore.status ===
+                                                'skipped'
+                                              ? 'bg-gray-100 text-gray-800'
+                                              : 'bg-yellow-100 text-yellow-800'
+                                        }`}
+                                        data-testid="chore-status"
+                                      >
+                                        {assignmentChore.status}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Toggle Button */}
+                                  <button
+                                    onClick={() =>
+                                      handleToggleChoreStatus(
+                                        assignment.id,
+                                        assignmentChore.choreId,
+                                        assignmentChore.status,
+                                        assignmentChore.completedOn ?? null,
+                                      )
+                                    }
+                                    className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center text-xl transition-all ${
+                                      assignmentChore.status === 'completed'
+                                        ? 'bg-green-500 border-green-600 text-white'
+                                        : 'bg-white border-purple-300 text-gray-400 hover:border-green-500 hover:text-green-500'
+                                    }`}
+                                    data-testid="toggle-chore-button"
+                                  >
+                                    {assignmentChore.status === 'completed'
+                                      ? '✓'
+                                      : '○'}
+                                  </button>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           ) : (
+            // Table view for parents
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <table className="w-full" data-testid="assignments-table">
                 <thead className="bg-gray-50 border-b border-gray-200">
@@ -411,11 +592,9 @@ const AssignmentsPage: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Notes
                     </th>
-                    {state.user?.role === 'parent' && (
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    )}
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -423,25 +602,15 @@ const AssignmentsPage: React.FC = () => {
                     const child = getUserById(assignment.childId)
                     const endDate = assignment.endDate || 'Ongoing'
 
-                    // For child view, separate recurring chores from bonus chores
-                    const recurringChores = assignment.chores?.filter(
-                      (assignmentChore) =>
-                        assignmentChore.completedOn === selectedDay,
-                    )
-                    const bonusChores = assignment.chores?.filter(
-                      (assignmentChore) => assignmentChore.completedOn === null,
-                    )
-
                     // For parent view, show all chores for the selected day
-                    const displayChores =
-                      state.user?.role === 'child'
-                        ? recurringChores
-                        : assignment.chores?.filter((assignmentChore) => {
-                            return (
-                              assignmentChore.completedOn === null ||
-                              assignmentChore.completedOn === selectedDay
-                            )
-                          })
+                    const displayChores = assignment.chores?.filter(
+                      (assignmentChore) => {
+                        return (
+                          assignmentChore.completedOn === null ||
+                          assignmentChore.completedOn === selectedDay
+                        )
+                      },
+                    )
 
                     const totalChores = displayChores?.length || 0
                     const completedChores =
@@ -467,178 +636,84 @@ const AssignmentsPage: React.FC = () => {
                             : endDate}
                         </td>
                         <td className="px-6 py-4">
-                          {totalChores === 0 &&
-                          (!bonusChores || bonusChores.length === 0) ? (
+                          {totalChores === 0 ? (
                             <div className="text-sm text-gray-500 italic py-2">
                               🎉 No chores scheduled for {selectedDay}
                             </div>
                           ) : (
-                            <div className="space-y-4">
-                              {/* Regular chores for today */}
-                              {totalChores === 0 ? (
-                                <div className="text-sm text-gray-500 italic py-2">
-                                  🎉 No chores scheduled for {selectedDay}
-                                </div>
-                              ) : (
-                                <table className="w-full text-sm">
-                                  <tbody>
-                                    {displayChores
-                                      ?.sort((a, b) => {
-                                        return (
-                                          a.chore?.title || ''
-                                        ).localeCompare(b.chore?.title || '')
-                                      })
-                                      .map((assignmentChore) => (
-                                        <tr
-                                          key={assignmentChore.id}
-                                          className="border-b last:border-0"
-                                          data-testid="chore-item"
+                            <table className="w-full text-sm">
+                              <tbody>
+                                {displayChores
+                                  ?.sort((a, b) => {
+                                    return (a.chore?.title || '').localeCompare(
+                                      b.chore?.title || '',
+                                    )
+                                  })
+                                  .map((assignmentChore) => (
+                                    <tr
+                                      key={assignmentChore.id}
+                                      className="border-b last:border-0"
+                                      data-testid="chore-item"
+                                    >
+                                      <td className="py-1 pr-2">
+                                        {assignmentChore.chore?.title ||
+                                          'Unknown Chore'}
+                                      </td>
+                                      <td className="py-1 px-2 text-center">
+                                        <span
+                                          className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                            assignmentChore.status ===
+                                            'completed'
+                                              ? 'bg-green-100 text-green-800'
+                                              : assignmentChore.status ===
+                                                  'skipped'
+                                                ? 'bg-gray-100 text-gray-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                          }`}
+                                          data-testid="chore-status"
                                         >
-                                          <td className="py-1 pr-2">
-                                            {assignmentChore.chore?.title ||
-                                              'Unknown Chore'}
-                                          </td>
-                                          <td className="py-1 px-2 text-center">
-                                            <span
-                                              className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                                assignmentChore.status ===
-                                                'completed'
-                                                  ? 'bg-green-100 text-green-800'
-                                                  : assignmentChore.status ===
-                                                      'skipped'
-                                                    ? 'bg-gray-100 text-gray-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
-                                              }`}
-                                              data-testid="chore-status"
-                                            >
-                                              {assignmentChore.status}
-                                            </span>
-                                          </td>
-                                          <td className="py-1 pl-2 text-right">
-                                            {(state.user?.role === 'parent' ||
-                                              (state.user?.role === 'child' &&
-                                                assignment.childId ===
-                                                  state.user.id)) && (
-                                              <div className="flex gap-1 justify-end">
-                                                <button
-                                                  onClick={() =>
-                                                    handleToggleChoreStatus(
-                                                      assignment.id,
-                                                      assignmentChore.choreId,
-                                                      assignmentChore.status,
-                                                      assignmentChore.completedOn ??
-                                                        null,
-                                                    )
-                                                  }
-                                                  className="px-2 py-0.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-                                                  data-testid="toggle-chore-button"
-                                                >
-                                                  {assignmentChore.status ===
-                                                  'completed'
-                                                    ? '✗'
-                                                    : '✓'}
-                                                </button>
-                                                {state.user?.role ===
-                                                  'parent' && (
-                                                  <button
-                                                    onClick={() =>
-                                                      handleRemoveChoreFromAssignment(
-                                                        assignment,
-                                                        assignmentChore.choreId,
-                                                      )
-                                                    }
-                                                    className="px-2 py-0.5 text-xs border border-red-300 rounded hover:bg-red-50 transition-colors"
-                                                    data-testid="remove-chore-button"
-                                                    title="Remove chore from assignment"
-                                                  >
-                                                    🗑️
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
-                                          </td>
-                                        </tr>
-                                      ))}
-                                  </tbody>
-                                </table>
-                              )}
-
-                              {/* Bonus chores (non-recurring) - only show for child view */}
-                              {state.user?.role === 'child' &&
-                                bonusChores &&
-                                bonusChores.length > 0 && (
-                                  <div>
-                                    <h4 className="text-sm font-semibold text-purple-700 mb-2 flex items-center gap-2">
-                                      <span>🌟</span>
-                                      <span>Bonus Chores</span>
-                                    </h4>
-                                    <table className="w-full text-sm">
-                                      <tbody>
-                                        {bonusChores
-                                          .sort((a, b) => {
-                                            return (
-                                              a.chore?.title || ''
-                                            ).localeCompare(
-                                              b.chore?.title || '',
-                                            )
-                                          })
-                                          .map((assignmentChore) => (
-                                            <tr
-                                              key={assignmentChore.id}
-                                              className="border-b last:border-0"
-                                              data-testid="bonus-chore-item"
-                                            >
-                                              <td className="py-1 pr-2">
-                                                {assignmentChore.chore?.title ||
-                                                  'Unknown Chore'}
-                                              </td>
-                                              <td className="py-1 px-2 text-center">
-                                                <span
-                                                  className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                                    assignmentChore.status ===
-                                                    'completed'
-                                                      ? 'bg-green-100 text-green-800'
-                                                      : assignmentChore.status ===
-                                                          'skipped'
-                                                        ? 'bg-gray-100 text-gray-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
-                                                  }`}
-                                                  data-testid="chore-status"
-                                                >
-                                                  {assignmentChore.status}
-                                                </span>
-                                              </td>
-                                              <td className="py-1 pl-2 text-right">
-                                                {state.user &&
-                                                  assignment.childId ===
-                                                    state.user.id && (
-                                                    <button
-                                                      onClick={() =>
-                                                        handleToggleChoreStatus(
-                                                          assignment.id,
-                                                          assignmentChore.choreId,
-                                                          assignmentChore.status,
-                                                          assignmentChore.completedOn ??
-                                                            null,
-                                                        )
-                                                      }
-                                                      className="px-2 py-0.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-                                                      data-testid="toggle-chore-button"
-                                                    >
-                                                      {assignmentChore.status ===
-                                                      'completed'
-                                                        ? '✗'
-                                                        : '✓'}
-                                                    </button>
-                                                  )}
-                                              </td>
-                                            </tr>
-                                          ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-                            </div>
+                                          {assignmentChore.status}
+                                        </span>
+                                      </td>
+                                      <td className="py-1 pl-2 text-right">
+                                        <div className="flex gap-1 justify-end">
+                                          <button
+                                            onClick={() =>
+                                              handleToggleChoreStatus(
+                                                assignment.id,
+                                                assignmentChore.choreId,
+                                                assignmentChore.status,
+                                                assignmentChore.completedOn ??
+                                                  null,
+                                              )
+                                            }
+                                            className="px-2 py-0.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                                            data-testid="toggle-chore-button"
+                                          >
+                                            {assignmentChore.status ===
+                                            'completed'
+                                              ? '✗'
+                                              : '✓'}
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              handleRemoveChoreFromAssignment(
+                                                assignment,
+                                                assignmentChore.choreId,
+                                              )
+                                            }
+                                            className="px-2 py-0.5 text-xs border border-red-300 rounded hover:bg-red-50 transition-colors"
+                                            data-testid="remove-chore-button"
+                                            title="Remove chore from assignment"
+                                          >
+                                            🗑️
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))}
+                              </tbody>
+                            </table>
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
