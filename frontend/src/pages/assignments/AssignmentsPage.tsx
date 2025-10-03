@@ -36,6 +36,19 @@ const AssignmentsPage: React.FC = () => {
   const today = daysOfWeek[new Date().getDay()]
   const [selectedDay, setSelectedDay] = useState<string>(today)
 
+  // Day navigation handlers
+  const handlePreviousDay = () => {
+    const currentIndex = daysOfWeek.indexOf(selectedDay)
+    const previousIndex = currentIndex === 0 ? 6 : currentIndex - 1
+    setSelectedDay(daysOfWeek[previousIndex])
+  }
+
+  const handleNextDay = () => {
+    const currentIndex = daysOfWeek.indexOf(selectedDay)
+    const nextIndex = currentIndex === 6 ? 0 : currentIndex + 1
+    setSelectedDay(daysOfWeek[nextIndex])
+  }
+
   useEffect(() => {
     fetchData()
   }, [])
@@ -345,7 +358,11 @@ const AssignmentsPage: React.FC = () => {
                         if (!recurrenceDays || recurrenceDays.length === 0) {
                           return true
                         }
-                        return recurrenceDays.includes(selectedDay)
+                        // Show if "everyday" is selected OR if selected day is in recurrence days
+                        return (
+                          recurrenceDays.includes('everyday') ||
+                          recurrenceDays.includes(selectedDay)
+                        )
                       })
                     : assignment.chores
 
@@ -391,8 +408,11 @@ const AssignmentsPage: React.FC = () => {
                                   ) {
                                     return true
                                   }
-                                  // Show only if selected day is in recurrence days
-                                  return recurrenceDays.includes(selectedDay)
+                                  // Show if "everyday" is selected OR if selected day is in recurrence days
+                                  return (
+                                    recurrenceDays.includes('everyday') ||
+                                    recurrenceDays.includes(selectedDay)
+                                  )
                                 }
                                 // For parents, show all chores
                                 return true
