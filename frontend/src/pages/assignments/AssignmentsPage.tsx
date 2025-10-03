@@ -496,16 +496,9 @@ const AssignmentsPage: React.FC = () => {
                                         {assignmentChore.chore?.title ||
                                           'Unknown Chore'}
                                         {state.user?.role === 'parent' &&
-                                          assignmentChore.chore
-                                            ?.recurrenceDays &&
-                                          assignmentChore.chore.recurrenceDays
-                                            .length > 0 && (
-                                            <span className="text-xs text-gray-500 ml-1">
-                                              (
-                                              {assignmentChore.chore.recurrenceDays.join(
-                                                ', ',
-                                              )}
-                                              )
+                                          assignmentChore.completedOn && (
+                                            <span className="text-xs font-medium text-blue-600 ml-2 capitalize">
+                                              [{assignmentChore.completedOn}]
                                             </span>
                                           )}
                                       </td>
