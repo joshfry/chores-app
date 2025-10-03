@@ -315,19 +315,27 @@ router.get(
   },
 )
 
-// POST /auth/create-child - Parent creates child account
+// POST /auth/create-child - Parent creates family member account
 router.post(
   '/create-child',
   requireAuth,
   requireParent,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { email, name, birthdate } = req.body
+      const { email, name, birthdate, role = 'child' } = req.body
 
       if (!email || !name || !birthdate) {
         res.status(400).json({
           success: false,
           error: 'Email, name, and birthdate are required',
+        })
+      }
+
+      // Validate role
+      if (role !== 'parent' && role !== 'child') {
+        res.status(400).json({
+          success: false,
+          error: 'Role must be either "parent" or "child"',
         })
       }
 
@@ -349,46 +357,46 @@ router.post(
         })
       }
 
-      // Create child user
-      const child = await authModels.createUser({
+      // Create user
+      const newUser = await authModels.createUser({
         email,
-        role: 'child',
+        role: role as 'parent' | 'child',
         familyId: parent!.familyId,
         name,
         birthdate,
       })
 
-      // Create magic token for child
+      // Create magic token
       const expiresAt = new Date()
-      expiresAt.setHours(expiresAt.getHours() + 24) // 24 hour expiry for child setup
+      expiresAt.setHours(expiresAt.getHours() + 24) // 24 hour expiry
       const magicToken = `magic_${Date.now()}_${Math.random()
         .toString(36)
         .substr(2, 9)}`
 
       await authModels.createMagicToken(
-        child.id,
+        newUser.id,
         magicToken,
         expiresAt.toISOString(),
       )
 
-      // Send child invitation email
+      // Send invitation email
       await sendChildInvitationEmail(
         email,
         magicToken,
-        child.name,
+        newUser.name,
         parent!.name,
       )
 
       res.status(201).json({
         success: true,
-        message: 'Child account created! Invitation email sent.',
+        message: `${role === 'parent' ? 'Parent' : 'Child'} account created! Invitation email sent.`,
         data: {
           child: {
-            id: child.id,
-            email: child.email,
-            name: child.name,
-            role: child.role,
-            birthdate: child.birthdate,
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            role: newUser.role,
+            birthdate: newUser.birthdate,
           },
         },
       })

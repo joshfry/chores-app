@@ -58,6 +58,7 @@ const MyAccountPage: React.FC = () => {
     const payload: any = {
       name: userData.name,
       email: userData.email,
+      role: userData.role,
     }
     if (userData.birthdate) {
       payload.birthdate = userData.birthdate
