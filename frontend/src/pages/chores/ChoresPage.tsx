@@ -182,7 +182,50 @@ const ChoresPage: React.FC = () => {
               </button>
             )}
           </div>
+        ) : state.user?.role === 'child' ? (
+          // Card view for children - stacks on mobile
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {chores.map((chore) => (
+              <div
+                key={chore.id}
+                className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition-shadow"
+                data-testid="chore-card"
+              >
+                <h3
+                  className="text-lg font-semibold text-gray-900 mb-2"
+                  data-testid="chore-title"
+                >
+                  {chore.title}
+                </h3>
+                {chore.description && (
+                  <p className="text-sm text-gray-600 mb-3">
+                    {chore.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-500">📅</span>
+                  {chore.isRecurring &&
+                  chore.recurrenceDays &&
+                  chore.recurrenceDays.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {chore.recurrenceDays.map((day) => (
+                        <span
+                          key={day}
+                          className="inline-flex px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded capitalize"
+                        >
+                          {day}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-gray-600">One-time</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
+          // Table view for parents
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
@@ -196,11 +239,9 @@ const ChoresPage: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Recurrence
                   </th>
-                  {state.user?.role === 'parent' && (
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  )}
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -236,30 +277,28 @@ const ChoresPage: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    {state.user?.role === 'parent' && (
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              setSelectedChore(chore)
-                              setIsEditModalOpen(true)
-                            }}
-                            className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedChore(chore)
-                              setIsDeleteDialogOpen(true)
-                            }}
-                            className="px-3 py-1 text-sm border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    )}
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedChore(chore)
+                            setIsEditModalOpen(true)
+                          }}
+                          className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedChore(chore)
+                            setIsDeleteDialogOpen(true)
+                          }}
+                          className="px-3 py-1 text-sm border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
