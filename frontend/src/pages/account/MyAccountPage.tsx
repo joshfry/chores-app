@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 import { User, Chore } from '../../types/api'
+import CreateUserModal from '../users/CreateUserModal'
+import CreateChoreModal from '../chores/CreateChoreModal'
 
 const MyAccountPage: React.FC = () => {
   const { state } = useAuth()
@@ -36,6 +38,34 @@ const MyAccountPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleCreateUser = async (userData: {
+    name: string
+    email: string
+    role: 'parent' | 'child'
+    birthdate?: string
+  }) => {
+    const payload: any = {
+      name: userData.name,
+      email: userData.email,
+    }
+    if (userData.birthdate) {
+      payload.birthdate = userData.birthdate
+    }
+    await api.createChild(payload)
+    await fetchData()
+  }
+
+  const handleCreateChore = async (choreData: {
+    title: string
+    description?: string
+    difficulty: 'easy' | 'medium' | 'hard'
+    isRecurring: boolean
+    recurrenceDays?: string[]
+  }) => {
+    await api.createChore(choreData)
+    await fetchData()
   }
 
   if (loading) {
@@ -218,40 +248,19 @@ const MyAccountPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Modals would be implemented here */}
-      {showAddUserModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Add User</h3>
-            <p className="text-gray-600 mb-4">
-              User creation functionality will be implemented here.
-            </p>
-            <button
-              onClick={() => setShowAddUserModal(false)}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Create User Modal */}
+      <CreateUserModal
+        isOpen={showAddUserModal}
+        onClose={() => setShowAddUserModal(false)}
+        onSubmit={handleCreateUser}
+      />
 
-      {showAddChoreModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Add Chore</h3>
-            <p className="text-gray-600 mb-4">
-              Chore creation functionality will be implemented here.
-            </p>
-            <button
-              onClick={() => setShowAddChoreModal(false)}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Create Chore Modal */}
+      <CreateChoreModal
+        isOpen={showAddChoreModal}
+        onClose={() => setShowAddChoreModal(false)}
+        onSubmit={handleCreateChore}
+      />
     </div>
   )
 }
