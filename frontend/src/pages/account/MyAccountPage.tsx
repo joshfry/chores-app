@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
-import { User, Chore } from '../../types/api'
+import { User, Chore, Assignment } from '../../types/api'
 import CreateUserModal from '../users/CreateUserModal'
 import EditUserModal from '../users/EditUserModal'
 import CreateChoreModal from '../chores/CreateChoreModal'
 import EditChoreModal from '../chores/EditChoreModal'
 import CreateAssignmentModal from '../assignments/CreateAssignmentModal'
+import EditAssignmentModal from '../assignments/EditAssignmentModal'
+import AssignChoreDialog from '../assignments/AssignChoreDialog'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
 const MyAccountPage: React.FC = () => {
   const { state } = useAuth()
   const [users, setUsers] = useState<User[]>([])
   const [chores, setChores] = useState<Chore[]>([])
+  const [assignments, setAssignments] = useState<Assignment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAddUserModal, setShowAddUserModal] = useState(false)
@@ -24,7 +27,12 @@ const MyAccountPage: React.FC = () => {
   const [showDeleteChoreDialog, setShowDeleteChoreDialog] = useState(false)
   const [selectedChore, setSelectedChore] = useState<Chore | null>(null)
   const [showAssignPrompt, setShowAssignPrompt] = useState(false)
-  const [showAssignModal, setShowAssignModal] = useState(false)
+  const [showAssignDialog, setShowAssignDialog] = useState(false)
+  const [showCreateAssignmentModal, setShowCreateAssignmentModal] =
+    useState(false)
+  const [showEditAssignmentModal, setShowEditAssignmentModal] = useState(false)
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<Assignment | null>(null)
   const [newlyCreatedChore, setNewlyCreatedChore] = useState<Chore | null>(null)
 
   useEffect(() => {
@@ -33,7 +41,13 @@ const MyAccountPage: React.FC = () => {
 
   // Clean up newly created chore if user closes prompt without assigning
   useEffect(() => {
-    if (!showAssignPrompt && !showAssignModal && newlyCreatedChore) {
+    if (
+      !showAssignPrompt &&
+      !showAssignDialog &&
+      !showCreateAssignmentModal &&
+      !showEditAssignmentModal &&
+      newlyCreatedChore
+    ) {
       console.log('🧹 Cleaning up chore after prompt closed without assigning')
       // Small delay to ensure state updates have settled
       const timeout = setTimeout(() => {
@@ -41,21 +55,32 @@ const MyAccountPage: React.FC = () => {
       }, 100)
       return () => clearTimeout(timeout)
     }
-  }, [showAssignPrompt, showAssignModal, newlyCreatedChore])
+  }, [
+    showAssignPrompt,
+    showAssignDialog,
+    showCreateAssignmentModal,
+    showEditAssignmentModal,
+    newlyCreatedChore,
+  ])
 
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [usersResponse, choresResponse] = await Promise.all([
-        api.getUsers(),
-        api.getChores(),
-      ])
+      const [usersResponse, choresResponse, assignmentsResponse] =
+        await Promise.all([
+          api.getUsers(),
+          api.getChores(),
+          api.getAssignments(),
+        ])
 
       if (usersResponse.success && usersResponse.data) {
         setUsers(usersResponse.data)
       }
       if (choresResponse.success && choresResponse.data) {
         setChores(choresResponse.data)
+      }
+      if (assignmentsResponse.success && assignmentsResponse.data) {
+        setAssignments(assignmentsResponse.data)
       }
       setError(null)
     } catch (err: any) {
@@ -145,7 +170,8 @@ const MyAccountPage: React.FC = () => {
     notes?: string
   }) => {
     await api.createAssignment(assignmentData)
-    setShowAssignModal(false)
+    await fetchData()
+    setShowCreateAssignmentModal(false)
     setNewlyCreatedChore(null)
     setShowAssignPrompt(false)
   }
@@ -157,10 +183,10 @@ const MyAccountPage: React.FC = () => {
       '👶 Children available:',
       users.filter((user) => user.role === 'child'),
     )
-    // Don't clear the chore yet - keep it for the assignment modal
+    // Don't clear the chore yet - keep it for the assignment dialog
     setShowAssignPrompt(false)
-    setShowAssignModal(true)
-    console.log('✅ Modal state set to true')
+    setShowAssignDialog(true)
+    console.log('✅ Dialog state set to true')
   }
 
   const handleClosePrompt = () => {
@@ -169,9 +195,32 @@ const MyAccountPage: React.FC = () => {
     setShowAssignPrompt(false)
   }
 
-  const handleCloseAssignmentModal = () => {
-    console.log('❌ Assignment modal closed')
-    setShowAssignModal(false)
+  const handleCreateNewAssignment = () => {
+    console.log('📝 Create new assignment selected')
+    setShowAssignDialog(false)
+    setShowCreateAssignmentModal(true)
+  }
+
+  const handleAddToExistingAssignment = (assignment: Assignment) => {
+    console.log('➕ Add to existing assignment:', assignment.id)
+    setSelectedAssignment(assignment)
+    setShowAssignDialog(false)
+    setShowEditAssignmentModal(true)
+  }
+
+  const handleUpdateAssignment = async (
+    id: number,
+    assignmentData: {
+      childId: number
+      startDate: string
+      choreIds: number[]
+      notes?: string
+    },
+  ) => {
+    await api.updateAssignment(id, assignmentData)
+    await fetchData()
+    setShowEditAssignmentModal(false)
+    setSelectedAssignment(null)
     setNewlyCreatedChore(null)
   }
 
@@ -464,14 +513,49 @@ const MyAccountPage: React.FC = () => {
         cancelText="Maybe Later"
       />
 
-      {/* Assignment Modal */}
+      {/* Assignment Choice Dialog */}
+      {newlyCreatedChore && (
+        <AssignChoreDialog
+          isOpen={showAssignDialog}
+          onClose={() => {
+            setShowAssignDialog(false)
+            // Let useEffect handle cleanup
+          }}
+          chore={newlyCreatedChore}
+          children={users.filter((user) => user.role === 'child')}
+          assignments={assignments}
+          onCreateNew={handleCreateNewAssignment}
+          onAddToExisting={handleAddToExistingAssignment}
+        />
+      )}
+
+      {/* Create Assignment Modal */}
       {newlyCreatedChore && (
         <CreateAssignmentModal
-          isOpen={showAssignModal}
-          onClose={handleCloseAssignmentModal}
+          isOpen={showCreateAssignmentModal}
+          onClose={() => {
+            setShowCreateAssignmentModal(false)
+            setNewlyCreatedChore(null)
+          }}
           children={users.filter((user) => user.role === 'child')}
           chores={[newlyCreatedChore]}
           onSubmit={handleCreateAssignment}
+        />
+      )}
+
+      {/* Edit Assignment Modal (Add Chore to Existing) */}
+      {selectedAssignment && newlyCreatedChore && (
+        <EditAssignmentModal
+          isOpen={showEditAssignmentModal}
+          onClose={() => {
+            setShowEditAssignmentModal(false)
+            setSelectedAssignment(null)
+            setNewlyCreatedChore(null)
+          }}
+          assignment={selectedAssignment}
+          children={users.filter((user) => user.role === 'child')}
+          chores={chores}
+          onSubmit={handleUpdateAssignment}
         />
       )}
     </div>
