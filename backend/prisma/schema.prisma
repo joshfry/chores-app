@@ -52,16 +52,15 @@ model User {
 
 // Chore represents a task that can be assigned
 model Chore {
-  id             Int        @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   title          String
   description    String?
-  difficulty     Difficulty @default(easy)
   category       String?
-  isRecurring    Boolean    @default(false) @map("is_recurring")
-  recurrenceDays String?    @map("recurrence_days") // JSON array: ["monday","wednesday","friday"]
-  familyId       Int        @map("family_id")
-  createdAt      DateTime   @default(now()) @map("created_at")
-  updatedAt      DateTime   @updatedAt @map("updated_at")
+  isRecurring    Boolean  @default(false) @map("is_recurring")
+  recurrenceDays String?  @map("recurrence_days") // JSON array: ["monday","wednesday","friday"]
+  familyId       Int      @map("family_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
   family           Family            @relation(fields: [familyId], references: [id])
@@ -142,12 +141,6 @@ model WebAuthnCredential {
 enum Role {
   parent
   child
-}
-
-enum Difficulty {
-  easy
-  medium
-  hard
 }
 
 enum AssignmentStatus {

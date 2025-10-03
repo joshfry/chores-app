@@ -60,7 +60,6 @@ const MyAccountPage: React.FC = () => {
   const handleCreateChore = async (choreData: {
     title: string
     description?: string
-    difficulty: 'easy' | 'medium' | 'hard'
     isRecurring: boolean
     recurrenceDays?: string[]
   }) => {
@@ -191,9 +190,6 @@ const MyAccountPage: React.FC = () => {
                   Description
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Difficulty
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Recurrence
                 </th>
               </tr>
@@ -209,19 +205,6 @@ const MyAccountPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {chore.description || '-'}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                        chore.difficulty === 'easy'
-                          ? 'bg-green-100 text-green-800'
-                          : chore.difficulty === 'medium'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {chore.difficulty}
-                    </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {chore.isRecurring &&

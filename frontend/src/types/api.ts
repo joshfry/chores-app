@@ -22,7 +22,6 @@ export interface Chore {
   id: number
   title: string
   description: string
-  difficulty: 'easy' | 'medium' | 'hard'
   isRecurring: boolean
   recurrenceDays?: string[] // e.g., ["monday", "wednesday", "friday"]
   familyId: number

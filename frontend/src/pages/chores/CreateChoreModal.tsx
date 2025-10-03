@@ -8,7 +8,6 @@ interface CreateChoreModalProps {
   onSubmit: (choreData: {
     title: string
     description?: string
-    difficulty: 'easy' | 'medium' | 'hard'
     isRecurring: boolean
     recurrenceDays?: string[]
   }) => Promise<void>
@@ -22,7 +21,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    difficulty: 'easy' as 'easy' | 'medium' | 'hard',
     isRecurring: false,
     recurrenceDays: [] as string[],
   })
@@ -51,7 +49,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
       await onSubmit({
         title: formData.title,
         description: formData.description || undefined,
-        difficulty: formData.difficulty,
         isRecurring: formData.isRecurring,
         recurrenceDays:
           formData.isRecurring && formData.recurrenceDays.length > 0
@@ -61,7 +58,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
       setFormData({
         title: '',
         description: '',
-        difficulty: 'easy',
         isRecurring: false,
         recurrenceDays: [],
       })
@@ -151,27 +147,6 @@ const CreateChoreModal: React.FC<CreateChoreModalProps> = ({
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             data-testid="description-input"
           />
-        </div>
-
-        <div>
-          <label
-            htmlFor="difficulty"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Difficulty *
-          </label>
-          <select
-            id="difficulty"
-            name="difficulty"
-            value={formData.difficulty}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            data-testid="difficulty-select"
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
         </div>
 
         <div>
