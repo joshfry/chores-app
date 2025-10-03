@@ -73,14 +73,15 @@ If you prefer manual setup or the Blueprint doesn't work:
    - **Root Directory**: `backend`
    - **Environment**: Node
    - **Build Command**: `npm install && npx prisma generate && npm run build`
+   - **Pre-Deploy Command**: _(leave empty)_
    - **Start Command**: `npm start`
-   - **Plan**: Free
+   - **Plan**: Free or Starter
 
 2. **Add Environment Variables**:
 
    ```
    NODE_ENV=production
-   PORT=3001
+   PORT=10000
    DATABASE_URL=file:./prisma/database.sqlite
    FRONTEND_URL=https://your-frontend-url.onrender.com
    EMAIL_SERVICE=gmail
@@ -90,13 +91,15 @@ If you prefer manual setup or the Blueprint doesn't work:
    EMAIL_FROM=your-email@gmail.com
    ```
 
-3. **Add Disk** (Important for SQLite persistence):
+3. **Add Disk** (Critical for SQLite persistence):
    - Go to "Disks" tab
    - Click "Add Disk"
    - **Name**: `database-storage`
    - **Mount Path**: `/opt/render/project/src/backend/prisma`
    - **Size**: 1GB (free tier)
    - Save
+
+4. **⚠️ IMPORTANT: One-Time Database Setup** (see Part 5 below)
 
 #### 2. Deploy Frontend
 
@@ -161,19 +164,52 @@ After deployment, update your frontend to use the production API:
 
 ## Part 5: First-Time Setup
 
-### 1. Seed the Database (Optional)
+### 🚨 CRITICAL: Initialize Database Schema (One-Time Only)
 
-```bash
-# Using curl (replace with your backend URL)
-curl -X POST https://your-backend.onrender.com/api/auth/seed
-```
+**⚠️ This step is REQUIRED for SQLite + Persistent Disk setups!**
 
-Or use Render's Shell:
+When Render mounts a persistent disk, it **overlays** the directory and hides any files deployed there. The `schema.prisma` file won't be accessible until we copy it to the mounted disk.
 
-1. Go to backend service → Shell
-2. Run: `npm run seed` (if you create this script)
+**Steps:**
 
-### 2. Test the App
+1. **Add your SSH key to Render** (if not already done):
+   - Go to: https://dashboard.render.com/settings/ssh-keys
+   - Copy your public key: `cat ~/.ssh/id_ed25519.pub` or `cat ~/.ssh/id_rsa.pub`
+   - Click "Add SSH Key" and paste it
+
+2. **SSH into your backend service**:
+
+   ```bash
+   # Replace SERVICE_ID with your actual service ID from the dashboard URL
+   ssh SERVICE_ID@ssh.oregon.render.com
+   ```
+
+3. **Copy the Prisma schema to the persistent disk**:
+
+   ```bash
+   cd /opt/render/project/src
+   git show origin/main:backend/prisma/schema.prisma > backend/prisma/schema.prisma
+   ```
+
+4. **Initialize the database**:
+
+   ```bash
+   cd backend
+   npx prisma db push --accept-data-loss
+   ```
+
+   You should see: `🚀 Your database is now in sync with your Prisma schema`
+
+5. **Exit SSH**:
+   ```bash
+   exit
+   ```
+
+**✅ Done!** The database schema is now permanently on the persistent disk and will survive all future deployments.
+
+---
+
+### Test the App
 
 1. Visit your frontend URL: `https://your-frontend.onrender.com`
 2. Click "Sign Up"
@@ -185,16 +221,54 @@ Or use Render's Shell:
 
 ## 🔧 Troubleshooting
 
+### Issue: "The table `main.users` does not exist in the current database"
+
+**Cause**: Database schema not initialized on the persistent disk.
+
+**Solution**: Follow the **Part 5: Initialize Database Schema** steps above. This is a **one-time setup** required for SQLite + persistent disk.
+
+---
+
+### Issue: "Could not find Prisma Schema that is required for this command"
+
+**Cause**: When Render mounts a persistent disk at `/opt/render/project/src/backend/prisma`, it overlays and hides the deployed `schema.prisma` file.
+
+**Solution**:
+
+```bash
+# SSH into your service and copy the schema from git
+cd /opt/render/project/src
+git show origin/main:backend/prisma/schema.prisma > backend/prisma/schema.prisma
+```
+
+---
+
 ### Issue: "Cannot connect to database"
 
 **Solution**: Make sure you added the persistent disk for SQLite:
 
 - Backend service → Disks → Add Disk
 - Mount path: `/opt/render/project/src/backend/prisma`
+- Size: 1GB
+
+---
+
+### Issue: "Permission denied (publickey)" when SSH'ing
+
+**Solution**: Add your SSH public key to Render:
+
+1. Get your key: `cat ~/.ssh/id_ed25519.pub` or `cat ~/.ssh/id_rsa.pub`
+2. Go to: https://dashboard.render.com/settings/ssh-keys
+3. Click "Add SSH Key" and paste it
+4. Wait 30 seconds, then try SSH again
+
+---
 
 ### Issue: "CORS errors" in browser
 
-**Solution**: Add `FRONTEND_URL` environment variable to backend with your exact frontend URL.
+**Solution**: Add `FRONTEND_URL` environment variable to backend with your exact frontend URL (no trailing slash).
+
+---
 
 ### Issue: "Magic links not working"
 
@@ -206,9 +280,13 @@ Or use Render's Shell:
 
 **Solution**: Check environment variables and test email locally first.
 
+---
+
 ### Issue: Frontend shows "Network Error"
 
 **Solution**: Update `REACT_APP_API_URL` in frontend environment variables with your backend URL.
+
+---
 
 ### Issue: Free tier service sleeps after inactivity
 
@@ -217,13 +295,26 @@ Or use Render's Shell:
 - First request after sleep takes ~30 seconds
 - Consider upgrading to paid tier ($7/month) for always-on service
 
+---
+
 ### Issue: Database resets on deploy
 
 **Solution**:
 
-1. Make sure disk is attached
+1. Make sure disk is attached properly
 2. Don't run `prisma migrate reset` in production
-3. Use `prisma migrate deploy` instead (already in start command)
+3. Database file persists on the mounted disk across deployments
+
+---
+
+### Issue: Pre-Deploy command fails with schema not found
+
+**Why this happens**: The Pre-Deploy command runs **before** the persistent disk is mounted, so it can't access the database or schema files.
+
+**Solution**:
+
+- Leave Pre-Deploy Command **empty**
+- Database initialization should be done via SSH (one-time) or in the Start Command (if needed)
 
 ---
 

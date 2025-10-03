@@ -50,7 +50,7 @@ Complete guide for deploying the Family Chores app to any hosting provider.
 Name: family-chores-backend
 Environment: Node
 Region: Oregon (or closest to you)
-Plan: Free
+Plan: Free or Starter
 
 Root Directory: backend
 
@@ -58,7 +58,7 @@ Build Command:
 npm install && npx prisma generate && npm run build
 
 Pre-Deploy Command:
-cd /opt/render/project/src/backend && npx prisma db push --accept-data-loss --skip-generate
+(leave empty - persistent disk not available during pre-deploy)
 
 Start Command:
 npm start
@@ -66,12 +66,14 @@ npm start
 Health Check Path: /health
 ```
 
+**⚠️ IMPORTANT:** After first deployment, you must initialize the database via SSH (one-time only). See [RENDER_SQLITE_SETUP.md](./RENDER_SQLITE_SETUP.md) for detailed instructions.
+
 **Environment Variables:**
 
 ```bash
 NODE_ENV=production
-PORT=3001
-DATABASE_URL=file:/opt/render/project/src/backend/prisma/database.sqlite
+PORT=10000
+DATABASE_URL=file:./prisma/database.sqlite
 FRONTEND_URL=https://your-frontend-url.onrender.com
 EMAIL_SERVICE=gmail
 EMAIL_USER=your-email@gmail.com
@@ -79,6 +81,8 @@ EMAIL_PASS=your-gmail-app-password
 EMAIL_FROM_NAME=Family Chores
 EMAIL_FROM=your-email@gmail.com
 ```
+
+**Note:** `PORT=10000` is Render's default. The `DATABASE_URL` uses a relative path since we're running from the backend directory.
 
 **Persistent Disk (CRITICAL):**
 
