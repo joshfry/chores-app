@@ -293,6 +293,70 @@ const AssignmentsPage: React.FC = () => {
         </div>
       )}
 
+      {/* Progress bar for child users */}
+      {state.user?.role === 'child' &&
+        filteredAssignments.length > 0 &&
+        (() => {
+          // Calculate total chores for selected day across all assignments
+          let totalChoresForDay = 0
+          let completedChoresForDay = 0
+
+          filteredAssignments.forEach((assignment) => {
+            assignment.chores?.forEach((assignmentChore) => {
+              const recurrenceDays = assignmentChore.chore?.recurrenceDays
+              // Check if chore should show on selected day
+              const shouldShow =
+                !recurrenceDays ||
+                recurrenceDays.length === 0 ||
+                recurrenceDays.includes('everyday') ||
+                recurrenceDays.includes(selectedDay)
+
+              if (shouldShow) {
+                totalChoresForDay++
+                if (assignmentChore.status === 'completed') {
+                  completedChoresForDay++
+                }
+              }
+            })
+          })
+
+          const progressPercentage =
+            totalChoresForDay > 0
+              ? Math.round((completedChoresForDay / totalChoresForDay) * 100)
+              : 0
+
+          return (
+            <div
+              className="mb-6 bg-white rounded-lg shadow p-4"
+              data-testid="day-progress"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">
+                  Today's Progress
+                </span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {completedChoresForDay} of {totalChoresForDay} completed
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    progressPercentage === 100
+                      ? 'bg-green-500'
+                      : progressPercentage >= 50
+                        ? 'bg-blue-500'
+                        : 'bg-yellow-500'
+                  }`}
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+              <div className="mt-1 text-right text-xs text-gray-500">
+                {progressPercentage}%
+              </div>
+            </div>
+          )
+        })()}
+
       {filteredAssignments.length === 0 ? (
         <div
           className="text-center py-12 bg-white rounded-lg shadow"
