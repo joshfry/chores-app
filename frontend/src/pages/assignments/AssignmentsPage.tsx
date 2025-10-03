@@ -560,7 +560,8 @@ const AssignmentsPage: React.FC = () => {
                                                   assignment.id,
                                                   assignmentChore.choreId,
                                                   assignmentChore.status,
-                                                  assignmentChore.completedOn,
+                                                  assignmentChore.completedOn ??
+                                                    null,
                                                 )
                                               }
                                               className="px-2 py-0.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"

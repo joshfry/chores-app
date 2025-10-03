@@ -45,7 +45,7 @@ export interface AssignmentChore {
   assignmentId: number
   choreId: number
   status: 'pending' | 'completed' | 'skipped'
-  completedOn?: string // Day of week
+  completedOn?: string | null // Day of week (null for non-recurring chores)
   chore?: Chore
 }
 
