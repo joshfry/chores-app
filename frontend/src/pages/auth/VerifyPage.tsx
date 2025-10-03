@@ -35,6 +35,20 @@ const VerifyPage: React.FC = () => {
 
         if (success) {
           setStatus('success')
+
+          // If opened from another window (email link), redirect that window and close this one
+          if (window.opener && !window.opener.closed) {
+            console.log('🪟 Redirecting opener window to dashboard...')
+            window.opener.location.href = '/dashboard'
+            setTimeout(() => {
+              window.close()
+            }, 1000)
+          } else {
+            // If not opened from another window, redirect this window
+            setTimeout(() => {
+              window.location.href = '/dashboard'
+            }, 2000)
+          }
         } else {
           setStatus('error')
           setErrorMessage(
@@ -52,12 +66,6 @@ const VerifyPage: React.FC = () => {
     verify()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, verifyMagicToken, state.isAuthenticated])
-
-  // No auto-redirect - let the original tab handle navigation via polling
-
-  const handleGoToDashboard = () => {
-    window.location.href = '/dashboard'
-  }
 
   const renderContent = () => {
     switch (status) {
@@ -80,19 +88,14 @@ const VerifyPage: React.FC = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-3xl font-bold mb-6">
               ✓
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              You're All Set!
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Success!</h1>
             <p className="text-gray-600 mb-6">
-              Your account has been verified. You can close this tab now - your
-              original tab will automatically redirect to the dashboard.
+              Redirecting you to the dashboard...
             </p>
-            <button
-              onClick={handleGoToDashboard}
-              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Or Go to Dashboard Now
-            </button>
+            <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+              <span>Please wait</span>
+            </div>
           </>
         )
 
