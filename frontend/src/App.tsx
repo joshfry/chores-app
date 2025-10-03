@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import LoginPage from './pages/auth/LoginPage'
 import SignupPage from './pages/auth/SignupPage'
 import VerifyPage from './pages/auth/VerifyPage'
+import VerifyPendingPage from './pages/auth/VerifyPendingPage'
 
 // Dashboard Components
 import DashboardLayout from './components/layout/DashboardLayout'
@@ -57,6 +58,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify" element={<VerifyPage />} />
+          <Route path="/verify-pending" element={<VerifyPendingPage />} />
 
           {/* Protected Routes - Parent Only */}
           <Route
