@@ -436,10 +436,15 @@ router.get(
           success: false,
           error: 'Current user not found',
         })
+        return
       }
 
       const familyUsers = allUsers.filter(
-        (user) => user.familyId === currentUser!.familyId && user.isActive,
+        (user) => user.familyId === currentUser!.familyId,
+      )
+
+      console.log(
+        `Fetching users for family ${currentUser!.familyId}: Found ${familyUsers.length} users`,
       )
 
       const users = familyUsers.map((user) => ({
@@ -482,6 +487,7 @@ router.get(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
       res.json({
