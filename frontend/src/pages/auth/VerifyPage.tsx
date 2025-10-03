@@ -40,8 +40,8 @@ const VerifyPage: React.FC = () => {
         }
 
         // Also check localStorage directly (for cross-tab updates)
-        const token = localStorage.getItem('authToken')
-        if (token) {
+        const sessionToken = localStorage.getItem('sessionToken')
+        if (sessionToken) {
           console.log(
             '✅ Authentication detected via localStorage! Redirecting to dashboard...',
           )
@@ -71,7 +71,7 @@ const VerifyPage: React.FC = () => {
 
       // Listen for storage events (cross-tab communication)
       const handleStorageChange = (e: StorageEvent) => {
-        if (e.key === 'authToken' && e.newValue) {
+        if (e.key === 'sessionToken' && e.newValue) {
           console.log(
             '✅ Authentication detected via storage event! Redirecting to dashboard...',
           )
