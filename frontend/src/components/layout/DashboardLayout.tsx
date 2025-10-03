@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext'
 const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const { state, logout } = useAuth()
   const location = useLocation()
 
@@ -14,7 +15,6 @@ const DashboardLayout: React.FC = () => {
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Users', href: '/users', icon: '👥' },
     { name: 'Chores', href: '/chores', icon: '✅' },
-    { name: 'Assignments', href: '/assignments', icon: '📋' },
   ]
 
   const getPageTitle = () => {
@@ -183,6 +183,56 @@ const DashboardLayout: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* My Account dropdown */}
+          {!isCollapsed ? (
+            <div className="mb-2">
+              <button
+                onClick={() => setAccountMenuOpen(!accountMenuOpen)}
+                className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <span>My Account</span>
+                <span className="text-xs">{accountMenuOpen ? '▼' : '▶'}</span>
+              </button>
+              {accountMenuOpen && (
+                <div className="mt-1 ml-2 border-l-2 border-gray-200 pl-2">
+                  <Link
+                    to="/assignments"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`
+                      flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors
+                      ${
+                        location.pathname === '/assignments'
+                          ? 'bg-blue-50 text-blue-600'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }
+                    `}
+                    data-testid="nav-assignments"
+                  >
+                    <span className="text-base">📋</span>
+                    <span>Assignments</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/assignments"
+              className={`
+                flex items-center justify-center w-full px-3 py-2 mb-2 text-xl rounded-lg transition-colors
+                ${
+                  location.pathname === '/assignments'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }
+              `}
+              data-testid="nav-assignments"
+              title="Assignments"
+            >
+              📋
+            </Link>
+          )}
+
           <button
             onClick={handleLogout}
             data-testid="logout-button"

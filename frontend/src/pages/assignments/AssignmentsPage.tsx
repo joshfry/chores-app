@@ -222,7 +222,7 @@ const AssignmentsPage: React.FC = () => {
         className="flex items-center justify-between mb-6"
         data-testid="assignments-header"
       >
-        <h1 className="text-2xl font-bold text-gray-900">Weekly Assignments</h1>
+        {/*<h1 className="text-2xl font-bold text-gray-900">Weekly Assignments</h1>*/}
         {state.user?.role === 'parent' && (
           <div className="flex items-center gap-3">
             <select
