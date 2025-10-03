@@ -48,10 +48,20 @@ export const sendMagicLinkEmail = async (
 ): Promise<boolean> => {
   const magicLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify?token=${token}`
 
-  // Get transporter
+  // In development, always mock emails (log to console)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('\n📧 ========================================')
+    console.log(`📧 Mock Email sent to ${email}`)
+    console.log(`👤 User: ${userName || 'Unknown'}`)
+    console.log(`🔗 Magic Link: ${magicLink}`)
+    console.log('📧 ========================================\n')
+    return true
+  }
+
+  // In production, use real email
   const emailTransporter = getTransporter()
 
-  // If email not configured, fall back to console logging
+  // If email not configured in production, fall back to console logging
   if (!emailTransporter) {
     console.log('\n📧 ========================================')
     console.log(`📧 Mock Email sent to ${email}`)
@@ -175,6 +185,19 @@ export const sendChildInvitationEmail = async (
 ): Promise<boolean> => {
   const magicLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify?token=${token}`
 
+  // In development, always mock emails (log to console)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('\n📧 ========================================')
+    console.log(`📧 Child Invitation Email (Mock)`)
+    console.log(`👤 Child: ${childName}`)
+    console.log(`👨‍👩‍👧 Parent: ${parentName}`)
+    console.log(`📮 Email: ${email}`)
+    console.log(`🔗 Magic Link: ${magicLink}`)
+    console.log('📧 ========================================\n')
+    return true
+  }
+
+  // In production, use real email
   const emailTransporter = getTransporter()
 
   if (!emailTransporter) {
