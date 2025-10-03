@@ -318,15 +318,10 @@ const AssignmentsPage: React.FC = () => {
 
               filteredAssignments.forEach((assignment) => {
                 assignment.chores?.forEach((assignmentChore) => {
-                  const recurrenceDays = assignmentChore.chore?.recurrenceDays
-                  // Check if chore should show on selected day
-                  // "everyday" means Mon-Sat (no chores on Sunday)
+                  // Check if chore is scheduled for selected day using completedOn field
                   const shouldShow =
-                    !recurrenceDays ||
-                    recurrenceDays.length === 0 ||
-                    (recurrenceDays.includes('everyday') &&
-                      selectedDay !== 'sunday') ||
-                    recurrenceDays.includes(selectedDay)
+                    assignmentChore.completedOn === null ||
+                    assignmentChore.completedOn === selectedDay
 
                   if (shouldShow) {
                     totalChoresForDay++
@@ -432,24 +427,15 @@ const AssignmentsPage: React.FC = () => {
                     const child = getUserById(assignment.childId)
                     const endDate = assignment.endDate || 'Ongoing'
 
-                    // Filter chores for child users by selected day
+                    // Filter chores for child users by selected day using completedOn field
                     const displayChores =
                       state.user?.role === 'child'
                         ? assignment.chores?.filter((assignmentChore) => {
-                            const recurrenceDays =
-                              assignmentChore.chore?.recurrenceDays
-                            if (
-                              !recurrenceDays ||
-                              recurrenceDays.length === 0
-                            ) {
-                              return true
-                            }
-                            // "everyday" means Mon-Sat (no chores on Sunday)
-                            // Show if "everyday" is selected (and not Sunday) OR if selected day is in recurrence days
+                            // Match by completedOn field (the scheduled day for this chore)
+                            // If completedOn is null, it's a one-time chore (show on all days)
                             return (
-                              (recurrenceDays.includes('everyday') &&
-                                selectedDay !== 'sunday') ||
-                              recurrenceDays.includes(selectedDay)
+                              assignmentChore.completedOn === null ||
+                              assignmentChore.completedOn === selectedDay
                             )
                           })
                         : assignment.chores
@@ -487,23 +473,14 @@ const AssignmentsPage: React.FC = () => {
                               <tbody>
                                 {assignment.chores
                                   ?.filter((assignmentChore) => {
-                                    // For child users, filter by selected day
+                                    // For child users, filter by selected day using completedOn
                                     if (state.user?.role === 'child') {
-                                      const recurrenceDays =
-                                        assignmentChore.chore?.recurrenceDays
-                                      // If no recurrence days, show for all days (one-time chores)
-                                      if (
-                                        !recurrenceDays ||
-                                        recurrenceDays.length === 0
-                                      ) {
-                                        return true
-                                      }
-                                      // "everyday" means Mon-Sat (no chores on Sunday)
-                                      // Show if "everyday" is selected (and not Sunday) OR if selected day is in recurrence days
+                                      // Match by completedOn field (the scheduled day for this chore)
+                                      // If completedOn is null, it's a one-time chore (show on all days)
                                       return (
-                                        (recurrenceDays.includes('everyday') &&
-                                          selectedDay !== 'sunday') ||
-                                        recurrenceDays.includes(selectedDay)
+                                        assignmentChore.completedOn === null ||
+                                        assignmentChore.completedOn ===
+                                          selectedDay
                                       )
                                     }
                                     // For parents, show all chores
