@@ -352,7 +352,6 @@ const MyAccountPage: React.FC = () => {
         title="Delete User"
         message={`Are you sure you want to delete ${selectedUser?.name}? This action cannot be undone.`}
         confirmText="Delete"
-        confirmVariant="danger"
       />
 
       {/* Create Chore Modal */}
@@ -381,7 +380,6 @@ const MyAccountPage: React.FC = () => {
         title="Delete Chore"
         message={`Are you sure you want to delete "${selectedChore?.title}"? This action cannot be undone.`}
         confirmText="Delete"
-        confirmVariant="danger"
       />
     </div>
   )
