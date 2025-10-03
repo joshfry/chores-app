@@ -542,6 +542,7 @@ router.put(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
       // Check permissions
@@ -554,6 +555,7 @@ router.put(
           success: false,
           error: 'Permission denied',
         })
+        return
       }
 
       // Update user
@@ -567,6 +569,7 @@ router.put(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
       res.json({
@@ -601,6 +604,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
         success: false,
         error: 'At least one field (name or birthdate) must be provided',
       })
+      return
     }
 
     const targetUser = await authModels.getUserById(targetUserId)
@@ -614,6 +618,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
         success: false,
         error: 'User not found',
       })
+      return
     }
 
     // Check permissions
@@ -626,6 +631,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
         success: false,
         error: 'Permission denied',
       })
+      return
     }
 
     // Update user
@@ -640,6 +646,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
         success: false,
         error: 'User not found',
       })
+      return
     }
 
     res.json({
