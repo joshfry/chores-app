@@ -206,7 +206,9 @@ const MyAccountPage: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {chore.isRecurring && chore.recurrenceDays?.length > 0 ? (
+                    {chore.isRecurring &&
+                    chore.recurrenceDays &&
+                    chore.recurrenceDays.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {chore.recurrenceDays.map((day) => (
                           <span
