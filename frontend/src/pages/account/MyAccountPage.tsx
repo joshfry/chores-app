@@ -93,12 +93,16 @@ const MyAccountPage: React.FC = () => {
     recurrenceDays?: string[]
   }) => {
     const response = await api.createChore(choreData)
+    console.log('🔍 Create chore response:', response)
     await fetchData()
 
     // Show assign prompt after successful creation
     if (response.success && response.data) {
+      console.log('✅ Setting newly created chore:', response.data)
       setNewlyCreatedChore(response.data)
       setShowAssignPrompt(true)
+    } else {
+      console.log('❌ No chore data in response')
     }
   }
 
@@ -135,11 +139,19 @@ const MyAccountPage: React.FC = () => {
   }
 
   const handleAssignNow = () => {
+    console.log('🎯 Assign Now clicked!')
+    console.log('📋 Newly created chore:', newlyCreatedChore)
+    console.log(
+      '👶 Children available:',
+      users.filter((user) => user.role === 'child'),
+    )
     setShowAssignPrompt(false)
     setShowAssignModal(true)
+    console.log('✅ Modal state set to true')
   }
 
   const handleSkipAssign = () => {
+    console.log('⏭️ Skip assign clicked')
     setShowAssignPrompt(false)
     setNewlyCreatedChore(null)
   }
