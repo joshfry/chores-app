@@ -395,7 +395,6 @@ const AssignmentsPage: React.FC = () => {
             // Card view for children - mobile-friendly
             <div className="space-y-4" data-testid="assignments-cards">
               {filteredAssignments.map((assignment) => {
-                const child = getUserById(assignment.childId)
                 const endDate = assignment.endDate || 'Ongoing'
 
                 // For child view, separate recurring chores from bonus chores
@@ -409,9 +408,6 @@ const AssignmentsPage: React.FC = () => {
 
                 const displayChores = recurringChores
                 const totalChores = displayChores?.length || 0
-                const completedChores =
-                  displayChores?.filter((c) => c.status === 'completed')
-                    .length || 0
 
                 return (
                   <div
