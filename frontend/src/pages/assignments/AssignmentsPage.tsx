@@ -176,6 +176,21 @@ const AssignmentsPage: React.FC = () => {
     })
   }
 
+  // Helper function to get day-of-week order for sorting
+  const getDayOrder = (day: string | null): number => {
+    const dayOrder: { [key: string]: number } = {
+      sunday: 0,
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+      everyday: 7, // Put "everyday" at the end
+    }
+    return day ? (dayOrder[day.toLowerCase()] ?? 999) : 1000 // null (non-recurring) goes last
+  }
+
   const getUserById = (userId: number) => {
     return users.find((user) => user.id === userId)
   }
@@ -485,6 +500,23 @@ const AssignmentsPage: React.FC = () => {
                                     }
                                     // For parents, show all chores
                                     return true
+                                  })
+                                  .sort((a, b) => {
+                                    // Sort by day of week for parents
+                                    if (state.user?.role === 'parent') {
+                                      const dayDiff =
+                                        getDayOrder(a.completedOn ?? null) -
+                                        getDayOrder(b.completedOn ?? null)
+                                      if (dayDiff !== 0) return dayDiff
+                                      // If same day, sort by chore title
+                                      return (
+                                        a.chore?.title || ''
+                                      ).localeCompare(b.chore?.title || '')
+                                    }
+                                    // For children, sort by chore title (all same day)
+                                    return (a.chore?.title || '').localeCompare(
+                                      b.chore?.title || '',
+                                    )
                                   })
                                   .map((assignmentChore) => (
                                     <tr
