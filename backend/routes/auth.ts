@@ -324,10 +324,19 @@ router.post(
     try {
       const { email, name, birthdate, role = 'child' } = req.body
 
-      if (!email || !name || !birthdate) {
+      if (!email || !name) {
         res.status(400).json({
           success: false,
-          error: 'Email, name, and birthdate are required',
+          error: 'Email and name are required',
+        })
+        return
+      }
+
+      // Birthdate is required for children
+      if (role === 'child' && !birthdate) {
+        res.status(400).json({
+          success: false,
+          error: 'Birthdate is required for child accounts',
         })
         return
       }
@@ -367,7 +376,7 @@ router.post(
         role: role as 'parent' | 'child',
         familyId: parent!.familyId,
         name,
-        birthdate,
+        birthdate: birthdate || new Date().toISOString().split('T')[0], // Use today's date if not provided
       })
 
       // Create magic token
