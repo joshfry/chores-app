@@ -14,6 +14,7 @@
     "db:clear": "node scripts/clear-database.js",
     "db:export": "node scripts/export-data.js",
     "db:import": "node scripts/import-data.js",
+    "db:seed": "node scripts/seed-dev.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
