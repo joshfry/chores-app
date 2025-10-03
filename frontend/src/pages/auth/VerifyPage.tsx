@@ -48,7 +48,10 @@ const VerifyPage: React.FC = () => {
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current)
           }
-          navigate('/dashboard')
+          // Wait a bit for AuthContext to pick up the token, then redirect
+          setTimeout(() => {
+            navigate('/dashboard')
+          }, 1000)
           return true
         }
 
@@ -78,7 +81,10 @@ const VerifyPage: React.FC = () => {
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current)
           }
-          navigate('/dashboard')
+          // Wait a bit for AuthContext to pick up the token, then redirect
+          setTimeout(() => {
+            navigate('/dashboard')
+          }, 1000)
         }
       }
 
@@ -122,7 +128,7 @@ const VerifyPage: React.FC = () => {
             setTimeout(() => {
               navigate('/dashboard')
             }, 500)
-          }, 1000)
+          }, 2000)
         } else {
           setStatus('error')
           setErrorMessage(
