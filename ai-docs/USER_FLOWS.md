@@ -56,7 +56,7 @@ The application uses **passwordless authentication** via magic links sent to ema
    - A magic link token
 5. Magic link is sent to the user's email
 6. Success message displayed: "🎉 Family account created! Check your email for a magic link to get started."
-7. User is redirected to `/login` after 1.2 seconds
+7. User clicks magic link from email → redirected to `/verify?token=...` → authenticated → redirected to dashboard
 
 #### Form Validation:
 
@@ -88,8 +88,9 @@ Response: { success: true, message: "Magic link sent" }
    - Validates user exists
    - Generates magic link token
    - Sends magic link to email
-5. Success message displayed: "📧 Magic link sent! Check your email and click the link to sign in."
-6. User remains on login page (can navigate away)
+5. Success message displayed inline: "📧 Check your email! We've sent a magic link to [email]. Click the link in the email to sign in."
+6. User stays on login page, waiting for email
+7. User clicks magic link from email → redirected to `/verify?token=...`
 
 #### Form Validation:
 
@@ -106,7 +107,7 @@ Response: { success: true, message: "Magic link sent" }
 
 ---
 
-### 3. Magic Link Verification Flow
+### 3. Magic Link Verification Flow (Simplified - No Tab Management)
 
 **Route**: `/verify?token=<magic-link-token>`  
 **Component**: `VerifyPage.tsx`
@@ -114,19 +115,18 @@ Response: { success: true, message: "Magic link sent" }
 #### Steps:
 
 1. User clicks magic link from their email
-2. Browser opens `/verify?token=abc123`
+2. Browser opens `/verify?token=abc123` (can be same or new tab)
 3. Component extracts token from URL query parameter
 4. Automatic verification begins (no user interaction needed)
 5. Backend validates token and creates session
 6. Component shows verification status:
    - **Verifying**: Shows spinner and "Verifying Your Account"
-   - **Success**: Shows checkmark and "Verification Successful!"
+   - **Success**: Shows checkmark and "Successfully Verified!"
    - **Error**: Shows X and error message
 7. On success:
    - Session token stored in localStorage
    - User authenticated in AuthContext
-   - Automatic redirect to `/dashboard` after 2 seconds
-   - Manual "Go to Dashboard" button also available
+   - Automatic redirect to `/dashboard` after 1.5 seconds
 8. On error:
    - "Back to Login" button shown
 
@@ -151,6 +151,8 @@ Response: {
 - Verification happens automatically in `useEffect`
 - Session token stored via `api.setSessionToken()`
 - AuthContext updated with user and family data
+- **Simplified flow**: No polling, no cross-tab detection, no auto-close
+- **User experience**: User stays on /login page after requesting magic link, clicks link from email, gets redirected to dashboard
 
 ---
 
@@ -238,10 +240,12 @@ Route: /dashboard/*
 
 #### Navigation Items:
 
-1. **Dashboard** (`/dashboard`) - Overview and statistics
-2. **Users** (`/users`) - Family member management
-3. **Chores** (`/chores`) - Chore library
-4. **Assignments** (`/assignments`) - Active assignments
+1. **Dashboard** (`/dashboard`) - Overview and statistics (parent only)
+2. **Assignments** (`/assignments`) - Assignment tracking (all users)
+3. **My Account** (dropdown, parent only):
+   - **Users** (`/users`) - Family member management
+   - **Chores** (`/chores`) - Chore library
+   - **Account Settings** (`/account`) - Combined Users & Chores page
 
 #### Sidebar Features:
 
@@ -249,6 +253,8 @@ Route: /dashboard/*
 - **Mobile**: Hamburger menu with overlay
 - **User Section**: Shows current user name, role, and logout button
 - **Family Name**: Displayed in top header
+- **My Account Dropdown**: Expandable menu for Users, Chores, and Account Settings
+- **Role-Based Display**: Parents see all menu items, children only see Assignments
 
 ---
 
@@ -496,6 +502,86 @@ Response: [
   },
 ]
 ```
+
+---
+
+## My Account Page Flow
+
+**Route**: `/account`  
+**Component**: `MyAccountPage.tsx`  
+**Access**: Parent only
+
+### Purpose
+
+A combined management page for family members and chores, providing a central location for account administration.
+
+### Page Layout
+
+Two main tabs:
+
+1. **Family Members Tab**: Displays all users with avatar cards
+2. **Chores Tab**: Displays all chores in a table format
+
+### Family Members Section
+
+#### Display:
+
+- **Avatar Cards**: Each family member shown as a card with:
+  - Name and role badge
+  - Age (calculated from birthdate)
+  - Action buttons
+
+#### Actions:
+
+- **Add User** button: Opens modal to create new family member
+- **Edit User** button: Modify user details (not yet implemented)
+- **Delete User** button: Remove user from family (with confirmation)
+
+#### Add User Flow:
+
+1. Parent clicks "Add User" button
+2. Modal opens with form:
+   - Name (required)
+   - Email (required)
+   - Role (parent/child dropdown)
+   - Birthdate (optional)
+3. Parent submits form
+4. Backend creates user via `POST /api/children`
+5. Page refreshes to show new user card
+
+### Chores Section
+
+#### Display:
+
+- **Table View**: All chores in rows with columns:
+  - Title
+  - Recurring badge (shows which days if recurring)
+  - Action buttons
+
+#### Actions:
+
+- **Add Chore** button: Opens modal to create new chore
+- **Edit Chore** button: Modify chore details (not yet implemented)
+- **Delete Chore** button: Remove chore (with confirmation)
+
+#### Add Chore Flow:
+
+1. Parent clicks "Add Chore" button
+2. Modal opens with form:
+   - Title (required)
+   - Description (optional)
+   - Is Recurring? (checkbox)
+   - Recurrence Days (if recurring) - checkboxes
+3. Parent submits form
+4. Backend creates chore via `POST /api/chores`
+5. Page refreshes to show new chore in table
+
+### Technical Details:
+
+- Uses `useState` for tab switching
+- Fetches users and chores in parallel on mount
+- Implements loading and error states
+- Uses shared modal components: `CreateUserModal`, `CreateChoreModal`
 
 ---
 
