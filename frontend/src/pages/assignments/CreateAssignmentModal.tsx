@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Modal from '../../components/Modal'
 import type { User, Chore } from '../../types/api'
 
@@ -30,6 +30,25 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({
   })
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Pre-select chore(s) when modal opens with a specific set of chores
+  useEffect(() => {
+    if (isOpen && chores.length === 1) {
+      setFormData((prev) => ({
+        ...prev,
+        choreIds: [chores[0].id],
+      }))
+    } else if (!isOpen) {
+      // Reset form when modal closes
+      setFormData({
+        childId: '',
+        startDate: getNextSunday(),
+        choreIds: [],
+        notes: '',
+      })
+      setError('')
+    }
+  }, [isOpen, chores])
 
   function getNextSunday(): string {
     const today = new Date()
