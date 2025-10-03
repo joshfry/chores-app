@@ -651,7 +651,7 @@ router.patch('/users/:id', requireAuth, async (req: Request, res: Response) => {
   }
 })
 
-// DELETE /auth/users/:id - Deactivate user
+// DELETE /auth/users/:id - Delete user
 router.delete(
   '/users/:id',
   requireAuth,
@@ -671,6 +671,7 @@ router.delete(
           success: false,
           error: 'User not found',
         })
+        return
       }
 
       // Prevent deleting the primary parent
@@ -680,22 +681,32 @@ router.delete(
           success: false,
           error: 'Cannot delete the primary parent',
         })
+        return
       }
 
-      // Only parents can delete child accounts
+      // Only parents can delete accounts
       if (currentUser!.role !== 'parent') {
         res.status(403).json({
           success: false,
           error: 'Only parents can delete accounts',
         })
+        return
       }
 
-      // Deactivate user instead of deleting
-      await authModels.updateUser(targetUserId, { isActive: false })
+      // Delete user
+      const deleted = await authModels.deleteUser(targetUserId)
+
+      if (!deleted) {
+        res.status(500).json({
+          success: false,
+          error: 'Failed to delete user',
+        })
+        return
+      }
 
       res.json({
         success: true,
-        message: 'User account deactivated successfully',
+        message: 'User deleted successfully',
       })
     } catch (error) {
       res.status(500).json({

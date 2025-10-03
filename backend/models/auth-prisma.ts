@@ -86,6 +86,18 @@ export const updateUser = async (
   }
 }
 
+export const deleteUser = async (id: number): Promise<boolean> => {
+  try {
+    await prisma.user.delete({
+      where: { id },
+    })
+    return true
+  } catch (error) {
+    // User not found or constraint error
+    return false
+  }
+}
+
 // Family CRUD operations
 export const getAllFamilies = async () => {
   return prisma.family.findMany({
